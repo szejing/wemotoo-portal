@@ -1036,6 +1036,7 @@
 		"orderDetail": {
 			"item": "Item",
 			"unitSellPrice": "Harga Jual Unit",
+			"unitPrice": "Harga Unit",
 			"qty": "Kuantiti",
 			"price": "Harga",
 			"subTotal": "Jumlah Kecil",

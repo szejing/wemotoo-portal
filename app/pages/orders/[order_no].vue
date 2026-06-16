@@ -6,7 +6,7 @@
 			<p class="order-not-found-text">{{ $t('pages.orderNotFound', { orderNo: order_no_param }) }}</p>
 			<UButton color="primary" variant="soft" :to="'/orders'">{{ $t('nav.orders') }}</UButton>
 		</div>
-		<div v-else class="order-detail-container pb-[calc(5.5rem+env(safe-area-inset-bottom,0px))] lg:pb-0">
+		<div v-else class="order-detail-container pb-[calc(5.5rem+env(safe-area-inset-bottom,0))] lg:pb-0">
 			<!-- Header Section -->
 			<div class="order-header">
 				<div class="order-header-left">
@@ -239,7 +239,7 @@
 </template>
 
 <script lang="ts" setup>
-import type { TableColumn, TableRow } from '@nuxt/ui';
+import type { TableRow } from '@nuxt/ui';
 import type { TableMeta, Row } from '@tanstack/vue-table';
 import { ZModalConfirmation, ZModalInformation, ZModalOrderDetailCustomer, ZModalOrderDetailItem } from '#components';
 import { OrderItemStatus, OrderStatus, OrderType, PaymentStatus, formatCurrency } from 'yeppi-common';
@@ -247,6 +247,7 @@ import { failedNotification, successNotification } from '~/stores/AppUi/AppUi';
 import { ICONS } from '~/utils/icons';
 import type { ItemModel } from '~/utils/models/item.model';
 import type { OrderHistory } from '~/utils/types/order-history';
+import { getOrderDetailItemColumns } from '~/utils/table-columns';
 import Activities from '~/components/ActivityLog/Activities.vue';
 import { useFulfillmentStore } from '~/stores/Fulfillment/Fulfillment';
 import { useMediaQuery } from '@vueuse/core';
@@ -320,51 +321,7 @@ const { t } = useI18n();
 
 const order_detail_items_editable = computed(() => order.value?.status === OrderStatus.PENDING_PAYMENT);
 
-const order_detail_item_columns = computed<TableColumn<ItemModel>[]>(() => [
-	{
-		id: 'item',
-		accessorKey: 'prod_code',
-		header: t('components.orderDetail.item'),
-		meta: {
-			class: {
-				th: 'text-left',
-				td: 'text-left max-w-md min-w-[12rem]',
-			},
-		},
-	},
-	{
-		id: 'unitSellPrice',
-		accessorKey: 'unit_sell_price',
-		header: t('components.orderDetail.unitSellPrice'),
-		meta: {
-			class: {
-				th: 'text-center',
-				td: 'text-center',
-			},
-		},
-	},
-	{
-		accessorKey: 'qty',
-		header: t('components.orderDetail.qty'),
-		meta: {
-			class: {
-				th: 'text-center',
-				td: 'text-center',
-			},
-		},
-	},
-	{
-		id: 'lineTotal',
-		accessorKey: 'net_amt',
-		header: t('components.orderDetail.price'),
-		meta: {
-			class: {
-				th: 'text-center',
-				td: 'text-center',
-			},
-		},
-	},
-]);
+const order_detail_item_columns = computed(() => getOrderDetailItemColumns(t));
 
 const order_items_table_meta = computed<TableMeta<ItemModel>>(() => ({
 	class: {
@@ -373,7 +330,7 @@ const order_items_table_meta = computed<TableMeta<ItemModel>>(() => ({
 	},
 }));
 
-function openOrderItemEdit(item: ItemModel) {
+const openOrderItemEdit = (item: ItemModel) => {
 	if (!orderForModal.value) return;
 
 	if (item.status === OrderItemStatus.ACTIVE) {
@@ -408,14 +365,14 @@ function openOrderItemEdit(item: ItemModel) {
 
 		infoModal.open();
 	}
-}
+};
 
-function onOrderItemRowSelect(_e: Event, row: TableRow<ItemModel>) {
+const onOrderItemRowSelect = (_e: Event, row: TableRow<ItemModel>) => {
 	const item = row.original;
 	if (!item || !order_detail_items_editable.value) return;
 	if (item.status !== OrderItemStatus.ACTIVE) return;
 	openOrderItemEdit(item);
-}
+};
 
 const REFRESH_COOLDOWN_SECONDS = 5;
 const refresh_cooldown = ref(0);

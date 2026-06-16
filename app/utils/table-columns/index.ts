@@ -8,6 +8,7 @@ import { getProductColumns } from './product';
 import { getSummColumns, getSummColumnLabels } from './analytics/summ';
 import { getSummItemColumns, getSummItemColumnLabels } from './analytics/summ-item';
 import { getOrderItemColumns } from './order/order-item';
+import { getOrderDetailItemColumns } from './order/order-detail-item';
 import { getPaymentTypeGroupColumns } from './payment/payment-type-group';
 import { getPaymentTypeColumns } from './payment/payment-type';
 import { getPaymentMethodColumns } from './payment/payment-method';
@@ -47,6 +48,7 @@ export {
 	getSummItemColumns,
 	getSummItemColumnLabels,
 	getOrderItemColumns,
+	getOrderDetailItemColumns,
 	getSummCustomerColumns,
 	getSummCustomerColumnLabels,
 	getPaymentTypeGroupColumns,

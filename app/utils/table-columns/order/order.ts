@@ -12,8 +12,8 @@ export function getOrderColumns(t: TranslateFn): TableColumn<OrderHistory>[] {
 		{
 			id: 'index',
 			accessorFn: (_row, index) => index,
-			header: () => headerCell(t('table.no')),
-			cell: ({ row }) => numberCell(row.index + 1),
+			header: () => headerCell(t('table.no'), 'center'),
+			cell: ({ row }) => numberCell(row.index + 1, 'center'),
 		},
 		{
 			id: 'order_no',
@@ -29,7 +29,7 @@ export function getOrderColumns(t: TranslateFn): TableColumn<OrderHistory>[] {
 		{
 			id: 'order_type',
 			accessorFn: (row) => ((row.order_type ?? OrderType.PICKUP) === OrderType.DELIVERY ? 1 : 0),
-			header: () => headerCell(t('table.orderType')),
+			header: () => headerCell(t('table.orderType'), 'center'),
 			cell: ({ row }) => {
 				const orderType = row.original.order_type ?? OrderType.PICKUP;
 				const isDelivery = orderType === OrderType.DELIVERY;
@@ -38,20 +38,14 @@ export function getOrderColumns(t: TranslateFn): TableColumn<OrderHistory>[] {
 				const tooltipText = description && description.length > 0 ? description : orderTypeLabel;
 				const iconName = isDelivery ? 'i-heroicons-truck' : 'i-heroicons-building-storefront';
 
-				return h('div', { class: 'flex justify-center' }, [
-					h(UTooltip, { text: tooltipText, popper: { placement: 'top' } }, () =>
-						h(UIcon, {
-							name: iconName,
-							class: 'size-5 shrink-0 text-main',
-						}),
-					),
-				]);
+				return h(UTooltip, { text: tooltipText, popper: { placement: 'top' } }, () =>
+					h(UIcon, {
+						name: iconName,
+						class: 'size-5 shrink-0 text-main',
+					}),
+				);
 			},
-			meta: {
-				class: {
-					td: 'text-center',
-				},
-			},
+			...tableCellMeta.center,
 		},
 		{
 			id: 'customer',
@@ -66,7 +60,7 @@ export function getOrderColumns(t: TranslateFn): TableColumn<OrderHistory>[] {
 		},
 		{
 			accessorKey: 'status',
-			header: () => headerCell(t('table.status')),
+			header: () => headerCell(t('table.status'), 'center'),
 			cell: ({ row }) => {
 				const color = {
 					[OrderStatus.COMPLETED]: 'success' as const,
@@ -86,13 +80,9 @@ export function getOrderColumns(t: TranslateFn): TableColumn<OrderHistory>[] {
 					[OrderStatus.REQUIRES_ACTION]: t('options.requiresAction'),
 				}[row.original.status as string];
 
-				return h(UBadge, { class: 'capitalize ', size: 'lg', variant: 'subtle', color }, () => value);
+				return h(UBadge, { class: 'capitalize', size: 'lg', variant: 'subtle', color }, () => value);
 			},
-			meta: {
-				class: {
-					td: 'text-center',
-				},
-			},
+			...tableCellMeta.center,
 		},
 		{
 			accessorKey: 'gross_amt',

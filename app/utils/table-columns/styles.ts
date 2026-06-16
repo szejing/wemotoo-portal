@@ -2,15 +2,18 @@ import { h } from 'vue';
 import { formatCurrency } from 'yeppi-common';
 
 export const TABLE_ALIGN_RIGHT = 'text-right tabular-nums';
+export const TABLE_ALIGN_CENTER = 'text-center';
 
-export type TableCellAlign = 'left' | 'right';
+export type TableCellAlign = 'left' | 'right' | 'center';
 
 export function headerCell(label: string, align: TableCellAlign = 'left') {
-	return h('div', { class: align === 'right' ? TABLE_ALIGN_RIGHT : undefined }, label);
+	const alignClass = align === 'right' ? TABLE_ALIGN_RIGHT : align === 'center' ? TABLE_ALIGN_CENTER : undefined;
+	return h('div', { class: alignClass }, label);
 }
 
-export function numberCell(value: number) {
-	return h('div', { class: TABLE_ALIGN_RIGHT }, value);
+export function numberCell(value: number, align: TableCellAlign = 'right') {
+	const alignClass = align === 'right' ? TABLE_ALIGN_RIGHT : align === 'center' ? TABLE_ALIGN_CENTER : undefined;
+	return h('div', { class: alignClass }, value);
 }
 
 export function moneyCell(value: number, currencyCode: string) {
@@ -35,8 +38,19 @@ export function primaryCell(content: string | number) {
 
 export const tableCellMeta = {
 	rightNumeric: {
-		class: {
-			td: TABLE_ALIGN_RIGHT,
+		meta: {
+			class: {
+				th: TABLE_ALIGN_RIGHT,
+				td: TABLE_ALIGN_RIGHT,
+			},
+		},
+	},
+	center: {
+		meta: {
+			class: {
+				th: TABLE_ALIGN_CENTER,
+				td: TABLE_ALIGN_CENTER,
+			},
 		},
 	},
 } as const;

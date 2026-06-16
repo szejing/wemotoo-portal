@@ -1037,6 +1037,7 @@
 		"orderDetail": {
 			"item": "Item",
 			"unitSellPrice": "Unit Sell Price",
+			"unitPrice": "Unit Price",
 			"qty": "Qty",
 			"price": "Price",
 			"subTotal": "Sub Total",
