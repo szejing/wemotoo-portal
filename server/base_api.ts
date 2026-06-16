@@ -27,7 +27,7 @@ function canonicalPathAndQueryForSignature(pathname: string, query?: Record<stri
 
 function getSignatureHeaders(event: any, method: string, pathForSignature: string, body: string | undefined | null): Record<string, string> {
 	const config = useRuntimeConfig(event);
-	const secret = config.requestSignatureSecret || config.apiKeySecret || config.apiKey;
+	const secret = config.requestSignatureSecret;
 	if (!secret) {
 		return {};
 	}
