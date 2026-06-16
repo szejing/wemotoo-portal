@@ -17,7 +17,7 @@ const getActionText = (activity: OrderActivity): string => {
 };
 
 const getActorText = (activity: OrderActivity): string => {
-	return activity.created_by ?? activity.user_id ?? '-';
+	return activity.created_by ?? activity.user_id ?? '';
 };
 
 const getMetaText = (activity: OrderActivity, key: string): string | undefined => {
@@ -41,7 +41,7 @@ const timelineItems = computed((): ActivityTimelineItem[] => {
 	return (props.activities ?? []).map((activity, index) => ({
 		date: String(activity.created_at),
 		title: getActionText(activity),
-		icon: 'i-lucide-activity',
+		icon: 'i-lucide-history',
 		value: activity.id ?? `${activity.created_at}-${index}`,
 		courierService: getCourierServiceText(activity),
 		trackingNo: getTrackingNoText(activity),
@@ -64,7 +64,7 @@ const latestActivityValue = computed(() => {
 			<h3 class="text-base font-semibold">{{ $t('components.activities.title') }}</h3>
 		</template>
 
-		<UTimeline v-if="activities?.length" :items="timelineItems" :default-value="latestActivityValue" size="xs" color="neutral">
+		<UTimeline v-if="activities?.length" :items="timelineItems" :default-value="latestActivityValue" size="xs" color="primary">
 			<template #date="{ item }">
 				{{ new Date(item.date!).toLocaleString() }}
 			</template>
@@ -80,7 +80,7 @@ const latestActivityValue = computed(() => {
 						{{ item.trackingNo }}
 					</p>
 				</div>
-				<p class="text-xs text-muted">{{ $t('components.activities.createdBy') }}: {{ item.actor }}</p>
+				<p v-if="item.actor" class="text-xs text-muted">{{ $t('components.activities.createdBy') }}: {{ item.actor }}</p>
 			</template>
 		</UTimeline>
 		<p v-else class="text-sm text-muted">{{ $t('components.activities.empty') }}</p>
