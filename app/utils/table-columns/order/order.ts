@@ -64,6 +64,7 @@ export function getOrderColumns(t: TranslateFn): TableColumn<OrderHistory>[] {
 			cell: ({ row }) => {
 				const color = {
 					[OrderStatus.COMPLETED]: 'success' as const,
+					[OrderStatus.PAID]: 'info' as const,
 					[OrderStatus.CANCELLED]: 'error' as const,
 					[OrderStatus.REFUNDED]: 'error' as const,
 					[OrderStatus.PENDING_PAYMENT]: 'info' as const,
@@ -73,6 +74,7 @@ export function getOrderColumns(t: TranslateFn): TableColumn<OrderHistory>[] {
 
 				const value = {
 					[OrderStatus.COMPLETED]: t('options.completed'),
+					[OrderStatus.PAID]: t('options.paid'),
 					[OrderStatus.CANCELLED]: t('options.cancelled'),
 					[OrderStatus.REFUNDED]: t('options.refunded'),
 					[OrderStatus.PENDING_PAYMENT]: t('options.pendingPayment'),
