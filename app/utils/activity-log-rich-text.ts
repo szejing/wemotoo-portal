@@ -30,7 +30,7 @@ const activityLogStatusColorOverrides: Record<string, ActivityLogBadgeColor> = {
 	successful: 'success',
 	completed: 'success',
 	confirmed: 'success',
-	created: 'neutral',
+	created: 'success',
 	fulfilled: 'success',
 	voided: 'error',
 };

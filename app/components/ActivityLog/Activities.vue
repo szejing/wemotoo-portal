@@ -80,7 +80,7 @@ const latestActivityValue = computed(() => {
 						<span v-else-if="segment.type === 'identifier'" class="italic underline decoration-dotted underline-offset-4">
 							{{ segment.text }}
 						</span>
-						<UBadge v-else :color="segment.color" variant="subtle" size="sm" class="capitalize">
+						<UBadge v-else :color="segment.color" variant="subtle" size="md" class="capitalize">
 							{{ segment.text }}
 						</UBadge>
 					</template>
