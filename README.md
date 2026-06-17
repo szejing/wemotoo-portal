@@ -22,3 +22,5 @@ docker push registry.digitalocean.com/wemotoo/wemotoo-portal:1.0.0 && docker pus
 
 docker pull registry.digitalocean.com/wemotoo/wemotoo-portal:1.0.0
 docker pull registry.digitalocean.com/wemotoo/wemotoo-ecommerce:1.0.0
+
+docker pull registry.digitalocean.com/wemotoo/wemotoo-portal:1.0.0 && docker pull registry.digitalocean.com/wemotoo/wemotoo-ecommerce:1.0.0
