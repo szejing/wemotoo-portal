@@ -41,7 +41,7 @@ const timelineItems = computed((): ActivityTimelineItem[] => {
 	return (props.activities ?? []).map((activity, index) => ({
 		date: String(activity.created_at),
 		title: getActionText(activity),
-		icon: 'i-lucide-history',
+		icon: 'i-lucide-sticky-note',
 		value: activity.id ?? `${activity.created_at}-${index}`,
 		courierService: getCourierServiceText(activity),
 		trackingNo: getTrackingNoText(activity),
