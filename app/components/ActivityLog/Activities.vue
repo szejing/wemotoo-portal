@@ -1,11 +1,14 @@
 <script setup lang="ts">
 import type { TimelineItem } from '@nuxt/ui';
+import type { ActivityLogRichTextSegment } from '~/utils/activity-log-rich-text';
 import type { OrderActivity } from '~/utils/types/order-fulfillment-shipping';
+import { parseActivityLogRichText } from '~/utils/activity-log-rich-text';
 
 type ActivityTimelineItem = TimelineItem & {
 	courierService?: string;
 	trackingNo?: string;
 	actor: string;
+	segments: ActivityLogRichTextSegment[];
 };
 
 const props = defineProps<{
@@ -43,6 +46,7 @@ const timelineItems = computed((): ActivityTimelineItem[] => {
 		title: getActionText(activity),
 		icon: 'i-lucide-sticky-note',
 		value: activity.id ?? `${activity.created_at}-${index}`,
+		segments: parseActivityLogRichText(getActionText(activity)),
 		courierService: getCourierServiceText(activity),
 		trackingNo: getTrackingNoText(activity),
 		actor: getActorText(activity),
@@ -67,6 +71,20 @@ const latestActivityValue = computed(() => {
 		<UTimeline v-if="activities?.length" :items="timelineItems" :default-value="latestActivityValue" size="xs" color="primary">
 			<template #date="{ item }">
 				{{ new Date(item.date!).toLocaleString() }}
+			</template>
+
+			<template #title="{ item }">
+				<span class="inline-flex flex-wrap items-center gap-x-1.5 gap-y-1">
+					<template v-for="(segment, index) in item.segments" :key="`${item.value}-${index}`">
+						<span v-if="segment.type === 'text'">{{ segment.text }}</span>
+						<span v-else-if="segment.type === 'identifier'" class="italic underline decoration-dotted underline-offset-4">
+							{{ segment.text }}
+						</span>
+						<UBadge v-else :color="segment.color" variant="subtle" size="sm" class="capitalize">
+							{{ segment.text }}
+						</UBadge>
+					</template>
+				</span>
 			</template>
 
 			<template #description="{ item }">
