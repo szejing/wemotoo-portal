@@ -1,6 +1,6 @@
 import { h } from 'vue';
 import type { TableColumn } from '@nuxt/ui';
-import { OrderStatus, OrderType } from 'yeppi-common';
+import { getOrderStatusColor, OrderStatus, OrderType } from 'yeppi-common';
 import { UBadge, UIcon, UTooltip } from '#components';
 import type { OrderHistory } from '~/utils/types/order-history';
 import { headerCell, moneyCell, numberCell, tableCellMeta } from '../styles';
@@ -62,15 +62,7 @@ export function getOrderColumns(t: TranslateFn): TableColumn<OrderHistory>[] {
 			accessorKey: 'status',
 			header: () => headerCell(t('table.status'), 'center'),
 			cell: ({ row }) => {
-				const color = {
-					[OrderStatus.COMPLETED]: 'success' as const,
-					[OrderStatus.PAID]: 'info' as const,
-					[OrderStatus.CANCELLED]: 'error' as const,
-					[OrderStatus.REFUNDED]: 'error' as const,
-					[OrderStatus.PENDING_PAYMENT]: 'info' as const,
-					[OrderStatus.PROCESSING]: 'info' as const,
-					[OrderStatus.REQUIRES_ACTION]: 'warning' as const,
-				}[row.original.status as string];
+				const color = getOrderStatusColor(row.original.status) ?? 'neutral';
 
 				const value = {
 					[OrderStatus.COMPLETED]: t('options.completed'),

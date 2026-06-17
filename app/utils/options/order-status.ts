@@ -1,4 +1,4 @@
-import { OrderStatus } from 'yeppi-common';
+import { getOrderStatusColor as getCommonOrderStatusColor, OrderStatus, type UiBadgeColor } from 'yeppi-common';
 
 type TranslateFn = (key: string) => string;
 
@@ -32,19 +32,10 @@ export function getOrderStatusOptions(t: TranslateFn) {
 	];
 }
 
-export const getOrderStatusColor = (status: string): 'primary' | 'error' | 'success' | 'warning' | 'secondary' | 'info' | 'neutral' | undefined => {
-	const color: Record<string, 'primary' | 'error' | 'success' | 'warning' | 'secondary' | 'info' | 'neutral' | undefined> = {
-		[OrderStatus.PENDING_PAYMENT]: 'warning',
-		paid: 'info',
-		[OrderStatus.PROCESSING]: 'info',
-		shipped: 'primary',
-		delivered: 'success',
-		[OrderStatus.CANCELLED]: 'error',
-		[OrderStatus.REFUNDED]: 'error',
-		[OrderStatus.COMPLETED]: 'success',
-		[OrderStatus.REQUIRES_ACTION]: 'warning',
-		All: 'neutral',
-	};
+export const getOrderStatusColor = (status: string): UiBadgeColor | undefined => {
+	if (status === 'All') {
+		return 'neutral';
+	}
 
-	return color[status as keyof typeof color] as 'primary' | 'error' | 'success' | 'warning' | 'secondary' | 'info' | 'neutral' | undefined;
+	return getCommonOrderStatusColor(status);
 };

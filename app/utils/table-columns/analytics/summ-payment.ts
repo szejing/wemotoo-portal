@@ -1,20 +1,11 @@
 import { h } from 'vue';
 import { UBadge } from '#components';
 import type { TableColumn, TableRow } from '@nuxt/ui';
-import { OrderStatus } from 'yeppi-common';
+import { getOrderStatusColor, OrderStatus } from 'yeppi-common';
 import type { SummSalePayment } from '~/utils/types/summ-sales';
 import { getSortableHeader } from '../sortable';
 import { moneyCell, numberCell, primaryCell, tableCellMeta } from '../styles';
 import type { TranslateFn } from './types';
-
-const statusColors: Partial<Record<OrderStatus, 'success' | 'error' | 'info' | 'warning'>> = {
-	[OrderStatus.COMPLETED]: 'success',
-	[OrderStatus.CANCELLED]: 'error',
-	[OrderStatus.REFUNDED]: 'error',
-	[OrderStatus.PENDING_PAYMENT]: 'info',
-	[OrderStatus.PROCESSING]: 'info',
-	[OrderStatus.REQUIRES_ACTION]: 'warning',
-};
 
 const statusLabelKeys: Partial<Record<OrderStatus, string>> = {
 	[OrderStatus.COMPLETED]: 'options.completed',
@@ -44,7 +35,7 @@ export function getSummPaymentColumns(t: TranslateFn): TableColumn<SummSalePayme
 			header: ({ column }) => getSortableHeader(column, t('table.orderStatus')),
 			cell: ({ row }) => {
 				const status = row.original.status as OrderStatus;
-				const color = statusColors[status];
+				const color = getOrderStatusColor(status) ?? 'neutral';
 				const labelKey = statusLabelKeys[status];
 
 				return h(UBadge, { variant: 'subtle', color }, () => (labelKey ? t(labelKey) : status));

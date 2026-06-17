@@ -1,4 +1,4 @@
-import { OrderStatus } from 'yeppi-common';
+import { getOrderStatusColor } from 'yeppi-common';
 import { h } from 'vue';
 import type { TableColumn } from '@nuxt/ui';
 import { UBadge } from '#components';
@@ -19,14 +19,7 @@ export function getSaleColumns(t: TranslateFn): TableColumn<Bill>[] {
 			accessorKey: 'status',
 			header: ({ column }) => getSortableHeader(column, t('table.status')),
 			cell: ({ row }) => {
-				const color = {
-					[OrderStatus.COMPLETED]: 'success' as const,
-					[OrderStatus.CANCELLED]: 'error' as const,
-					[OrderStatus.REFUNDED]: 'error' as const,
-					[OrderStatus.PENDING_PAYMENT]: 'info' as const,
-					[OrderStatus.PROCESSING]: 'info' as const,
-					[OrderStatus.REQUIRES_ACTION]: 'warning' as const,
-				}[row.getValue('status') as string];
+				const color = getOrderStatusColor(row.getValue('status') as string) ?? 'neutral';
 				return h(UBadge, { class: 'capitalize', variant: 'subtle', color }, () => row.getValue('status'));
 			},
 		},

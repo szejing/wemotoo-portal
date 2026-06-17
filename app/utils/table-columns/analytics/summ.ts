@@ -1,7 +1,7 @@
 import { h } from 'vue';
 import { UBadge } from '#components';
 import type { TableColumn, TableRow } from '@nuxt/ui';
-import { getFormattedDate, OrderStatus } from 'yeppi-common';
+import { getFormattedDate, getOrderStatusColor, OrderStatus } from 'yeppi-common';
 import { headerCell, moneyCell, mutedCell, numberCell, optionalCell, optionalMoneyCell } from '../styles';
 import type { SummBillTableRow, SummCountKey, TranslateFn } from './types';
 
@@ -64,15 +64,6 @@ export function getSummColumnLabels(countKey: SummCountKey) {
 	} as const;
 }
 
-const statusColors: Partial<Record<OrderStatus, 'success' | 'error' | 'info' | 'warning' | 'neutral'>> = {
-	[OrderStatus.COMPLETED]: 'success',
-	[OrderStatus.CANCELLED]: 'error',
-	[OrderStatus.REFUNDED]: 'error',
-	[OrderStatus.PENDING_PAYMENT]: 'info',
-	[OrderStatus.PROCESSING]: 'info',
-	[OrderStatus.REQUIRES_ACTION]: 'warning',
-};
-
 const statusLabelKeys: Partial<Record<OrderStatus, string>> = {
 	[OrderStatus.COMPLETED]: 'options.completed',
 	[OrderStatus.CANCELLED]: 'options.cancelled',
@@ -122,7 +113,7 @@ export function getSummColumns(t: TranslateFn, countKey: SummCountKey): TableCol
 
 				if (!status) return mutedCell();
 
-				return h(UBadge, { variant: 'subtle', color: statusColors[status] ?? 'neutral', class: 'capitalize' }, () => t(statusLabelKeys[status] ?? status));
+				return h(UBadge, { variant: 'subtle', color: getOrderStatusColor(status) ?? 'neutral', class: 'capitalize' }, () => t(statusLabelKeys[status] ?? status));
 			},
 		},
 		createMoneyColumn('gross_amt', t('table.grossAmt')),

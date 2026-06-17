@@ -1,6 +1,6 @@
 import { h } from 'vue';
 import type { TableColumn, TableRow } from '@nuxt/ui';
-import { getFormattedDate, OrderStatus } from 'yeppi-common';
+import { getFormattedDate, getOrderStatusColor, OrderStatus } from 'yeppi-common';
 import { UBadge } from '#components';
 import { headerCell, moneyCell, numberCell, tableCellMeta } from '../styles';
 import type { SummCustomerRow, SummCustomerVariant, TranslateFn } from './types';
@@ -28,15 +28,6 @@ export function getSummCustomerColumnLabels(variant: SummCustomerVariant) {
 	} as const;
 }
 
-const statusColors: Partial<Record<OrderStatus, 'success' | 'error' | 'info' | 'warning' | 'neutral'>> = {
-	[OrderStatus.COMPLETED]: 'success',
-	[OrderStatus.CANCELLED]: 'error',
-	[OrderStatus.REFUNDED]: 'error',
-	[OrderStatus.PENDING_PAYMENT]: 'info',
-	[OrderStatus.PROCESSING]: 'info',
-	[OrderStatus.REQUIRES_ACTION]: 'warning',
-};
-
 const statusLabelKeys: Partial<Record<OrderStatus, string>> = {
 	[OrderStatus.COMPLETED]: 'options.completed',
 	[OrderStatus.CANCELLED]: 'options.cancelled',
@@ -47,7 +38,7 @@ const statusLabelKeys: Partial<Record<OrderStatus, string>> = {
 };
 
 const statusCell = (t: TranslateFn, status: OrderStatus) =>
-	h(UBadge, { variant: 'subtle', color: statusColors[status] ?? 'neutral', class: 'capitalize' }, () => t(statusLabelKeys[status] ?? status));
+	h(UBadge, { variant: 'subtle', color: getOrderStatusColor(status) ?? 'neutral', class: 'capitalize' }, () => t(statusLabelKeys[status] ?? status));
 
 const moneyFooter = (column: { getFacetedRowModel: () => { rows: TableRow<SummCustomerRow>[] } }, key: 'gross_amt' | 'net_amt') => {
 	const rows = column.getFacetedRowModel().rows;
