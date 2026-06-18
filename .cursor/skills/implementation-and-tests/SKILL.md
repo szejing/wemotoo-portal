@@ -32,8 +32,10 @@ Config: `vitest.config.ts` (projects: `unit`, `e2e`, `nuxt`). Reference: [Nuxt 4
 
 1. Identify which table row above applies (or more than one).
 2. Add or update the smallest set of tests that validates the change.
-3. Run **`bunx vitest run`** (all Vitest projects) and **`bun test app/repository`** when repository code changed.
-4. Fix failures before reporting completion.
+3. Run **`bun run test:vitest:run`** for Vitest projects.
+4. Run **`bun run test:repository`** when repository code changed.
+5. Run **`bun run typecheck`** and **`bun run lint`** for user-facing or shared TypeScript changes when feasible.
+6. Fix failures before reporting completion.
 
 ## Practical guidance
 

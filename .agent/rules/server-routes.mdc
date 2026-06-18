@@ -22,20 +22,17 @@ alwaysApply: false
 
 ### Standard Handler
 ```typescript
-import { generateHeaders } from '#root/server/base_api';
+import { signedFetch } from '#root/server/base_api';
 import { Routes } from '#root/server/routes.server';
 
 export default defineEventHandler(async (event) => {
 	try {
-		const config = useRuntimeConfig(event);
 		const query = getQuery(event);   // for GET
 		// const body = await readBody(event);  // for POST/PATCH
 		// const params = getRouterParams(event);
 
-		const result = await $fetch(`${Routes.Products.Many()}`, {
-			baseURL: config.public.baseUrl,
+		const result = await signedFetch(event, Routes.Products.Many(), {
 			method: 'GET',
-			headers: generateHeaders(event, true),
 			query,
 		});
 		return result;
@@ -45,14 +42,15 @@ export default defineEventHandler(async (event) => {
 });
 ```
 
-### When to Use generateHeaders
-- `generateHeaders(event, includeAccessToken?, merchant_id?)` – from `#root/server/base_api`.
-- Use `includeAccessToken: false` only for login (and pass `merchant_id` from body if needed).
+### When to Use signedFetch
+- `signedFetch(event, path, options)` from `#root/server/base_api` is the default for merchant API proxy routes.
+- It signs backend requests, sets `x-api-key`, `x-signature`, `x-timestamp`, auth, and merchant headers, then forwards `method`, `query`, and `body`.
+- Use `includeAccessToken: false` only for login or password reset endpoints that do not require a bearer token.
 - Use `generateImageHeaders(event)` for upload/image endpoints that must not send `Content-Type: application/json`.
 
 ### URL and baseURL
 - Use `Routes` from `#root/server/routes.server` for path (e.g. `Routes.Products.Many()`, `Routes.Products.Single(code)`).
-- Use `config.public.baseUrl` as `baseURL` so all merchant API calls go to the same backend.
+- Do not build backend `baseURL` in individual route handlers; `signedFetch` reads `config.public.baseUrl`.
 
 ## Conventions
 
@@ -67,13 +65,13 @@ export default defineEventHandler(async (event) => {
 - In catch, either return a shaped error response or rethrow so Nitro can send a proper status; avoid returning the raw backend error object when it might leak internals.
 
 ### No Business Logic
-- Server routes are thin proxies: add headers, forward method/url/query/body to backend, return backend response.
+- Server routes are thin proxies: read params/query/body, call `signedFetch`, return backend response.
 - Do not put validation schemas, DB access, or business rules here; keep that in the backend or in client-side schema/utils.
 
 ## Anti-Patterns
 
 - ❌ Business logic or validation in the handler
 - ❌ Direct DB or external services (other than the backend API)
-- ❌ Hardcoded URLs – use `Routes` and `config.public.baseUrl`
-- ❌ Skipping `generateHeaders` for authenticated routes
+- ❌ Hardcoded URLs – use `Routes` and `signedFetch`
+- ❌ Bypassing `signedFetch` for standard merchant API proxy routes
 - ❌ Returning raw `err` without a consistent error shape

@@ -66,7 +66,7 @@ const message = computed(() => t('pages.noOrdersFound'));
 
 ### 3. Validation Schemas (Zod)
 
-**Pattern**: Export `createXxxValidation(t: TranslateFn)` function + keep deprecated static schema.
+**Pattern**: Export an i18n-enabled `createXxxValidation(t: TranslateFn)` factory. Keep deprecated static schemas only when existing imports still require backwards compatibility.
 
 ```typescript
 // app/utils/schema/Tax/Create/TaxValidation.ts
@@ -80,7 +80,7 @@ export function createCreateTaxValidation(t: TranslateFn) {
 	});
 }
 
-/** @deprecated Use createCreateTaxValidation(t) for i18n. */
+/** @deprecated Existing compatibility only. New code should use createCreateTaxValidation(t). */
 export const CreateTaxValidation = z.object({
 	code: z.string({ message: 'Tax code is required' }).min(1),
 	description: z.string({ message: 'Tax description is required' }),
@@ -110,8 +110,8 @@ type Schema = z.output<ReturnType<typeof createCreateTaxValidation>>;
 
 ```typescript
 export {
-	CreateTaxValidation, // deprecated
 	createCreateTaxValidation, // i18n-enabled
+	CreateTaxValidation, // deprecated compatibility only, if existing consumers still import it
 };
 ```
 
@@ -325,13 +325,11 @@ Escape `@` in email placeholders:
 
 ## Quick Reference
 
-| Task                    | Tool/Pattern                                           |
-| ----------------------- | ------------------------------------------------------ | ------------------------------- |
-| Translate template text | `$t('namespace.key')`                                  |
-| Translate in script     | `const { t } = useI18n(); t('key')`                    |
-| Translate schema        | Export `createXxxValidation(t)`                        |
-| Translate options       | Export `getXxxOptions(t)` returning `{value, label}[]` |
-| Translate table         | Export `getXxxColumns(t)`                              |
-| Add locale key          | Update both `en.json` and `ms.json`                    |
-| With variables          | Use `{varName}` in locale, pass object as 2nd arg      |
-| Pluralization           | Use pipe `                                             | ` syntax, pass count as 2nd arg |
+- Translate template text: `$t('namespace.key')`
+- Translate in script: `const { t } = useI18n(); t('key')`
+- Translate schema: export `createXxxValidation(t)`
+- Translate options: export `getXxxOptions(t)` returning `{ value, label }[]`
+- Translate table: export `getXxxColumns(t)`
+- Add locale key: update both `en.json` and `ms.json`
+- With variables: use `{varName}` in locale and pass an object as the second argument
+- Pluralization: use pipe syntax with `{n}` and pass count as the second argument

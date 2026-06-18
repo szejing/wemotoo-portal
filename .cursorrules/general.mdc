@@ -39,8 +39,8 @@ server/
 ```
 
 ### Feature Areas
-- **Merchant API proxy**: `server/routes/merchant/` mirrors backend API paths; forwards requests with headers from `base_api`.
-- **Client API**: `app/repository/` – modules call backend via Nuxt server routes or `$fetch`/useFetch.
+- **Merchant API proxy**: `server/routes/merchant/` mirrors backend API paths; forwards signed requests through helpers in `server/base_api.ts`.
+- **Client API**: `app/repository/` – `HttpFactory` modules call Nuxt server routes exposed by `routes.client.ts`.
 - **UI**: `app/pages/`, `app/components/`, `app/layouts/`.
 
 ## Naming Conventions
@@ -106,13 +106,13 @@ function load() {
 ## Error Handling
 
 - In server routes: use try/catch; return a consistent error shape or rethrow; avoid leaking stack to client.
-- In UI: handle `useAsyncData` / `useFetch` `error` and `status`; use `BaseApiService.call()` or equivalent for centralised handling.
+- In UI: handle `useAsyncData` / `useFetch` `error` and `status`; prefer repository modules backed by `HttpFactory` for centralised request and error handling.
 - Prefer typed error payloads (e.g. `{ message: string; code?: string }`) instead of raw exceptions in API responses.
 
 ## Security
 
 - Never expose secrets or internal tokens in client bundles; use `runtimeConfig` for public config and server-only code for secrets.
-- Auth token and merchant context: use cookies (e.g. KEY.ACCESS_TOKEN, KEY.X_MERCHANT_ID) and pass via `generateHeaders` in server routes.
+- Auth token and merchant context: use cookies (e.g. KEY.ACCESS_TOKEN, KEY.X_MERCHANT_ID) and pass through `signedFetch` / `generateHeaders` in server routes.
 - Validate and sanitise user input with Zod (or similar) in `utils/schema` before sending to backend.
 
 ## Code Quality

@@ -17,7 +17,7 @@ alwaysApply: false
 
 ### Naming and Layout
 - File names: kebab-case (e.g. `detail-listing.vue`, `merchant-info.vue`).
-- Use layouts via `definePageMetadata` or `<NuxtLayout>`; layouts live in `app/layouts/` (e.g. `default.vue`, `auth.vue`).
+- Use layouts via `definePageMeta` or `<NuxtLayout>`; layouts live in `app/layouts/` (e.g. `default.vue`, `auth.vue`).
 
 ### Data Loading
 - Prefer `useAsyncData` or `useFetch` for route-level data, with a unique key (e.g. `useAsyncData(\`order-${orderNo}\`, () => ...)`).

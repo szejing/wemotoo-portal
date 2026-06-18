@@ -10,7 +10,7 @@ alwaysApply: false
 
 ### File Naming
 - Global: `*.global.ts` (e.g. `auth.global.ts`) – runs on every client-side navigation.
-- Named: `name.ts` (e.g. `verify.ts`, `product-detail.ts`) – use with `definePageMetadata` or route meta.
+- Named: `name.ts` (e.g. `verify.ts`, `product-detail.ts`) – use with `definePageMeta` or route meta.
 
 ### Structure
 ```typescript
@@ -46,7 +46,7 @@ export default defineNuxtRouteMiddleware(async (to, _from) => {
 - Example: `server/middleware/cors.ts` – set CORS headers and handle preflight.
 
 ### Conventions
-- Do not put auth or merchant resolution here if it is already handled in `base_api.generateHeaders` and route handlers.
+- Do not put auth or merchant resolution here if it is already handled by `signedFetch`, `generateHeaders`, and route handlers in `server/base_api.ts`.
 - Keep handlers small and avoid blocking I/O where possible.
 
 ## Anti-Patterns

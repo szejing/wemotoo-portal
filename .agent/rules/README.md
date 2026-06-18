@@ -15,7 +15,7 @@ File extension: `.mdc` (Markdown with Cursor frontmatter; valid for both editors
 
 ### Server and API
 
-- **`server-routes.mdc`** – Nitro API route handlers in `server/routes/merchant/`. Proxy to backend using `signedFetch()` / shared helpers from `server/base_api.ts`; file naming follows `[param].get.ts`, `create.post.ts`, `many.get.ts`, etc.
+- **`server-routes.mdc`** – Nitro API route handlers in `server/routes/merchant/`. Proxy to backend using `signedFetch()` from `server/base_api.ts`; file naming follows `[param].get.ts`, `create.post.ts`, `many.get.ts`, etc. Use `generateImageHeaders()` only for upload routes that must not send JSON content headers.
 
 - **`repository.mdc`** – Client API layer: `app/repository/` modules, `HttpFactory`, route definitions (`routes.client.ts`), and request/response models.
 
@@ -78,8 +78,10 @@ Project-specific skills in `.agent/skills/` (use when relevant; Cursor reads via
 - **page-panel-layout** — ZPagePanel wrapper for dashboard pages; navbar, toolbar, footer slots.
 - **listing-page** — Index/list pages: ZCreateButton + ZSectionFilter* + ZTableToolbar + skeleton UTable + empty state + pagination + store/i18n conventions.
 - **form-creation** — Create-entity pages: Form*Creation + ZPagePanel footer submit, UForm/Zod, optional sticky review column.
+- **crud-ui-pages** — Full create/edit/delete CRUD pages with Form*Creation/Form*Update, review summaries, Zod schemas, store-backed submit, and delete confirmation patterns.
+- **product-crud** — Product-specific CRUD behavior: Product store actions, image upload mapping, create/update payload types, section-nav forms, and partial update rules.
 - **shareable-components** — Extract duplicate UI into reusable components; placement, API patterns, workflow.
-
 - **repository-module-creation** — Scaffold a new `HttpFactory` module: `MerchantRoutes`, `models/request` + `models/response`, typing against `~/utils/types`, unwrap helpers, `index.ts` + `01.api.ts`, integration tests.
+- **implementation-and-tests** — Add or update automated tests for new or changed behavior and verify with portal package scripts.
 
 For full Nuxt UI component reference, install the official skill: `npx skills add nuxt/ui` or add in Cursor Settings > Skills: `https://github.com/nuxt/ui/tree/v4/skills/nuxt-ui`.
