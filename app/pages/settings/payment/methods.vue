@@ -29,7 +29,7 @@
 					</div>
 				</div>
 			</template>
-			<UTable v-else :data="payment_methods" :columns="visibleColumns" :loading="loading">
+			<UTable v-else :data="payment_methods" :columns="visibleColumns" :loading="loading" @select="selectPaymentMethod">
 				<template #empty>
 					<div class="flex flex-col items-center justify-center py-12 gap-3">
 						<UIcon :name="ICONS.PAYMENT_METHODS" class="w-12 h-12 text-gray-400" />
@@ -47,10 +47,13 @@
 </template>
 
 <script lang="ts" setup>
-import { ZModalLoading } from '#components';
+import { ZModalLoading, ZModalPaymentMethodDetail } from '#components';
+import type { TableRow } from '@nuxt/ui';
 import { options_page_size } from '~/utils/options';
+import type { UpdatePaymentMethodBody } from '~/repository/modules/payment-method/models/request/update-payment-method.req';
 import { getPaymentMethodColumns } from '~/utils/table-columns';
 import { columnOptionsFromLabelMap } from '~/utils/table-columns/visibility';
+import type { PaymentMethod } from '~/utils/types/payment-method';
 
 const PAYMENT_METHOD_COLUMN_LABELS = {
 	code: 'table.code',
@@ -95,6 +98,26 @@ const updatePage = async (page: number) => {
 
 const updatePageSize = async (size: number) => {
 	await paymentMethodStore.updatePageSize(size);
+};
+
+const selectPaymentMethod = async (_e: Event, row: TableRow<PaymentMethod>) => {
+	const paymentMethod = row.original;
+	if (!paymentMethod) return;
+
+	const paymentMethodModal = overlay.create(ZModalPaymentMethodDetail, {
+		props: {
+			paymentMethod: JSON.parse(JSON.stringify(paymentMethod)),
+			onUpdate: async (payload: UpdatePaymentMethodBody) => {
+				await paymentMethodStore.updatePaymentMethod(paymentMethod.code, payload);
+				paymentMethodModal.close();
+			},
+			onCancel: () => {
+				paymentMethodModal.close();
+			},
+		},
+	});
+
+	paymentMethodModal.open();
 };
 
 const exportPaymentMethods = async () => {

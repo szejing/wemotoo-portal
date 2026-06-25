@@ -3,7 +3,7 @@ import { failedNotification, successNotification } from '../AppUi/AppUi';
 import type { ErrorResponse } from '~/repository/base/error';
 import { options_page_size } from '~/utils/options';
 import type { BaseODataReq } from '~/repository/base/base.req';
-import type { UpdatePaymentMethodBody, UpdatePaymentMethodReq } from '~/repository/modules/payment-method/models/request/update-payment-method.req';
+import type { UpdatePaymentMethodBody } from '~/repository/modules/payment-method/models/request/update-payment-method.req';
 
 type PaymentMethodFilter = {
 	query: string;
@@ -99,7 +99,7 @@ export const usePaymentMethodStore = defineStore('paymentMethodStore', {
 			await this.updatePaymentMethod(request.code, { is_active });
 		},
 
-		async updatePaymentMethod(code: string, paymentMethod: Partial<UpdatePaymentMethodReq>) {
+		async updatePaymentMethod(code: string, paymentMethod: UpdatePaymentMethodBody) {
 			this.updating = true;
 
 			const { $api } = useNuxtApp();
@@ -107,7 +107,15 @@ export const usePaymentMethodStore = defineStore('paymentMethodStore', {
 			try {
 				// Build payload with only defined fields (partial update: omit = no change)
 				const body: UpdatePaymentMethodBody = {};
+				if (paymentMethod.desc !== undefined) body.desc = paymentMethod.desc;
+				if (paymentMethod.short_desc !== undefined) body.short_desc = paymentMethod.short_desc;
+				if (paymentMethod.logo !== undefined) body.logo = paymentMethod.logo;
 				if (paymentMethod.is_active !== undefined) body.is_active = paymentMethod.is_active;
+				if (paymentMethod.is_sandbox !== undefined) body.is_sandbox = paymentMethod.is_sandbox;
+				if (paymentMethod.type !== undefined) body.type = paymentMethod.type;
+				if (paymentMethod.currency_code !== undefined) body.currency_code = paymentMethod.currency_code;
+				if (paymentMethod.provider_code !== undefined) body.provider_code = paymentMethod.provider_code;
+				if (paymentMethod.metadata !== undefined) body.metadata = paymentMethod.metadata;
 
 				const data = await $api.paymentMethod.update(code, body);
 
