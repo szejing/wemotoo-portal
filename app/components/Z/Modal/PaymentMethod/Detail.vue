@@ -33,7 +33,15 @@
 				</div>
 
 				<UFormField :label="$t('pages.logo')" name="logo">
-					<UInput v-model="state.logo" />
+					<ZDropzone
+						class="max-w-full sm:max-w-[200px]"
+						:key="logoDropzoneKey"
+						:existing-images="logoExistingImages"
+						:multiple="false"
+						:disabled="updating || logoUploading"
+						@files-selected="onLogoFilesSelected"
+						@delete-image="onLogoDelete"
+					/>
 				</UFormField>
 
 				<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -53,7 +61,7 @@
 		<template #footer>
 			<div class="flex justify-end gap-3 w-full">
 				<UButton color="neutral" variant="soft" @click="emit('cancel')">{{ $t('common.cancel') }}</UButton>
-				<UButton color="primary" variant="solid" :loading="updating" @click="submitForm">{{ $t('common.save') }}</UButton>
+				<UButton color="primary" variant="solid" :loading="updating || logoUploading" @click="submitForm">{{ $t('common.save') }}</UButton>
 			</div>
 		</template>
 	</UModal>
@@ -65,6 +73,8 @@ import { getPaymentMethodType, PaymentMethodType } from 'yeppi-common';
 import type { PaymentMethod } from '~/utils/types/payment-method';
 import type { UpdatePaymentMethodBody } from '~/repository/modules/payment-method/models/request/update-payment-method.req';
 import type { BuildMetadataResult } from '~/utils/metadata-fields';
+import { failedNotification } from '~/stores/AppUi/AppUi';
+import { getPaymentMethodLogoUploadDir } from '~/utils/payment-method-logo';
 
 const props = defineProps<{
 	paymentMethod: PaymentMethod;
@@ -79,6 +89,8 @@ const paymentMethodStore = usePaymentMethodStore();
 const { updating } = storeToRefs(paymentMethodStore);
 const formRef = ref();
 const metadataInputRef = ref<{ validate: () => BuildMetadataResult }>();
+const logoDropzoneKey = ref(0);
+const logoUploading = ref(false);
 
 const state = reactive({
 	code: props.paymentMethod.code,
@@ -100,7 +112,35 @@ const paymentMethodTypeItems = Object.values(PaymentMethodType)
 		value,
 	}));
 
+const logoExistingImages = computed(() => (state.logo ? [state.logo] : []));
+
+const onLogoFilesSelected = async (selectedFiles: File[]) => {
+	const file = selectedFiles[0];
+	if (!file) return;
+
+	logoUploading.value = true;
+	const { $api } = useNuxtApp();
+
+	try {
+		const { image } = await $api.image.upload(file, getPaymentMethodLogoUploadDir(state.code));
+		if (!image?.url) throw new Error('Failed to upload payment method logo');
+		state.logo = image.url;
+	} catch (err: unknown) {
+		const message = err instanceof Error ? err.message : 'Failed to upload payment method logo';
+		failedNotification(message);
+	} finally {
+		logoUploading.value = false;
+		logoDropzoneKey.value += 1;
+	}
+};
+
+const onLogoDelete = () => {
+	state.logo = '';
+};
+
 const onSubmit = async (_event: FormSubmitEvent<typeof state>) => {
+	if (logoUploading.value) return;
+
 	const metadataResult = metadataInputRef.value?.validate();
 	if (metadataResult && !metadataResult.ok) return;
 
