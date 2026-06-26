@@ -1,8 +1,9 @@
 import { KEY } from '~/composables/useWemotooCommon';
 
 const publicPaths = ['/login', '/forgot-password', '/reset-password'];
+const alwaysAllowedPaths = ['/notifications'];
 
-function getAllowedPaths(navigations: Array<{ links: Array<{ to?: string; children?: Array<{ to: string }> }> }>): string[] {
+const getAllowedPaths = (navigations: Array<{ links: Array<{ to?: string; children?: Array<{ to: string }> }> }>): string[] => {
 	const paths: string[] = [];
 	for (const group of navigations) {
 		for (const link of group.links ?? []) {
@@ -13,14 +14,12 @@ function getAllowedPaths(navigations: Array<{ links: Array<{ to?: string; childr
 		}
 	}
 	return paths;
-}
+};
 
-function isPathAllowed(path: string, allowedPaths: string[]): boolean {
+const isPathAllowed = (path: string, allowedPaths: string[]): boolean => {
 	const normalized = path === '/' ? '/' : path.replace(/\/$/, '');
-	return allowedPaths.some(
-		(allowed) => normalized === allowed || (allowed !== '/' && normalized.startsWith(allowed + '/'))
-	);
-}
+	return allowedPaths.some((allowed) => normalized === allowed || (allowed !== '/' && normalized.startsWith(allowed + '/')));
+};
 
 export default defineNuxtRouteMiddleware((to) => {
 	if (import.meta.server) return;
@@ -29,7 +28,7 @@ export default defineNuxtRouteMiddleware((to) => {
 	if (!accessToken.value || publicPaths.includes(to.path)) return;
 
 	const appUiStore = useAppUiStore();
-	const allowedPaths = getAllowedPaths(appUiStore.navigations);
+	const allowedPaths = [...getAllowedPaths(appUiStore.navigations), ...alwaysAllowedPaths];
 	if (allowedPaths.length === 0) return;
 
 	if (!isPathAllowed(to.path, allowedPaths)) {
@@ -39,7 +38,7 @@ export default defineNuxtRouteMiddleware((to) => {
 				statusCode: 403,
 				statusMessage: 'Forbidden',
 				data: { message: t('error.permissionRestricted') },
-			})
+			}),
 		);
 	}
 });

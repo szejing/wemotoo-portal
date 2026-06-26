@@ -11,8 +11,6 @@
 				</UButton>
 			</div>
 
-			<ZTableToolbar v-model="all_filter.page_size" :page-size-options="options_page_size" :export-enabled="false" @update:model-value="updatePageSize" />
-
 			<template v-if="loading">
 				<div class="rounded-lg overflow-hidden divide-y divide-neutral-200 dark:divide-neutral-700">
 					<div class="grid grid-cols-3 gap-4 p-4">
@@ -76,28 +74,11 @@
 							</UTable>
 						</UCard>
 					</section>
-				</div>
 
-				<div v-if="dateGroups.length > 0" class="flex items-center justify-between border-t border-gray-200 dark:border-gray-700 px-4 py-3">
-					<div class="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
-						<div class="text-sm text-gray-700 dark:text-gray-300">
-							{{
-								$t('pages.showingToOf', {
-									from: (all_filter.current_page - 1) * all_filter.page_size + 1,
-									to: Math.min(all_filter.current_page * all_filter.page_size, all_total_count),
-									total: all_total_count,
-								})
-							}}
+					<div ref="loadMoreSentinel" class="notifications-load-more">
+						<div v-if="loadingMore" class="flex justify-center py-4">
+							<UIcon :name="ICONS.REFRESH" class="size-5 animate-spin text-neutral-400" />
 						</div>
-						<UPagination
-							v-model="all_filter.current_page"
-							:total="all_total_count"
-							:page-size="all_filter.page_size"
-							show-last
-							show-first
-							size="sm"
-							@update:page="updatePage"
-						/>
 					</div>
 				</div>
 			</template>
@@ -106,13 +87,13 @@
 </template>
 
 <script setup lang="ts">
+import { useInfiniteScroll } from '@vueuse/core';
 import type { Row, TableMeta } from '@tanstack/vue-table';
 import type { TableRow } from '@nuxt/ui';
 import { format, isToday, isYesterday, parseISO } from 'date-fns';
 import type { NotificationType } from 'yeppi-common';
 import { ICONS } from '~/utils/icons';
 import { getNotificationDisplayDescription, getNotificationDisplayReferenceId } from '~/utils/notification-display';
-import { options_page_size } from '~/utils/options';
 import { getOrderStatusColor, getPaymentStatusColor } from '~/utils/options';
 import { getNotificationColumns } from '~/utils/table-columns';
 import type { NotificationBadgeColor, NotificationDisplayRow, NotificationEntry, NotificationItem } from '~/utils/types/notification';
@@ -120,9 +101,10 @@ import type { NotificationBadgeColor, NotificationDisplayRow, NotificationEntry,
 const { t } = useI18n();
 const notificationStore = useNotificationStore();
 const { formatDateTime } = useNotificationItemDisplay();
-const { loading, all_filter, all_total_count } = storeToRefs(notificationStore);
+const { loading, loadingMore, hasMoreAllNotifications } = storeToRefs(notificationStore);
 
 const initialize = ref(true);
+const loadMoreSentinel = useTemplateRef<HTMLElement>('loadMoreSentinel');
 
 const notificationColumns = computed(() => getNotificationColumns(t));
 
@@ -136,12 +118,8 @@ const loadNotifications = async () => {
 	await notificationStore.getNotifications({ includeRead: true });
 };
 
-const updatePage = async (page: number) => {
-	await notificationStore.updateAllPage(page);
-};
-
-const updatePageSize = async (size: number) => {
-	await notificationStore.updateAllPageSize(size);
+const loadMoreNotifications = async () => {
+	await notificationStore.loadMoreAllNotifications();
 };
 
 const flatNotifications = computed<NotificationEntry[]>(() =>
@@ -281,6 +259,17 @@ const formatDateGroupLabel = (key: string) => {
 useHead({ title: () => t('notifications.allTitle') });
 
 onMounted(async () => {
+	useInfiniteScroll(
+		loadMoreSentinel,
+		() => {
+			void loadMoreNotifications();
+		},
+		{
+			distance: 240,
+			canLoadMore: () => !loading.value && !loadingMore.value && hasMoreAllNotifications.value,
+		},
+	);
+
 	initialize.value = true;
 	try {
 		await loadNotifications();
@@ -425,6 +414,10 @@ onMounted(async () => {
 .notifications-table :deep(.notifications-row--read .notifications-row__time),
 .notifications-table :deep(.notifications-row--read .notifications-row__icon) {
 	color: var(--color-neutral-400);
+}
+
+.notifications-load-more {
+	min-height: 1px;
 }
 
 @media (max-width: 640px) {

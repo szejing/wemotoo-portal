@@ -49,15 +49,7 @@
 										</template>
 									</div>
 
-									<UButton
-										class="notification-view-all"
-										color="neutral"
-										variant="ghost"
-										size="sm"
-										block
-										:to="'/notifications'"
-										@click="notificationPopoverOpen = false"
-									>
+									<UButton class="notification-view-all" color="neutral" variant="ghost" size="sm" block @click="viewAllNotifications">
 										{{ $t('notifications.viewAll') }}
 									</UButton>
 								</div>
@@ -105,6 +97,12 @@ const notificationPopoverOpen = ref(false);
 
 const refreshNotifications = async () => {
 	await notificationStore.getNotifications();
+};
+
+const viewAllNotifications = async () => {
+	notificationPopoverOpen.value = false;
+	console.log('viewAllNotifications');
+	await navigateTo('/notifications');
 };
 
 const openNotification = async (type: NotificationType, item: NotificationItem) => {

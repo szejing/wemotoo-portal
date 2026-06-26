@@ -1,5 +1,4 @@
 import { defineStore } from 'pinia';
-import { options_page_size } from '~/utils/options';
 import { failedNotification } from '../AppUi/AppUi';
 import type { ErrorResponse } from '~/repository/base/error';
 import type { Notification, NotificationCenter, NotificationItem } from '~/utils/types/notification';
@@ -8,6 +7,7 @@ import type { NotificationType } from 'yeppi-common';
 
 type NotificationQueryOptions = BaseODataReq & {
 	includeRead?: boolean;
+	append?: boolean;
 };
 
 type NotificationListFilter = {
@@ -15,14 +15,35 @@ type NotificationListFilter = {
 	current_page: number;
 };
 
+export const ALL_NOTIFICATIONS_BATCH_SIZE = 20;
+
 const initialNotificationListFilter: NotificationListFilter = {
-	page_size: options_page_size[0] as number,
+	page_size: ALL_NOTIFICATIONS_BATCH_SIZE,
 	current_page: 1,
+};
+
+export const mergeAppendedAllNotifications = (existing: Notification[], incoming: Notification[]): Notification[] => {
+	const seenIds = new Set(existing.flatMap((notification) => notification.items.map((item) => item.id)));
+
+	return [
+		...existing,
+		...incoming.filter((notification) => {
+			const itemId = notification.items[0]?.id;
+
+			if (!itemId || seenIds.has(itemId)) {
+				return false;
+			}
+
+			seenIds.add(itemId);
+			return true;
+		}),
+	];
 };
 
 export const useNotificationStore = defineStore('notificationStore', {
 	state: () => ({
 		loading: false as boolean,
+		loadingMore: false as boolean,
 		total_count: 0 as number,
 		all_total_count: 0 as number,
 		generated_at: undefined as string | Date | undefined,
@@ -42,16 +63,27 @@ export const useNotificationStore = defineStore('notificationStore', {
 				.filter((notification) => notification.count > 0),
 		hasNotifications: (state) => state.notifications.some((notification) => notification.items.some((item) => !item.read_at)),
 		unreadCount: (state) => state.notifications.reduce((total, notification) => total + notification.items.filter((item) => !item.read_at).length, 0),
+		allLoadedItemCount: (state) => state.all_notifications.reduce((total, notification) => total + notification.items.length, 0),
+		hasMoreAllNotifications: (state) =>
+			state.all_notifications.reduce((total, notification) => total + notification.items.length, 0) < state.all_total_count,
 	},
 	actions: {
 		async getNotifications(options: NotificationQueryOptions = {}): Promise<void> {
-			this.loading = true;
+			const { includeRead, append = false, ...query } = options;
+
+			if (!append) {
+				this.loading = true;
+			}
+
 			const { $api } = useNuxtApp();
 			try {
-				const { includeRead, ...query } = options;
 				const queryParams: BaseODataReq = { ...query };
 
 				if (includeRead) {
+					if (!append) {
+						this.all_filter.current_page = 1;
+					}
+
 					queryParams.$top = this.all_filter.page_size;
 					queryParams.$skip = (this.all_filter.current_page - 1) * this.all_filter.page_size;
 					queryParams.$count = true;
@@ -65,7 +97,7 @@ export const useNotificationStore = defineStore('notificationStore', {
 				const decorated = this.decorateNotifications(data.data ?? []);
 
 				if (includeRead) {
-					this.all_notifications = decorated;
+					this.all_notifications = append ? mergeAppendedAllNotifications(this.all_notifications, decorated) : decorated;
 					this.all_total_count = data['@odata.count'] ?? data.count ?? 0;
 				} else {
 					this.notifications = decorated;
@@ -76,17 +108,24 @@ export const useNotificationStore = defineStore('notificationStore', {
 				const message = (err as ErrorResponse).message ?? 'Failed to load notifications';
 				failedNotification(message);
 			} finally {
-				this.loading = false;
+				if (!append) {
+					this.loading = false;
+				}
 			}
 		},
-		async updateAllPage(page: number) {
-			this.all_filter.current_page = page;
-			await this.getNotifications({ includeRead: true });
-		},
-		async updateAllPageSize(size: number) {
-			this.all_filter.page_size = size;
-			this.all_filter.current_page = 1;
-			await this.getNotifications({ includeRead: true });
+		async loadMoreAllNotifications(): Promise<void> {
+			if (this.loading || this.loadingMore || !this.hasMoreAllNotifications) {
+				return;
+			}
+
+			this.loadingMore = true;
+			this.all_filter.current_page += 1;
+
+			try {
+				await this.getNotifications({ includeRead: true, append: true });
+			} finally {
+				this.loadingMore = false;
+			}
 		},
 		async openNotificationItem(type: NotificationType, item: NotificationItem) {
 			const { $api } = useNuxtApp();
