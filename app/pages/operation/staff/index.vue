@@ -68,7 +68,7 @@ const CRM_USER_COLUMN_LABELS = {
 	phone_no: 'table.phone',
 	role: 'table.role',
 	staff_department_id: 'table.staffDepartment',
-	is_active: 'table.active',
+	is_active: 'common.status',
 } as const;
 
 const { t } = useI18n();

@@ -5,7 +5,7 @@ import { getFormattedDate } from 'yeppi-common';
 import { USwitch } from '#components';
 import type { StaffDepartment } from '~/utils/types/staff-department';
 import { useStaffDepartmentStore } from '~/stores/StaffDepartment/StaffDepartment';
-import { headerCell, mutedCell, tableCellMeta } from './styles';
+import { headerCell, mutedCell, TABLE_ALIGN_RIGHT, tableCellMeta } from './styles';
 
 type TranslateFn = (key: string) => string;
 
@@ -17,7 +17,7 @@ export function getStaffDepartmentColumns(t: TranslateFn): TableColumn<StaffDepa
 			header: () => headerCell(t('common.name')),
 			cell: ({ row }) => {
 				const name = row.original.name?.trim() ?? '';
-				return h('span', { class: 'min-w-0 font-medium' }, name);
+				return h('div', { class: 'min-w-0 font-medium text-default' }, name);
 			},
 		},
 		{
@@ -26,7 +26,7 @@ export function getStaffDepartmentColumns(t: TranslateFn): TableColumn<StaffDepa
 			header: () => headerCell(t('components.crmUserForm.defaultCommissionRate'), 'right'),
 			cell: ({ row }) => {
 				const rate = Number(row.original.default_commission_rate ?? 0);
-				return h('span', { class: 'text-sm text-muted tabular-nums' }, `${rate}%`);
+				return h('div', { class: `text-sm text-muted ${TABLE_ALIGN_RIGHT}` }, `${rate}%`);
 			},
 			...tableCellMeta.rightNumeric,
 		},
@@ -56,14 +56,15 @@ export function getStaffDepartmentColumns(t: TranslateFn): TableColumn<StaffDepa
 		},
 		{
 			accessorKey: 'updated_at',
-			header: () => headerCell(t('table.lastUpdated')),
+			header: () => headerCell(t('table.lastUpdated'), 'right'),
 			cell: ({ row }) => {
 				if (!row.original.updated_at) {
-					return mutedCell('—');
+					return h('div', { class: TABLE_ALIGN_RIGHT }, [mutedCell('—')]);
 				}
 				const dateStr = getFormattedDate(new Date(row.original.updated_at), 'dd/MM/yyyy');
-				return h('span', { class: 'text-sm text-muted tabular-nums' }, dateStr);
+				return h('div', { class: `text-sm text-muted ${TABLE_ALIGN_RIGHT}` }, dateStr);
 			},
+			...tableCellMeta.rightNumeric,
 		},
 	];
 }

@@ -56,13 +56,15 @@ import { columnOptionsFromLabelMap } from '~/utils/table-columns/visibility';
 import type { PaymentMethod } from '~/utils/types/payment-method';
 
 const PAYMENT_METHOD_COLUMN_LABELS = {
-	code: 'table.code',
-	active: 'table.active',
+	is_active: 'common.status',
 } as const;
 
 const { t } = useI18n();
 const payment_method_columns = computed(() => getPaymentMethodColumns(t));
-const columnOptions = computed(() => columnOptionsFromLabelMap(t, PAYMENT_METHOD_COLUMN_LABELS));
+const columnOptions = computed(() => [
+	{ key: 'code_description', label: `${t('common.code')} / ${t('table.shortDescription')}` },
+	...columnOptionsFromLabelMap(t, PAYMENT_METHOD_COLUMN_LABELS),
+]);
 const { selectedColumnKeys, visibleColumns } = useTableColumnVisibility(payment_method_columns, columnOptions);
 useHead({ title: () => t('pages.paymentMethodsTitle') });
 

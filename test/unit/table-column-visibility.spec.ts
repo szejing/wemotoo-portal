@@ -21,6 +21,7 @@ describe('table column visibility', () => {
 		expect(getColumnKey({ accessorKey: 'name' } as TableColumn<unknown>)).toBe('name');
 		expect(getColumnKey({ id: 'index' } as TableColumn<unknown>)).toBe('index');
 		expect(getColumnKey({ id: 'code_description', accessorKey: 'code' } as TableColumn<unknown>)).toBe('code_description');
+		expect(getColumnKey({ accessorKey: 'is_active' } as TableColumn<unknown>)).toBe('is_active');
 	});
 
 	it('filters columns by selected keys and keeps pinned keys visible', () => {

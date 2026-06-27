@@ -5,7 +5,7 @@ import { USwitch } from '#components';
 import { useCRMUserStore } from '~/stores/CRMUser/CRMUser';
 import { roleLabel } from '../options/user-roles';
 import { getSortableHeader } from './sortable';
-import { headerCell, mutedCell, numberCell, primaryCell } from './styles';
+import { headerCell, mutedCell, numberCell, primaryCell, tableCellMeta } from './styles';
 
 type TranslateFn = (key: string) => string;
 
@@ -17,8 +17,9 @@ export function getCrmUserColumns(t: TranslateFn, options?: CrmUserColumnOptions
 	const columns: ColumnDef<CRMUser>[] = [
 		{
 			accessorKey: 'row_index',
-			header: () => headerCell(t('table.noLabel')),
-			cell: ({ row }) => numberCell(row.index + 1),
+			header: () => headerCell(t('table.noLabel'), 'center'),
+			cell: ({ row }) => numberCell(row.index + 1, 'center'),
+			...tableCellMeta.center,
 		},
 		{
 			accessorKey: 'name',
@@ -26,7 +27,7 @@ export function getCrmUserColumns(t: TranslateFn, options?: CrmUserColumnOptions
 			cell: ({ row }) => {
 				const u = row.original;
 				const fullName = u.name || '—';
-				return h('div', { class: 'flex flex-col gap-1' }, [
+				return h('div', { class: 'flex flex-col gap-1 items-start min-w-0' }, [
 					h('p', { class: 'font-semibold text-highlighted' }, fullName),
 					h('p', { class: 'text-sm text-muted' }, u.email_address),
 				]);
@@ -72,21 +73,23 @@ export function getCrmUserColumns(t: TranslateFn, options?: CrmUserColumnOptions
 
 	columns.push({
 		accessorKey: 'is_active',
-		header: () => headerCell(t('table.active')),
+		header: () => headerCell(t('common.status')),
 		cell: ({ row }) => {
 			const crmUserStore = useCRMUserStore();
 			return h(
 				'div',
 				{
-					class: 'flex justify-center',
+					class: 'flex items-center gap-2 leading-none',
 					onClick: (e: Event) => e.stopPropagation(),
 				},
 				[
 					h(USwitch, {
-						class: 'size-5',
-						modelValue: row.original.is_active,
-						disabled: false,
-						'onUpdate:modelValue': (value: unknown) => crmUserStore.updateStatus(row.original, Boolean(value)),
+						'class': 'size-4 cursor-pointer',
+						'modelValue': row.original.is_active,
+						'disabled': false,
+						'onUpdate:modelValue': (value: unknown) => {
+							void crmUserStore.updateStatus(row.original, value === true);
+						},
 					}),
 				],
 			);
