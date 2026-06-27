@@ -391,6 +391,73 @@ describe('ShippingZoneModule', () => {
 	});
 });
 
+import ShippingZoneModule from './shipping-zone/shipping-zone';
+import ReasonModule from './reason/reason';
+
+describe('ReasonModule', () => {
+	it('calls reasons many route', async () => {
+		setMockFetch(async () => ({ data: [], value: [], count: 0 }));
+
+		const mod = new ReasonModule();
+		const query = { $top: 10, $count: true };
+		await mod.getMany(query);
+
+		expect(lastFetch().url).toBe(MerchantRoutes.Reasons.Many());
+		expect(lastFetch().opts.method).toBe('GET');
+		expect(lastFetch().opts.query).toEqual(query);
+	});
+
+	it('calls reason create route', async () => {
+		setMockFetch(async () => ({ reason: { code: 'R1' } }));
+
+		const mod = new ReasonModule();
+		const payload = {
+			merchant_id: 'm1',
+			code: 'R1',
+			description: 'Wrong size',
+			type: 'return_exchange',
+			is_active: true,
+		};
+		await mod.create(payload);
+
+		expect(lastFetch().url).toBe(MerchantRoutes.Reasons.Create());
+		expect(lastFetch().opts.method).toBe('POST');
+		expect(lastFetch().opts.body).toEqual(payload);
+	});
+
+	it('calls reason single route', async () => {
+		setMockFetch(async () => ({ reason: { code: 'R1' } }));
+
+		const mod = new ReasonModule();
+		await mod.getSingle('R1');
+
+		expect(lastFetch().url).toBe(MerchantRoutes.Reasons.Single('R1'));
+		expect(lastFetch().opts.method).toBe('GET');
+	});
+
+	it('calls reason update route', async () => {
+		setMockFetch(async () => ({ reason: { code: 'R1' } }));
+
+		const mod = new ReasonModule();
+		const payload = { merchant_id: 'm1', description: 'Updated' };
+		await mod.update('R1', payload);
+
+		expect(lastFetch().url).toBe(MerchantRoutes.Reasons.Update('R1'));
+		expect(lastFetch().opts.method).toBe('PATCH');
+		expect(lastFetch().opts.body).toEqual(payload);
+	});
+
+	it('calls reason delete route', async () => {
+		setMockFetch(async () => ({ ok: true }));
+
+		const mod = new ReasonModule();
+		await mod.remove('R1');
+
+		expect(lastFetch().url).toBe(MerchantRoutes.Reasons.Delete('R1'));
+		expect(lastFetch().opts.method).toBe('DELETE');
+	});
+});
+
 describe('multi-step repository flows (call order)', () => {
 	it('records sequential auth then CRM requests in fetch order', async () => {
 		const auth = new AuthModule();

@@ -135,6 +135,8 @@
 		"settings": "Tetapan",
 		"storeProfile": "Profil Kedai",
 		"configuration": "Konfigurasi",
+		"reasonSettings": "Sebab",
+		"reasons": "Sebab",
 		"appearance": "Penampilan",
 		"light": "Terang",
 		"dark": "Gelap",
@@ -282,6 +284,11 @@
 			"descriptionRequired": "Keterangan wajib",
 			"priorityMin": "Keutamaan mestilah sifar atau lebih besar"
 		},
+		"reason": {
+			"codeRequired": "Kod sebab wajib",
+			"codeMax64": "Kod sebab mestilah tidak melebihi 64 aksara",
+			"descriptionRequired": "Keterangan wajib"
+		},
 		"courier": {
 			"nameRequired": "Nama kurier wajib",
 			"nameMax": "Nama kurier mestilah tidak melebihi 191 aksara"
@@ -424,6 +431,15 @@
 		"shippingZonesHubDesc": "Tetapkan wilayah penghantaran dan pautkan kaedah penghantaran yang menyokong setiap zon.",
 		"shippingZonesListingTitle": "Zon penghantaran",
 		"shippingZonesPageTitle": "Wemotoo CRM - Zon penghantaran",
+		"reasonSettingsDesc": "Konfigurasi sebab pulangan, pertukaran, dan pembatalan yang dipaparkan kepada pelanggan.",
+		"reasonsListingTitle": "Sebab",
+		"reasonsPageTitle": "Wemotoo CRM - Sebab",
+		"noReasonsFound": "Tiada sebab dijumpai.",
+		"createReasonTitle": "Tambah sebab",
+		"createReasonPageTitle": "Wemotoo CRM - Tambah sebab",
+		"createReasonButton": "Cipta sebab",
+		"editReasonTitle": "Edit sebab",
+		"editReasonPageTitle": "Wemotoo CRM - Edit sebab",
 		"noShippingZonesFound": "Tiada zon penghantaran dijumpai.",
 		"createShippingZoneTitle": "Tambah zon penghantaran",
 		"createShippingZonePageTitle": "Wemotoo CRM - Tambah zon penghantaran",
@@ -843,10 +859,15 @@
 		"shippingZoneMethods": "Kaedah",
 		"shippingZonePricing": "Harga",
 		"shippingZoneFeeOverride": "Ganti yuran",
-		"shippingZoneDaysOverride": "Anggaran hari"
+		"shippingZoneDaysOverride": "Anggaran hari",
+		"reasonType": "Jenis sebab"
 	},
 	"options": {
 		"all": "Semua",
+		"reasonType": {
+			"returnExchange": "Pulangan & pertukaran",
+			"cancelOrder": "Batal pesanan"
+		},
 		"completed": "Selesai",
 		"cancelled": "Dibatalkan",
 		"refunded": "Dipulangkan",
@@ -949,6 +970,7 @@
 			"searchStaffDepartments": "Cari nama jabatan kakitangan...",
 			"searchShippingMethods": "Cari nama atau kod kaedah penghantaran...",
 			"searchShippingZones": "Cari nama zon, negara, atau negeri...",
+			"searchReasons": "Cari kod atau keterangan sebab...",
 			"searchDiscounts": "Cari kod diskaun, nama, atau keterangan...",
 			"searchVouchers": "Cari kod baucar, nama, atau diskaun dipautkan...",
 			"searchByNamePhoneEmail": "Cari mengikut Nama / No. Telefon / E-mel...",
@@ -1138,6 +1160,12 @@
 				"estimatedDays": "Tetapkan setiap zon yang menawarkan kaedah ini."
 			}
 		},
+		"reasonForm": {
+			"reviewTitle": "Semakan",
+			"reviewSubtitleCreate": "Ringkasan sebelum anda mencipta sebab ini",
+			"reviewSubtitleEdit": "Ringkasan sebab ini sebelum anda simpan",
+			"confirmDelete": "Adakah anda pasti mahu memadam sebab ini?"
+		},
 		"courierForm": {
 			"reviewTitle": "Semakan",
 			"reviewSubtitleCreate": "Ringkasan sebelum anda mencipta kurier ini",
@@ -1165,6 +1193,7 @@
 			"perMethodPricingTitle": "Yuran dan penghantaran mengikut kaedah",
 			"perMethodColumnMethod": "Kaedah penghantaran",
 			"perMethodColumnEstDays": "Anggaran hari",
+			"perMethodColumnOrderCutoff": "Pesan sebelum",
 			"perMethodColumnFee": "Yuran",
 			"reviewTitle": "Semak",
 			"reviewSubtitleCreate": "Ringkasan sebelum anda mencipta zon ini",
@@ -1173,6 +1202,7 @@
 			"reviewPostcodesCount": "{count} baris poskod",
 			"reviewPricingLabel": "Harga",
 			"reviewDaysSuffix": "({days} hari)",
+			"reviewCutoffSuffix": "(sebelum {time})",
 			"selectState": "Pilih negeri",
 			"selectStates": "Pilih negeri",
 			"fieldHints": {
@@ -1185,6 +1215,7 @@
 				"postcodes": "Poskod diliputi; satu setiap baris atau dipisahkan koma.",
 				"feeOverride": "Yuran untuk kaedah ini dalam zon ini.",
 				"daysOverride": "Anggaran penghantaran pilihan untuk kaedah ini dalam zon ini.",
+				"orderCutoff": "Masa akhir pilihan mengikut waktu kedai.",
 				"supportedMethods": "Pilihan penghantaran untuk alamat dalam zon ini."
 			}
 		},

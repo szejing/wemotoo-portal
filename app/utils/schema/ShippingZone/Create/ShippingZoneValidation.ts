@@ -12,15 +12,27 @@ const optionalNonNegativeInt = z.preprocess((v) => {
 	return v;
 }, z.number().int().nonnegative().optional());
 
+const optionalOrderCutoffTime = z.preprocess(
+	(v) => {
+		if (v === undefined || v === null || v === '') {
+			return undefined;
+		}
+		return v;
+	},
+	z
+		.string()
+		.regex(/^([01]\d|2[0-3]):[0-5]\d$/)
+		.optional(),
+);
+
 const methodPricingRow = z.object({
 	fee: z.coerce.number().nonnegative(),
 	estimated_days: optionalNonNegativeInt,
+	order_cutoff_time: optionalOrderCutoffTime,
 });
 
 /** Normalizes form `state` to trimmed string codes (edit allows empty). */
-const normalizedStateArray = z
-	.union([z.array(z.string()), z.undefined(), z.null()])
-	.transform((v) => (Array.isArray(v) ? v : []).map((s) => s.trim()).filter(Boolean));
+const normalizedStateArray = z.union([z.array(z.string()), z.undefined(), z.null()]).transform((v) => (Array.isArray(v) ? v : []).map((s) => s.trim()).filter(Boolean));
 
 const shippingZoneFormSchema = (t: TranslateFn, stateField: z.ZodType<string[]>) => {
 	return z

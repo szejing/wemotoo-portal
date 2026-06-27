@@ -84,4 +84,33 @@ describe('ZInputShippingZoneDetailsSection', () => {
 		await codeInput.setValue('my_zone');
 		expect(state.code).toBe('MY_ZONE');
 	});
+
+	it('renders order cutoff time for selected shipping methods', async () => {
+		const state = reactive<ShippingZoneFormFields>({
+			code: 'ZONE_A',
+			description: '',
+			rule: 0,
+			is_active: true,
+			country_code: '',
+			state: ['Johor'],
+			postcodes_text: '',
+			shipping_method_ids: ['1'],
+			method_pricing: {
+				'1': { fee: 15, estimated_days: 1, order_cutoff_time: '12:00' },
+			},
+		});
+
+		const wrapper = await mountSuspended(ZInputShippingZoneDetailsSection, {
+			props: {
+				state,
+				methodOptions: [{ label: 'Same-Day Delivery', value: '1' }],
+			},
+		});
+
+		const cutoffInput = wrapper.find('input[type="time"]');
+		expect(cutoffInput.exists()).toBe(true);
+		expect((cutoffInput.element as HTMLInputElement).value).toBe('12:00');
+		await cutoffInput.setValue('11:30');
+		expect(state.method_pricing['1']?.order_cutoff_time).toBe('11:30');
+	});
 });

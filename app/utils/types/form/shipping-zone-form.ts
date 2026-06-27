@@ -8,5 +8,12 @@ export type ShippingZoneFormFields = {
 	state: string[];
 	postcodes_text: string;
 	shipping_method_ids: string[];
-	method_pricing: Record<string, { fee: number; estimated_days: number | undefined }>;
+	method_pricing: Record<
+		string,
+		{
+			fee: number;
+			estimated_days: number | undefined;
+			order_cutoff_time?: string | undefined;
+		}
+	>;
 };

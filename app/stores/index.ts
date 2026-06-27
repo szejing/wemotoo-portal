@@ -27,6 +27,7 @@ import { useShipmentStore } from './Shipment/Shipment';
 import { useCourierStore } from './Courier/Courier';
 import { useShippingMethodStore } from './ShippingMethod/ShippingMethod';
 import { useShippingZoneStore } from './ShippingZone/ShippingZone';
+import { useReasonStore } from './Reason/Reason';
 import { useNotificationStore } from './Notification/Notification';
 
 export {
@@ -59,5 +60,6 @@ export {
 	useCourierStore,
 	useShippingMethodStore,
 	useShippingZoneStore,
+	useReasonStore,
 	useNotificationStore,
 };

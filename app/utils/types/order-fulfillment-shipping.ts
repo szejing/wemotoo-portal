@@ -1,17 +1,8 @@
 import type { Courier } from './courier';
 
-export type FulfillmentLifecycleStatusValue =
-	| 'pending'
-	| 'processing'
-	| 'packed'
-	| 'fulfilled';
+export type FulfillmentLifecycleStatusValue = 'pending' | 'processing' | 'packed' | 'fulfilled';
 
-export type ShipmentStatusValue =
-	| 'pending'
-	| 'shipped'
-	| 'in_transit'
-	| 'delivered'
-	| 'failed';
+export type ShipmentStatusValue = 'pending' | 'shipped' | 'in_transit' | 'delivered' | 'failed';
 
 export type ShippingZonePostcodePattern = {
 	kind: 'exact' | 'prefix' | 'regex';
@@ -28,12 +19,14 @@ export type ShippingZoneRule = {
 	is_default?: boolean;
 	fee: number;
 	estimated_days?: number | null;
+	order_cutoff_time?: string | null;
 };
 
 export type ShippingMethodZoneLink = {
 	id: string;
 	fee: number;
 	estimated_days?: number;
+	order_cutoff_time?: string;
 	shipping_zone?: {
 		code: string;
 		description?: string;
@@ -68,7 +61,12 @@ export type ShippingZoneMutableFields = {
 	state?: string;
 	postcode_patterns: ShippingZonePostcodePattern[];
 	/** Per-method pricing for this zone (API payload). */
-	methods: { shipping_method_id: number; fee: number; estimated_days?: number | null }[];
+	methods: {
+		shipping_method_id: number;
+		fee: number;
+		estimated_days?: number | null;
+		order_cutoff_time?: string | null;
+	}[];
 	/** Shipping methods that support delivery under this zone (derived for UI). */
 	shipping_method_ids: string[];
 };

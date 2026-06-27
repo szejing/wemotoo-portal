@@ -274,6 +274,13 @@ const MerchantRoutes = {
 		Update: (code: string) => `${prefix}/${API_PATH.MERCHANT}/${API_PATH.SHIPPING_ZONES}/${encodeURIComponent(code)}`,
 		Delete: (code: string) => `${prefix}/${API_PATH.MERCHANT}/${API_PATH.SHIPPING_ZONES}/${encodeURIComponent(code)}`,
 	},
+	Reasons: {
+		Create: () => `${prefix}/${API_PATH.MERCHANT}/${API_PATH.REASONS}/create`,
+		Many: () => `${prefix}/${API_PATH.MERCHANT}/${API_PATH.REASONS}/many`,
+		Single: (code: string) => `${prefix}/${API_PATH.MERCHANT}/${API_PATH.REASONS}/${encodeURIComponent(code)}`,
+		Update: (code: string) => `${prefix}/${API_PATH.MERCHANT}/${API_PATH.REASONS}/${encodeURIComponent(code)}`,
+		Delete: (code: string) => `${prefix}/${API_PATH.MERCHANT}/${API_PATH.REASONS}/${encodeURIComponent(code)}`,
+	},
 };
 
 export default MerchantRoutes;

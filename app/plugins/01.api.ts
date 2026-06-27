@@ -33,6 +33,7 @@ import {
 	CourierModule,
 	ShippingMethodModule,
 	ShippingZoneModule,
+	ReasonModule,
 	NotificationModule,
 	StaffDepartmentModule,
 } from '../repository/modules';
@@ -72,6 +73,7 @@ interface IApiInstance {
 	courier: CourierModule;
 	shippingMethod: ShippingMethodModule;
 	shippingZone: ShippingZoneModule;
+	reason: ReasonModule;
 	notification: NotificationModule;
 	staffDepartment: StaffDepartmentModule;
 }
@@ -122,6 +124,7 @@ export default defineNuxtPlugin((_) => {
 	const courierModule = new CourierModule();
 	const shippingMethodModule = new ShippingMethodModule();
 	const shippingZoneModule = new ShippingZoneModule();
+	const reasonModule = new ReasonModule();
 	const notificationModule = new NotificationModule();
 	const staffDepartmentModule = new StaffDepartmentModule();
 
@@ -160,6 +163,7 @@ export default defineNuxtPlugin((_) => {
 		courier: courierModule,
 		shippingMethod: shippingMethodModule,
 		shippingZone: shippingZoneModule,
+		reason: reasonModule,
 		notification: notificationModule,
 		staffDepartment: staffDepartmentModule,
 	};

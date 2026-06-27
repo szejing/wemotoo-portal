@@ -11,6 +11,7 @@ export type ShippingMethodZoneWithMethod = {
 	id: string;
 	fee: number;
 	estimated_days?: number;
+	order_cutoff_time?: string;
 	shipping_method?: ShippingMethodBrief;
 };
 

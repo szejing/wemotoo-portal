@@ -135,6 +135,8 @@
 		"settings": "Settings",
 		"storeProfile": "Store Profile",
 		"configuration": "Configuration",
+		"reasonSettings": "Reasons",
+		"reasons": "Reasons",
 		"appearance": "Appearance",
 		"light": "Light",
 		"dark": "Dark",
@@ -282,6 +284,11 @@
 			"descriptionRequired": "Description is required",
 			"priorityMin": "Priority must be zero or greater"
 		},
+		"reason": {
+			"codeRequired": "Reason code is required",
+			"codeMax64": "Reason code must be at most 64 characters",
+			"descriptionRequired": "Description is required"
+		},
 		"courier": {
 			"nameRequired": "Courier name is required",
 			"nameMax": "Courier name must be at most 191 characters"
@@ -424,6 +431,15 @@
 		"shippingZonesHubDesc": "Define delivery regions and link the shipping methods that serve each zone.",
 		"shippingZonesListingTitle": "Shipping zones",
 		"shippingZonesPageTitle": "Wemotoo CRM - Shipping zones",
+		"reasonSettingsDesc": "Configure return, exchange, and cancellation reasons shown to customers.",
+		"reasonsListingTitle": "Reasons",
+		"reasonsPageTitle": "Wemotoo CRM - Reasons",
+		"noReasonsFound": "No reasons found.",
+		"createReasonTitle": "Create reason",
+		"createReasonPageTitle": "Wemotoo CRM - Create reason",
+		"createReasonButton": "Create reason",
+		"editReasonTitle": "Edit reason",
+		"editReasonPageTitle": "Wemotoo CRM - Edit reason",
 		"noShippingZonesFound": "No shipping zones found.",
 		"createShippingZoneTitle": "Add shipping zone",
 		"createShippingZonePageTitle": "Wemotoo CRM - Add shipping zone",
@@ -844,10 +860,15 @@
 		"shippingZoneMethods": "Methods",
 		"shippingZonePricing": "Pricing",
 		"shippingZoneFeeOverride": "Fee override",
-		"shippingZoneDaysOverride": "Est. days"
+		"shippingZoneDaysOverride": "Est. days",
+		"reasonType": "Reason type"
 	},
 	"options": {
 		"all": "All",
+		"reasonType": {
+			"returnExchange": "Return & exchange",
+			"cancelOrder": "Cancel order"
+		},
 		"completed": "Completed",
 		"cancelled": "Cancelled",
 		"refunded": "Refunded",
@@ -950,6 +971,7 @@
 			"searchStaffDepartments": "Search staff department name...",
 			"searchShippingMethods": "Search shipping method name or code...",
 			"searchShippingZones": "Search zone name, country, or state...",
+			"searchReasons": "Search reason code or description...",
 			"searchDiscounts": "Search discount code, name, or description...",
 			"searchVouchers": "Search voucher code, name, or linked discount...",
 			"searchByNamePhoneEmail": "Search by Name / Phone No / Email...",
@@ -1139,6 +1161,12 @@
 				"estimatedDays": "Set per zone that offers this method."
 			}
 		},
+		"reasonForm": {
+			"reviewTitle": "Review",
+			"reviewSubtitleCreate": "Summary before you create this reason",
+			"reviewSubtitleEdit": "Summary of this reason before you save",
+			"confirmDelete": "Are you sure you want to delete this reason?"
+		},
 		"courierForm": {
 			"reviewTitle": "Review",
 			"reviewSubtitleCreate": "Summary before you create this courier",
@@ -1166,6 +1194,7 @@
 			"perMethodPricingTitle": "Fee and delivery by method",
 			"perMethodColumnMethod": "Shipping method",
 			"perMethodColumnEstDays": "Est. days",
+			"perMethodColumnOrderCutoff": "Order before",
 			"perMethodColumnFee": "Fee",
 			"reviewTitle": "Review",
 			"reviewSubtitleCreate": "Summary before you create this zone",
@@ -1174,6 +1203,7 @@
 			"reviewPostcodesCount": "{count} postcode line(s)",
 			"reviewPricingLabel": "Pricing",
 			"reviewDaysSuffix": "({days} days)",
+			"reviewCutoffSuffix": "(before {time})",
 			"selectState": "Select state",
 			"selectStates": "Select states",
 			"fieldHints": {
@@ -1186,6 +1216,7 @@
 				"postcodes": "Postcodes served; one per line or comma-separated.",
 				"feeOverride": "Fee for this method in this zone.",
 				"daysOverride": "Optional delivery estimate for this method in this zone.",
+				"orderCutoff": "Optional merchant-local cutoff time.",
 				"supportedMethods": "Shipping options shown for addresses in this zone."
 			}
 		},

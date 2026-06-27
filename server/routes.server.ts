@@ -250,6 +250,13 @@ export const Routes = {
 		Update: (code: string) => `${API_PATH.SHIPPING_ZONES}/${encodeURIComponent(code)}`,
 		Delete: (code: string) => `${API_PATH.SHIPPING_ZONES}/${encodeURIComponent(code)}`,
 	},
+	Reasons: {
+		Create: () => `${API_PATH.REASONS}/`,
+		Many: () => `${API_PATH.REASONS}/`,
+		Single: (code: string) => `${API_PATH.REASONS}/${encodeURIComponent(code)}`,
+		Update: (code: string) => `${API_PATH.REASONS}/${encodeURIComponent(code)}`,
+		Delete: (code: string) => `${API_PATH.REASONS}/${encodeURIComponent(code)}`,
+	},
 	StaffCommissions: {
 		Departments: () => `staff-commissions/departments`,
 		Department: (id: number | string) => `staff-commissions/departments/${id}`,

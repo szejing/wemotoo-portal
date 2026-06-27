@@ -8,7 +8,12 @@ export type CreateShippingZoneReq = {
 	postcode_patterns?: { kind: 'exact' | 'prefix' | 'regex'; value: string }[];
 	rule?: number;
 	is_default?: boolean;
-	methods: { shipping_method_id: number; fee: number; estimated_days?: number | null }[];
+	methods: {
+		shipping_method_id: number;
+		fee: number;
+		estimated_days?: number | null;
+		order_cutoff_time?: string | null;
+	}[];
 };
 
 /** API body without merchant context — the store injects `merchant_id`. */
