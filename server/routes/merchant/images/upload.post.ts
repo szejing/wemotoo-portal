@@ -7,6 +7,8 @@ export default defineEventHandler(async (event) => {
 		const formData = await readFormData(event);
 		const file = formData.get('file');
 		const dir = formData.get('dir');
+		const nameType = formData.get('nameType');
+		const nameIndex = formData.get('nameIndex');
 
 		if (!file || !(file instanceof File)) {
 			throw createError({
@@ -18,6 +20,8 @@ export default defineEventHandler(async (event) => {
 		const newFormData = new FormData();
 		const blob = new Blob([file], { type: file.type });
 		newFormData.append('dir', dir as string);
+		if (typeof nameType === 'string') newFormData.append('nameType', nameType);
+		if (typeof nameIndex === 'string') newFormData.append('nameIndex', nameIndex);
 		newFormData.append('file', blob, file.name);
 
 		const result = await $fetch(`${Routes.Images.Upload()}`, {

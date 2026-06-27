@@ -79,7 +79,7 @@ export const useMerchantInfoStore = defineStore('merchantInfoStore', {
 
 			const { $api } = useNuxtApp();
 			try {
-				const { image } = await $api.image.upload(file, dir.merchant);
+				const { image } = await $api.image.upload(file, dir.merchant, 'merchant-thumbnail');
 				if (image?.url) {
 					await $api.merchantInfo.saveMany({
 						merchant_info: [

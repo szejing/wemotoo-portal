@@ -7,6 +7,7 @@ export default defineEventHandler(async (event) => {
 		const formData = await readFormData(event);
 		const files = formData.getAll('files');
 		const dir = formData.get('dir');
+		const nameType = formData.get('nameType');
 
 		if (!files || !(files instanceof Array)) {
 			throw createError({
@@ -17,6 +18,7 @@ export default defineEventHandler(async (event) => {
 		// Start of Selection
 		const newFormData = new FormData();
 		newFormData.append('dir', dir as string);
+		if (typeof nameType === 'string') newFormData.append('nameType', nameType);
 
 		for (let i = 0; i < files.length; i++) {
 			const file = files[i];

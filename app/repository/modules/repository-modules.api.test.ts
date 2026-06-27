@@ -178,13 +178,19 @@ describe('OrderModule', () => {
 	it('updateOrderStatus', async () => {
 		await mod.updateStatus('O1', 'C1', 'paid');
 		expect(lastFetch().url).toBe(MerchantRoutes.Orders.UpdateOrderStatus(encodeURIComponent('O1')));
-		expect(lastFetch().opts.body).toEqual({ customer_no: 'C1', status: 'paid' });
+		expect(lastFetch().opts.body).toEqual({
+			customer_no: 'C1',
+			status: 'paid',
+		});
 	});
 
 	it('updateOrder', async () => {
 		await mod.updateOrder('O1', 'C1', 'completed');
 		expect(lastFetch().url).toBe(MerchantRoutes.Orders.Update(encodeURIComponent('O1')));
-		expect(lastFetch().opts.body).toEqual({ customer_no: 'C1', payment_status: 'completed' });
+		expect(lastFetch().opts.body).toEqual({
+			customer_no: 'C1',
+			payment_status: 'completed',
+		});
 	});
 
 	it('updateCustomer', async () => {
@@ -795,15 +801,21 @@ describe('VoucherModule', () => {
 
 describe('ImageModule', () => {
 	const mod = new ImageModule();
-	const jpeg = new File([new Uint8Array([0xff, 0xd8])], 'p.jpg', { type: 'image/jpeg' });
-	const jpeg2 = new File([new Uint8Array([0xff, 0xd8])], 'q.jpg', { type: 'image/jpeg' });
+	const jpeg = new File([new Uint8Array([0xff, 0xd8])], 'p.jpg', {
+		type: 'image/jpeg',
+	});
+	const jpeg2 = new File([new Uint8Array([0xff, 0xd8])], 'q.jpg', {
+		type: 'image/jpeg',
+	});
 
 	it('upload sends FormData with file and dir fields', async () => {
-		await mod.upload(jpeg, 'products');
+		await mod.upload(jpeg, 'products', 'product-thumbnail', 2);
 		expect(lastFetch().url).toBe(MerchantRoutes.Images.Upload());
 		const fd = lastFetch().opts.body as FormData;
 		expect(fd).toBeInstanceOf(FormData);
 		expect(fd.get('dir')).toBe('products');
+		expect(fd.get('nameType')).toBe('product-thumbnail');
+		expect(fd.get('nameIndex')).toBe('2');
 		const uploaded = fd.get('file') as File;
 		expect(uploaded.name).toBe(jpeg.name);
 		expect(uploaded.type).toBe(jpeg.type);
@@ -811,15 +823,29 @@ describe('ImageModule', () => {
 	});
 
 	it('uploadMultiple sends FormData with files[] and dir', async () => {
-		await mod.uploadMultiple([jpeg, jpeg2], 'invoices');
+		await mod.uploadMultiple([jpeg, jpeg2], 'invoices', 'product-gallery');
 		expect(lastFetch().url).toBe(MerchantRoutes.Images.UploadMultiple());
 		const fd = lastFetch().opts.body as FormData;
 		expect(fd).toBeInstanceOf(FormData);
 		expect(fd.get('dir')).toBe('invoices');
+		expect(fd.get('nameType')).toBe('product-gallery');
 		const files = fd.getAll('files') as File[];
 		expect(files).toHaveLength(2);
 		expect(files[0]!.name).toBe(jpeg.name);
 		expect(files[1]!.name).toBe(jpeg2.name);
+	});
+
+	it('allows HEIF sequence and WebP uploads before backend conversion', async () => {
+		await mod.upload(new File(['x'], 'motion.heif', { type: 'image/heif-sequence' }), 'products');
+		await mod.upload(new File(['x'], 'already.webp', { type: 'image/webp' }), 'products');
+
+		expect(fetchLog).toHaveLength(2);
+	});
+
+	it('allows HEIC uploads by extension when the browser omits the mime type', async () => {
+		await mod.upload(new File(['x'], 'camera.HEIC'), 'products');
+
+		expect(fetchLog).toHaveLength(1);
 	});
 
 	it('rejects unsupported mime before calling the network', async () => {

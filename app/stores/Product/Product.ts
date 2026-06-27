@@ -177,7 +177,7 @@ export const useProductStore = defineStore('productStore', {
 			try {
 				let images: ImageReq[] = [];
 				if (this.new_product.images) {
-					const resp = await $api.image.uploadMultiple(this.new_product.images as File[], `${dir.products}/${this.new_product.code}`);
+					const resp = await $api.image.uploadMultiple(this.new_product.images as File[], `${dir.products}/${this.new_product.code}`, 'product-gallery');
 					images = resp.images.map((image) => ({
 						id: image.id,
 						url: image.url,
@@ -186,7 +186,7 @@ export const useProductStore = defineStore('productStore', {
 
 				let thumbnail: ImageReq | undefined;
 				if (this.new_product.thumbnail) {
-					const resp = await $api.image.upload(this.new_product.thumbnail as File, `${dir.products}/${this.new_product.code}`);
+					const resp = await $api.image.upload(this.new_product.thumbnail as File, `${dir.products}/${this.new_product.code}`, 'product-thumbnail');
 					thumbnail = {
 						id: resp.image.id,
 						url: resp.image.url,
@@ -230,9 +230,9 @@ export const useProductStore = defineStore('productStore', {
 				if (product.images !== undefined) {
 					images = [];
 					if (product.images.length > 0) {
-						for (const image of product.images) {
+						for (const [index, image] of product.images.entries()) {
 							if (image instanceof File) {
-								const resp = await $api.image.upload(image, `${dir.products}/${code}`);
+								const resp = await $api.image.upload(image, `${dir.products}/${code}`, 'product-gallery', index + 1);
 								images.push({ id: resp.image.id, url: resp.image.url });
 							} else {
 								images.push({ id: image.id, url: image.url });
@@ -246,7 +246,7 @@ export const useProductStore = defineStore('productStore', {
 				if (product.thumbnail !== undefined) {
 					if (product.thumbnail) {
 						if (product.thumbnail instanceof File) {
-							const resp = await $api.image.upload(product.thumbnail, `${dir.products}/${code}`);
+							const resp = await $api.image.upload(product.thumbnail, `${dir.products}/${code}`, 'product-thumbnail');
 							thumbnail = {
 								id: resp.image.id,
 								url: resp.image.url,
