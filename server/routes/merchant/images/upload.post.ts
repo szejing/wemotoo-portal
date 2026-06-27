@@ -24,7 +24,7 @@ export default defineEventHandler(async (event) => {
 			baseURL: config.public.baseUrl,
 			method: 'POST',
 			body: newFormData,
-			headers: generateImageHeaders(event),
+			headers: generateImageHeaders(event, Routes.Images.Upload()),
 		});
 		return result;
 	} catch (err) {

@@ -192,7 +192,12 @@ export const generateHeaders = (event: any, includeAccessToken: boolean = true, 
 	};
 };
 
-export const generateImageHeaders = (event: any) => {
+/**
+ * Headers for multipart image upload routes. Includes x-signature/x-timestamp.
+ * The backend SignatureGuard runs before multer parses the multipart body, so it
+ * hashes an empty body for these requests; we sign with the same empty body hash.
+ */
+export const generateImageHeaders = (event: any, pathSegment: string) => {
 	const config = useRuntimeConfig(event);
 
 	const cookie_access_token = getCookie(event, KEY.ACCESS_TOKEN) || '';
@@ -203,10 +208,18 @@ export const generateImageHeaders = (event: any) => {
 		'x-api-key': config.apiKey,
 		'x-merchant-id': cookie_merchant_id,
 		[X_PLATFORM_HEADER]: APP_PLATFORM_WEMOTOO,
+		'Authorization': 'Bearer ' + cookie_access_token,
 	};
+
+	const normalizedSegment = pathSegment
+		.replace(/^\//, '')
+		.replace(/^api\//, '')
+		.replace(/^merchant\//, '');
+	const pathForSig = pathForSignature(normalizedSegment);
+	const sigHeaders = getSignatureHeaders(event, 'POST', pathForSig, '');
 
 	return {
 		...headers,
-		Authorization: 'Bearer ' + cookie_access_token,
+		...sigHeaders,
 	};
 };
