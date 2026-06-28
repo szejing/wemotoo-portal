@@ -12,8 +12,29 @@ export const useAuthStore = defineStore('authStore', {
 	state: () => ({
 		loading: false as boolean,
 		user: null as User | null,
+		serverReachabilityError: false as boolean,
 	}),
 	actions: {
+		async checkHeartbeat(): Promise<boolean> {
+			const { $api } = useNuxtApp();
+			const appUiStore = useAppUiStore();
+
+			try {
+				await $api.auth.heartbeat();
+				this.serverReachabilityError = false;
+				return true;
+			} catch {
+				this.serverReachabilityError = true;
+				appUiStore.showToast({
+					color: 'error',
+					icon: ICONS.ERROR_OUTLINE,
+					title: 'Unable to reach server',
+					description: 'Please check your connection or try again later.',
+				});
+				return false;
+			}
+		},
+
 		// login
 		async login(merchant_id: string, email_address: string, password: string): Promise<boolean> {
 			const { $api } = useNuxtApp();
@@ -21,13 +42,12 @@ export const useAuthStore = defineStore('authStore', {
 			this.loading = true;
 			const appUiStore = useAppUiStore();
 
-			const mid = useCookie(KEY.X_MERCHANT_ID, { maxAge: 60 * 60 * 24 * 7 });
-			mid.value = merchant_id;
-
 			try {
+				const mid = useCookie(KEY.X_MERCHANT_ID, { maxAge: 60 * 60 * 24 * 7 });
+				mid.value = merchant_id;
+
 				const data: LoginResp = await $api.auth.login({ merchant_id, email_address, password });
 
-				const mid = useCookie(KEY.X_MERCHANT_ID, { maxAge: 60 * 60 * 24 * 7 });
 				mid.value = merchant_id;
 
 				const access_token = useCookie(KEY.ACCESS_TOKEN, { maxAge: 60 * 60 * 24 * 7 });

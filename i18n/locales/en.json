@@ -168,6 +168,8 @@
 		"confirmPassword": "Confirm password",
 		"resetPasswordButton": "Reset password",
 		"mustContain": "Must contain:",
+		"serverUnreachableTitle": "Unable to reach server",
+		"serverUnreachableDescription": "Please check your connection or try again later.",
 		"emailPlaceholder": "you{'@'}example.com"
 	},
 	"notifications": {

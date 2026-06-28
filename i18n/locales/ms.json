@@ -168,6 +168,8 @@
 		"confirmPassword": "Sahkan kata laluan",
 		"resetPasswordButton": "Set semula kata laluan",
 		"mustContain": "Mesti mengandungi:",
+		"serverUnreachableTitle": "Tidak dapat menghubungi pelayan",
+		"serverUnreachableDescription": "Sila semak sambungan anda atau cuba lagi kemudian.",
 		"emailPlaceholder": "anda{'@'}contoh.com"
 	},
 	"notifications": {

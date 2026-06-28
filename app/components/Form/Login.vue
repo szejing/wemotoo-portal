@@ -11,6 +11,15 @@
 			</template>
 
 			<div class="flex flex-col gap-2">
+				<UAlert
+					v-if="serverReachabilityError"
+					color="error"
+					variant="soft"
+					icon="i-lucide-wifi-off"
+					:title="$t('auth.serverUnreachableTitle')"
+					:description="$t('auth.serverUnreachableDescription')"
+				/>
+
 				<UFormField :label="$t('auth.merchantId')" name="section_merchant_id" required>
 					<UInput :model-value="state.merchant_id" autocomplete="section-login organization" @update:model-value="setMerchantId" />
 				</UFormField>
@@ -82,14 +91,17 @@ const loadStoredMerchantId = () => {
 	}
 };
 
-onMounted(loadStoredMerchantId);
+const authStore = useAuthStore();
+const { loading, serverReachabilityError } = storeToRefs(authStore);
+
+onMounted(() => {
+	loadStoredMerchantId();
+	void authStore.checkHeartbeat();
+});
 
 const setMerchantId = (value: string | undefined) => {
 	state.merchant_id = value ? value.toUpperCase() : undefined;
 };
-
-const authStore = useAuthStore();
-const { loading } = storeToRefs(authStore);
 
 const onSubmit = async (event: FormSubmitEvent<Schema>) => {
 	const { merchant_id, email_address, password } = event.data;

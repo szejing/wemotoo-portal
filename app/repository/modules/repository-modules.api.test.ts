@@ -73,6 +73,12 @@ describe('AuthModule', () => {
 		expect(lastFetch().opts.body).toEqual(loginPayload);
 	});
 
+	it('heartbeat', async () => {
+		await auth.heartbeat();
+		expect(lastFetch().url).toBe(MerchantRoutes.Auth.Heartbeat());
+		expect(lastFetch().opts.method).toBe('GET');
+	});
+
 	it('passwordReset', async () => {
 		await auth.passwordReset(passwordResetPayload);
 		expect(lastFetch().url).toBe(MerchantRoutes.Auth.PasswordReset());

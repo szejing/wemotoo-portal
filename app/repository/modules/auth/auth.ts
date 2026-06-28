@@ -8,6 +8,13 @@ import type { PasswordResetConfirmReq, PasswordResetReq } from './models/request
 class AuthModule extends HttpFactory {
 	private readonly RESOURCE = MerchantRoutes.Auth;
 
+	async heartbeat(): Promise<void> {
+		await this.call<void>({
+			method: 'GET',
+			url: this.RESOURCE.Heartbeat(),
+		});
+	}
+
 	/**
 	 * login with email_address and password
 	 * @param email_address
