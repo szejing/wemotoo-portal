@@ -13,7 +13,7 @@ export type ShippingZoneFormFields = {
 		{
 			fee: number;
 			estimated_days: number | undefined;
-			order_cutoff_time?: string | undefined;
+			order_cutoff_time: string | undefined;
 		}
 	>;
 };

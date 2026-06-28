@@ -1,5 +1,5 @@
 <template>
-	<ZPagePanel id="settings-configuration" :title="$t('nav.configuration')" back-to="/settings">
+	<ZPagePanel id="settings-configuration" :title="$t('nav.configuration')" back-to="/settings/system">
 		<template #navbar-right>
 			<UButton color="success" @click="settingsStore.updateSettings">
 				<UIcon :name="ICONS.SAVE" class="w-4 h-4" />

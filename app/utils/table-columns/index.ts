@@ -28,6 +28,7 @@ import { getCustomerAppointmentColumns } from './customer-appointment';
 import { getDiscountColumns } from './discount/discount';
 import { getVoucherColumns } from './voucher/voucher';
 import { getShippingMethodColumns } from './shipping-method';
+import { getShippingZoneColumns } from './shipping-zone';
 import { getReasonColumns } from './reason';
 import { getCourierColumns } from './courier';
 import { getStaffDepartmentColumns } from './staff-department';
@@ -69,6 +70,7 @@ export {
 	getDiscountColumns,
 	getVoucherColumns,
 	getShippingMethodColumns,
+	getShippingZoneColumns,
 	getReasonColumns,
 	getCourierColumns,
 	getStaffDepartmentColumns,

@@ -1,3 +1,4 @@
+import { Time } from '@internationalized/date';
 import { describe, expect, it } from 'vitest';
 import { reactive } from 'vue';
 import { mountSuspended } from '@nuxt/test-utils/runtime';
@@ -107,10 +108,10 @@ describe('ZInputShippingZoneDetailsSection', () => {
 			},
 		});
 
-		const cutoffInput = wrapper.find('input[type="time"]');
+		const cutoffInput = wrapper.findComponent({ name: 'UInputTime' });
 		expect(cutoffInput.exists()).toBe(true);
-		expect((cutoffInput.element as HTMLInputElement).value).toBe('12:00');
-		await cutoffInput.setValue('11:30');
+		expect(cutoffInput.props('modelValue')).toEqual(new Time(12, 0));
+		await cutoffInput.vm.$emit('update:modelValue', new Time(11, 30));
 		expect(state.method_pricing['1']?.order_cutoff_time).toBe('11:30');
 	});
 });

@@ -1,5 +1,5 @@
 <template>
-	<ZPagePanel id="settings-reasons" :title="$t('pages.reasonsListingTitle')" back-to="/settings">
+	<ZPagePanel id="settings-reasons" :title="$t('pages.reasonsListingTitle')" back-to="/settings/system">
 		<template #navbar-right>
 			<ZCreateButton to="/settings/reasons/create" :label="$t('common.create')" />
 		</template>

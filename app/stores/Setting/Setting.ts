@@ -25,12 +25,12 @@ export const useSettingStore = defineStore('settingStore', {
 					$count: true,
 					$expand: 'setting_templs,segment_children.setting_templs',
 					$skip: (this.current_page - 1) * this.page_size,
+					$orderby: 'seq_no asc',
 				});
 
 				if (data) {
 					this.segments = data[0]?.segments ?? [];
 					this.settings = data[0]?.settings.map((setting) => new Setting(setting)) ?? [];
-					// this.total_settings = data[0]['@odata.count'] ?? 0;
 				}
 			} catch (err: unknown | ErrorResponse) {
 				const message = (err as ErrorResponse).message ?? 'Failed to load settings';

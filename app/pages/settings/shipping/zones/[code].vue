@@ -51,7 +51,6 @@
 <script lang="ts" setup>
 import { ZModalConfirmation } from '#components';
 import { ICONS } from '~/utils/icons';
-import type { ShippingZone } from '~/utils/types/shipping-zone';
 
 const route = useRoute();
 const code = computed(() => route.params.code as string);

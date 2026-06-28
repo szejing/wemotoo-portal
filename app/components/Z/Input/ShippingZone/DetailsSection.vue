@@ -34,7 +34,13 @@
 						<p class="text-xs text-neutral-500 dark:text-neutral-400 my-1">
 							{{ $t('components.shippingZoneForm.fieldHints.code') }}
 						</p>
-						<UInput :model-value="state.code" maxlength="32" :disabled="codeReadonly" :class="codeForceUppercase ? 'uppercase' : undefined" @update:model-value="onCodeModelUpdate" />
+						<UInput
+							:model-value="state.code"
+							maxlength="32"
+							:disabled="codeReadonly"
+							:class="codeForceUppercase ? 'uppercase' : undefined"
+							@update:model-value="onCodeModelUpdate"
+						/>
 					</UFormField>
 
 					<UFormField name="description" :label="$t('common.description')">
@@ -113,7 +119,13 @@
 					>
 						<template #default>
 							<div v-if="state.shipping_method_ids.length > 0" class="flex flex-wrap gap-1.5">
-								<UBadge v-for="id in state.shipping_method_ids" :key="id" color="primary" variant="subtle" class="inline-flex max-w-[min(100%,12rem)] items-center gap-1">
+								<UBadge
+									v-for="id in state.shipping_method_ids"
+									:key="id"
+									color="primary"
+									variant="subtle"
+									class="inline-flex max-w-[min(100%,12rem)] items-center gap-1"
+								>
 									<span class="min-w-0 truncate">{{ methodLabel(id) }}</span>
 									<UIcon
 										:name="ICONS.CROSS"
@@ -133,7 +145,14 @@
 					</h4>
 
 					<div class="flex flex-wrap items-center gap-3">
-						<UInput v-model="applyAllFee" :placeholder="$t('components.variantList.pricePlaceholder')" type="number" size="sm" class="max-w-44" :ui="{ base: 'ps-12' }">
+						<UInput
+							v-model="applyAllFee"
+							:placeholder="$t('components.variantList.pricePlaceholder')"
+							type="number"
+							size="sm"
+							class="max-w-44"
+							:ui="{ base: 'ps-12' }"
+						>
 							<template #leading>
 								<span class="text-xs text-neutral-400">{{ props.feeCurrencyPrefix }}</span>
 							</template>
@@ -172,7 +191,11 @@
 								</tr>
 							</thead>
 							<tbody>
-								<tr v-for="mid in state.shipping_method_ids" :key="mid" class="border-b border-neutral-100 dark:border-neutral-800 last:border-b-0 hover:bg-neutral-50/50 dark:hover:bg-neutral-900/30">
+								<tr
+									v-for="mid in state.shipping_method_ids"
+									:key="mid"
+									class="border-b border-neutral-100 dark:border-neutral-800 last:border-b-0 hover:bg-neutral-50/50 dark:hover:bg-neutral-900/30"
+								>
 									<td class="px-3 py-2 text-neutral-900 dark:text-neutral-100 font-medium align-middle">
 										{{ methodLabel(mid) }}
 									</td>
@@ -190,14 +213,20 @@
 										</UFormField>
 									</td>
 									<td class="px-3 py-2 align-top">
-										<UFormField v-slot="{ error }" :name="`method_pricing.${mid}.order_cutoff_time`" :label="undefined" class="[&_.ui-form-field-label]:sr-only">
-											<UInput
-												v-model="state.method_pricing[mid]!.order_cutoff_time"
-												type="time"
+										<UFormField
+											v-slot="{ error }"
+											:name="`method_pricing.${mid}.order_cutoff_time`"
+											:label="undefined"
+											class="[&_.ui-form-field-label]:sr-only"
+										>
+											<UInputTime
+												:model-value="parseOrderCutoffTime(state.method_pricing[mid]!.order_cutoff_time)"
 												size="sm"
 												class="max-w-32"
-												:placeholder="$t('components.shippingZoneForm.fieldHints.orderCutoff')"
-												:trailing-icon="error ? ICONS.ERROR_OUTLINE : undefined"
+												:hour-cycle="24"
+												:color="error ? 'error' : 'neutral'"
+												:highlight="!!error"
+												@update:model-value="(value) => setOrderCutoffTime(mid, value as OrderCutoffTimeInput)"
 											/>
 										</UFormField>
 									</td>
@@ -230,9 +259,40 @@
 </template>
 
 <script lang="ts" setup>
+import { Time } from '@internationalized/date';
 import { SHIPPING_ZONE_SHOW_COUNTRY_AND_POSTCODE_FIELDS } from '~/utils/data/malaysia-states';
 import { ICONS } from '~/utils/icons';
 import type { ShippingZoneFormFields } from '~/utils/types/form/shipping-zone-form';
+
+const HH_MM_PATTERN = /^(\d{2}):(\d{2})$/;
+
+function parseOrderCutoffTime(value: string | undefined): Time | null {
+	if (!value?.trim()) {
+		return null;
+	}
+	const match = HH_MM_PATTERN.exec(value.trim());
+	if (!match) {
+		return null;
+	}
+	return new Time(Number(match[1]), Number(match[2]));
+}
+
+type OrderCutoffTimeInput = { hour: number; minute: number } | null | undefined;
+
+function formatOrderCutoffTime(value: OrderCutoffTimeInput): string | undefined {
+	if (!value) {
+		return undefined;
+	}
+	return `${String(value.hour).padStart(2, '0')}:${String(value.minute).padStart(2, '0')}`;
+}
+
+function setOrderCutoffTime(mid: string, value: OrderCutoffTimeInput) {
+	const row = props.state.method_pricing[mid];
+	if (!row) {
+		return;
+	}
+	row.order_cutoff_time = formatOrderCutoffTime(value);
+}
 
 const props = withDefaults(
 	defineProps<{

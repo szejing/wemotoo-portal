@@ -382,6 +382,8 @@
 		"orderDetailTitle": "Wemotoo CRM - Order Detail #",
 		"shippingMethods": "Shipping Methods",
 		"couriers": "Couriers",
+		"systemSettingsDesc": "Manage system configuration and reason codes used across the platform.",
+		"systemSettingsTitle": "Wemotoo CRM - System Settings",
 		"shippingSettingsDesc": "Configure delivery options and rates for checkout and fulfillment.",
 		"shippingMethodsDesc": "Define shipping service types (names and priority). Set fees and delivery estimates under each shipping zone.",
 		"shippingSettingsTitle": "Wemotoo CRM - Shipping Settings",

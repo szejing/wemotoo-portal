@@ -7,7 +7,7 @@ import { UBadge, USwitch } from '#components';
 import type { ShippingZone } from '../types/shipping-zone';
 import { headerCell, mutedCell } from './styles';
 
-type TranslateFn = (key: string) => string;
+type TranslateFn = (key: string, params?: Record<string, unknown>) => string;
 
 const DEFAULT_ZONE_CURRENCY = 'MYR';
 
@@ -39,6 +39,10 @@ export function getShippingZoneColumns(t: TranslateFn): TableColumn<ShippingZone
 				}
 				if (description) {
 					children.push(h('span', {}, description));
+				}
+				const orderCutoffTime = row.original.methods?.find((method) => method.order_cutoff_time?.trim())?.order_cutoff_time?.trim();
+				if (orderCutoffTime) {
+					children.push(h('p', { class: 'text-xs text-muted tabular-nums' }, t('components.shippingZoneForm.reviewCutoffSuffix', { time: orderCutoffTime })));
 				}
 				return h('div', { class: 'flex flex-col gap-1 items-start min-w-0' }, children);
 			},
@@ -76,7 +80,7 @@ export function getShippingZoneColumns(t: TranslateFn): TableColumn<ShippingZone
 		},
 		{
 			id: 'pricing_summary',
-			header: () => headerCell(t('table.shippingZonePricing'), 'right'),
+			header: () => headerCell(t('table.shippingZonePricing')),
 			cell: ({ row }) => {
 				const text = row.original.methods?.[0]?.fee.toFixed(2);
 				if (!text) {
@@ -89,7 +93,7 @@ export function getShippingZoneColumns(t: TranslateFn): TableColumn<ShippingZone
 				return h(
 					'div',
 					{
-						class: 'flex flex-col gap-1 items-start pr-8 min-w-0',
+						class: 'flex flex-col gap-1 items-start min-w-0',
 					},
 					segments.map((seg) => {
 						const amount = formatCurrency(seg.fee, DEFAULT_ZONE_CURRENCY);

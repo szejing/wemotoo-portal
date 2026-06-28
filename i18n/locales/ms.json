@@ -382,6 +382,8 @@
 		"orderDetailTitle": "Wemotoo CRM - Butiran Pesanan #",
 		"shippingMethods": "Kaedah Penghantaran",
 		"couriers": "Kurier",
+		"systemSettingsDesc": "Urus konfigurasi sistem dan kod sebab yang digunakan di seluruh platform.",
+		"systemSettingsTitle": "Wemotoo CRM - Tetapan Sistem",
 		"shippingSettingsDesc": "Konfigur pilihan penghantaran dan kadar untuk pembayaran dan pemenuhan pesanan.",
 		"shippingMethodsDesc": "Tetapkan jenis perkhidmatan penghantaran (nama dan keutamaan). Tetapkan yuran dan anggaran hari di bawah setiap zon penghantaran.",
 		"shippingSettingsTitle": "Wemotoo CRM - Tetapan Penghantaran",

@@ -21,13 +21,11 @@
 
 			<template v-if="initialize">
 				<div class="rounded-lg overflow-hidden divide-y divide-neutral-200 dark:divide-neutral-700">
-					<div class="grid grid-cols-[1fr_auto] gap-4 p-4">
-						<USkeleton class="h-4 w-24" />
-						<USkeleton class="h-4 w-16" />
+					<div class="grid grid-cols-4 gap-4 p-4">
+						<USkeleton v-for="i in 4" :key="i" class="h-4 flex-1 min-w-0" />
 					</div>
-					<div v-for="i in 5" :key="i" class="grid grid-cols-[1fr_auto] gap-4 p-4 items-center">
-						<USkeleton class="h-4 w-40" />
-						<USkeleton class="h-4 w-12" />
+					<div v-for="i in 5" :key="i" class="grid grid-cols-4 gap-4 p-4 items-center">
+						<USkeleton v-for="j in 4" :key="j" class="h-4 flex-1 min-w-0" />
 					</div>
 				</div>
 			</template>

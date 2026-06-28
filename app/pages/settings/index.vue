@@ -58,10 +58,7 @@ const settingsGroups = computed(() => [
 		description: t('pages.settingsMenuDesc'),
 		icon: ICONS.SETTINGS_ROUNDED,
 		color: 'slate' as const,
-		items: [
-			{ label: t('nav.configuration'), to: '/settings/configuration' },
-			{ label: t('nav.reasons'), to: '/settings/reasons' },
-		],
+		items: [{ label: t('nav.systemSettings'), to: '/settings/system' }],
 	},
 	{
 		title: t('nav.shippingSettings'),
