@@ -12,7 +12,7 @@ const MerchantRoutes = {
 		UploadMultiple: () => `${prefix}/${API_PATH.MERCHANT}/${API_PATH.IMAGES}/upload-multiple`,
 	},
 	Auth: {
-		Heartbeat: () => `${prefix}/heartbeat`,
+		Heartbeat: () => `${prefix}/${API_PATH.MERCHANT}/heartbeat`,
 		Login: () => `${prefix}/${API_PATH.MERCHANT}/${API_PATH.AUTH}/login`,
 		Refresh: () => `${prefix}/${API_PATH.MERCHANT}/${API_PATH.AUTH}/refresh`,
 		Verify: () => `${prefix}/${API_PATH.MERCHANT}/${API_PATH.AUTH}/verify`,

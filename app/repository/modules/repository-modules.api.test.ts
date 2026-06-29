@@ -75,7 +75,7 @@ describe('AuthModule', () => {
 
 	it('heartbeat', async () => {
 		await auth.heartbeat();
-		expect(lastFetch().url).toBe(MerchantRoutes.Auth.Heartbeat());
+		expect(lastFetch().url).toBe('/merchant/heartbeat');
 		expect(lastFetch().opts.method).toBe('GET');
 	});
 

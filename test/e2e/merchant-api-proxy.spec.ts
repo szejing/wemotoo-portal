@@ -20,6 +20,12 @@ function startMockBackend(): Promise<{ baseUrl: string; close: () => Promise<voi
 				return;
 			}
 
+			if (req.method === 'GET' && (path === '/api/heartbeat' || path === '/api/heartbeat/')) {
+				res.writeHead(200, { 'Content-Type': 'application/json' });
+				res.end(JSON.stringify({ status: 'ok', service: 'yeppi-ecommerce-backend' }));
+				return;
+			}
+
 			if (req.method === 'POST' && (path === '/api/auth/login' || path === '/api/auth/login/')) {
 				res.writeHead(200, { 'Content-Type': 'application/json' });
 				res.end(JSON.stringify({ access_token: 'mock-token', token_type: 'Bearer' }));
@@ -79,6 +85,11 @@ describe('merchant Nitro API (proxied to mock upstream)', async () => {
 	test('GET /merchant/settings/many returns upstream JSON', async () => {
 		const data = await $fetch('/merchant/settings/many');
 		expect(data).toEqual({ value: [], '@odata.count': 0 });
+	});
+
+	test('GET /merchant/heartbeat returns upstream JSON', async () => {
+		const data = await $fetch('/merchant/heartbeat');
+		expect(data).toMatchObject({ status: 'ok', service: 'yeppi-ecommerce-backend' });
 	});
 
 	test('POST /merchant/auth/login returns upstream JSON', async () => {
