@@ -703,6 +703,9 @@
 		"dashboardStatsCustomize": "Sesuaikan statistik",
 		"dashboardStatsCustomizeDesc": "Pilih statistik yang ingin dipaparkan pada papan pemuka",
 		"dashboardStatsReset": "Set semula ke lalai",
+		"customerRequests": "Permintaan pelanggan",
+		"viewCustomerRequest": "Lihat permintaan pelanggan",
+		"requestedAt": "Diminta pada",
 		"ordersLabel": "pesanan",
 		"itemsLabel": "item",
 		"voidedLabel": "dibatalkan",
@@ -871,6 +874,11 @@
 		"reasonType": {
 			"returnExchange": "Pulangan & pertukaran",
 			"cancelOrder": "Batal pesanan"
+		},
+		"requestType": {
+			"cancellation": "Pembatalan",
+			"returnRefund": "Pulangan & bayaran balik",
+			"returnExchange": "Pulangan & pertukaran"
 		},
 		"completed": "Selesai",
 		"cancelled": "Dibatalkan",

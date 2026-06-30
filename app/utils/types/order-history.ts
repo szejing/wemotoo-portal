@@ -1,8 +1,30 @@
-import type { OrderStatus, OrderType, PaymentStatus } from 'yeppi-common';
+import type { OrderRequestType, OrderStatus, OrderType, PaymentStatus, ReasonType } from 'yeppi-common';
 import type { TaxModel } from '../models/tax.model';
 import type { Currency } from './currency';
 import type { ItemModel, PaymentModel, CustomerModel } from '../models';
 import type { FulfillmentLifecycleStatusValue, OrderActivity, OrderFulfillment, OrderShipment } from './order-fulfillment-shipping';
+
+export type CustomerRequestStatus = 'pending' | 'approved' | 'rejected' | 'cancelled';
+
+export type CustomerRequest = {
+	id: string;
+	ref_type: 'order' | 'sale';
+	ref_no: string;
+	inv_no: string;
+	customer_no: string;
+	merchant_id: string;
+	request_type: OrderRequestType;
+	reason_type: ReasonType;
+	reason_code: string;
+	reason_description?: string;
+	status: CustomerRequestStatus;
+	requested_at: string | Date;
+	resolved_at?: string | Date;
+	resolved_by?: string;
+	metadata?: Record<string, unknown>;
+	created_at?: string | Date;
+	updated_at?: string | Date;
+};
 
 export type OrderHistory = {
 	biz_date: string;
@@ -43,6 +65,7 @@ export type OrderHistory = {
 	logs?: OrderActivity[];
 	shipping_method_id?: number;
 	shipping_method?: { id: number; description: string };
+	customer_requests?: CustomerRequest[];
 	/** Pickup vs delivery (defaults to pickup on API when omitted) */
 	order_type?: OrderType;
 };

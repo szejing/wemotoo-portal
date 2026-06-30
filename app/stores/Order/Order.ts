@@ -10,7 +10,7 @@ import type { ItemModel } from '~/utils/models/item.model';
 import type { PaymentModel } from '~/utils/models/payment.model';
 import type { Range } from '~/utils/interface';
 import { sub } from 'date-fns';
-import type { OrderHistory } from '~/utils/types/order-history';
+import type { CustomerRequest, OrderHistory } from '~/utils/types/order-history';
 import type { Order } from '~/utils/types/order';
 
 type OrderFilter = {
@@ -38,12 +38,19 @@ const initialEmptyOrderFilter: OrderFilter = {
 	currency_code: 'MYR',
 };
 
+const getPendingCustomerRequest = (order: OrderHistory): CustomerRequest | undefined =>
+	order.customer_requests?.find((request) => request.status === 'pending');
+
+const isPendingCustomerRequest = (order: OrderHistory) => getPendingCustomerRequest(order) != null;
+
 export const useOrderStore = defineStore('orderStore', {
 	state: () => ({
 		loading: false as boolean,
 		updating: false as boolean,
 		exporting: false as boolean,
+		urgent_customer_requests_loading: false as boolean,
 		orders: [] as OrderHistory[],
+		urgent_customer_requests: [] as OrderHistory[],
 		total_orders: 0 as number,
 		filter: initialEmptyOrderFilter,
 	}),
@@ -133,6 +140,39 @@ export const useOrderStore = defineStore('orderStore', {
 				throw err;
 			} finally {
 				this.loading = false;
+			}
+		},
+
+		async getUrgentCustomerRequests(range?: Range) {
+			this.urgent_customer_requests_loading = true;
+			const { $api } = useNuxtApp();
+
+			try {
+				let { start, end } = range ?? this.filter.date_range;
+
+				start = start ?? new Date();
+				end = end ?? new Date();
+
+				const dateFilter = end
+					? `(biz_date between '${getFormattedDate(start, 'yyyy-MM-dd')}' and '${getFormattedDate(end, 'yyyy-MM-dd')}')`
+					: `biz_date le '${getFormattedDate(start, 'yyyy-MM-dd')}'`;
+
+				const { data } = await $api.order.getOrders({
+					$top: 10,
+					$skip: 0,
+					$count: false,
+					$filter: `status eq '${OrderStatus.REQUIRES_ACTION}' and ${dateFilter}`,
+					$expand: removeDuplicateExpands(defaultOrderRelations).join(','),
+					$orderby: 'updated_at desc, biz_date desc, created_at desc',
+				});
+
+				this.urgent_customer_requests = (data ?? []).filter(isPendingCustomerRequest);
+			} catch (err: unknown | ErrorResponse) {
+				const message = (err as ErrorResponse).message ?? 'Failed to load customer requests';
+				failedNotification(message);
+				throw err;
+			} finally {
+				this.urgent_customer_requests_loading = false;
 			}
 		},
 

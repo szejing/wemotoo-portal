@@ -704,6 +704,9 @@
 		"dashboardStatsCustomize": "Customize stats",
 		"dashboardStatsCustomizeDesc": "Choose which stats to show on your dashboard",
 		"dashboardStatsReset": "Reset to default",
+		"customerRequests": "Customer requests",
+		"viewCustomerRequest": "View customer request",
+		"requestedAt": "Requested at",
 		"ordersLabel": "orders",
 		"itemsLabel": "items",
 		"voidedLabel": "voided",
@@ -872,6 +875,11 @@
 		"reasonType": {
 			"returnExchange": "Return & exchange",
 			"cancelOrder": "Cancel order"
+		},
+		"requestType": {
+			"cancellation": "Cancellation",
+			"returnRefund": "Return & refund",
+			"returnExchange": "Return & exchange"
 		},
 		"completed": "Completed",
 		"cancelled": "Cancelled",
