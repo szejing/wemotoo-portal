@@ -30,7 +30,7 @@ import AuthModule from './auth/auth';
 import CountryModule from './country/country';
 import CrmUserModule from './crm-user/crm-user';
 import CurrencyModule from './currency/currency';
-import CustomerModule from './customer/customer';
+import CustomerModule, { CUSTOMER_IMPORT_FORMAT_ERROR_MESSAGE } from './customer/customer';
 import ImageModule from './image/image';
 import MerchantInfoModule from './merchant-info/merchant-info';
 import NotificationModule from './notification/notification';
@@ -40,7 +40,7 @@ import PaymentMethodModule from './payment-method/payment-method';
 import PaymentTypeGroupModule from './payment-type-group/payment-type-group';
 import ProductBrandModule from './product-brand/product-brand';
 import ProductCategoryModule from './product-category/product-category';
-import ProductModule from './product/product';
+import ProductModule, { PRODUCT_IMPORT_FORMAT_ERROR_MESSAGE } from './product/product';
 import ProductTagModule from './product-tag/product-tag';
 import ProductTypeModule from './product-type/product-type';
 import ProductVariantModule from './product-variant/product-variant';
@@ -396,6 +396,34 @@ describe('ProductModule', () => {
 		await mod.restore({ code: 'P1' });
 		expect(lastFetch().url).toBe(MerchantRoutes.Products.Restore('P1'));
 	});
+
+	it('importProducts sends allowed spreadsheet file as FormData', async () => {
+		const file = new File(['code,name'], 'products.csv', { type: 'text/csv' });
+
+		await mod.importProducts(file);
+
+		expect(lastFetch().url).toBe(MerchantRoutes.Products.Import());
+		expect(lastFetch().opts.method).toBe('POST');
+		const fd = lastFetch().opts.body as FormData;
+		expect(fd).toBeInstanceOf(FormData);
+		const uploaded = fd.get('file') as File;
+		expect(uploaded.name).toBe('products.csv');
+	});
+
+	it('importProducts rejects unsupported file extensions before network call', async () => {
+		const file = new File(['bad'], 'products.txt', { type: 'text/plain' });
+
+		await expect(mod.importProducts(file)).rejects.toThrow(PRODUCT_IMPORT_FORMAT_ERROR_MESSAGE);
+		expect(fetchLog).toHaveLength(0);
+	});
+
+	it('downloadImportTemplate uses blob response', async () => {
+		await mod.downloadImportTemplate();
+
+		expect(lastFetch().url).toBe(MerchantRoutes.Products.ImportTemplate());
+		expect(lastFetch().opts.method).toBe('GET');
+		expect(lastFetch().opts.responseType).toBe('blob');
+	});
 });
 
 describe('ProductTypeModule', () => {
@@ -558,6 +586,26 @@ describe('CustomerModule', () => {
 			action: 'remove',
 			insight_id: 'insight-1',
 		});
+	});
+
+	it('importCustomers sends allowed spreadsheet file as FormData', async () => {
+		const file = new File(['name,email_address'], 'customers.csv', { type: 'text/csv' });
+
+		await mod.importCustomers(file);
+
+		expect(lastFetch().url).toBe(MerchantRoutes.Customers.Import());
+		expect(lastFetch().opts.method).toBe('POST');
+		const fd = lastFetch().opts.body as FormData;
+		expect(fd).toBeInstanceOf(FormData);
+		const uploaded = fd.get('file') as File;
+		expect(uploaded.name).toBe('customers.csv');
+	});
+
+	it('importCustomers rejects unsupported file extensions before network call', async () => {
+		const file = new File(['bad'], 'customers.txt', { type: 'text/plain' });
+
+		await expect(mod.importCustomers(file)).rejects.toThrow(CUSTOMER_IMPORT_FORMAT_ERROR_MESSAGE);
+		expect(fetchLog).toHaveLength(0);
 	});
 });
 

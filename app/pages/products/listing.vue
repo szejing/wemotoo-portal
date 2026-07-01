@@ -1,7 +1,18 @@
 <template>
 	<ZPagePanel id="products-listing" :title="$t('nav.products')" back-to="/products">
 		<template #navbar-right>
-			<ZCreateButton to="/products/create" :label="$t('common.addProduct')" />
+			<div class="flex flex-wrap items-center gap-2">
+				<ZImportActions
+					:downloading-template="downloading_template"
+					:importing="importing"
+					:accept="PRODUCT_IMPORT_ACCEPT"
+					:is-allowed-file="isAllowedProductImportFile"
+					:format-error-message="PRODUCT_IMPORT_FORMAT_ERROR_MESSAGE"
+					@download-template="downloadProductImportTemplate"
+					@import="importProductFile"
+				/>
+				<ZCreateButton to="/products/create" :label="$t('common.addProduct')" />
+			</div>
 		</template>
 		<template #toolbar>
 			<ZSectionFilterProducts />
@@ -55,11 +66,15 @@ import { getProductColumns } from '~/utils/table-columns';
 import { columnOptionsFromLabelMap } from '~/utils/table-columns/visibility';
 import type { Product } from '~/utils/types/product';
 import type { TableRow } from '@nuxt/ui';
-import { ZModalLoading } from '#components';
+import { ZModalImporting, ZModalLoading } from '#components';
+import { PRODUCT_IMPORT_ACCEPT, PRODUCT_IMPORT_FORMAT_ERROR_MESSAGE, isAllowedProductImportFile } from '~/repository/modules/product/product';
+import { ICONS } from '~/utils/icons';
 
+const { t } = useI18n();
 const productStore = useProductStore();
 const overlay = useOverlay();
 const loadingModal = overlay.create(ZModalLoading, { props: { key: 'loading' } });
+const importLoadingModal = overlay.create(ZModalImporting, { props: { key: 'product-import-loading' } });
 
 const PRODUCT_COLUMN_LABELS = {
 	name: 'table.codeAndName',
@@ -69,13 +84,12 @@ const PRODUCT_COLUMN_LABELS = {
 	price_types: 'table.price',
 } as const;
 
-const { t } = useI18n();
 const product_columns = computed(() => getProductColumns(t));
 const columnOptions = computed(() => columnOptionsFromLabelMap(t, PRODUCT_COLUMN_LABELS));
 const { selectedColumnKeys, visibleColumns } = useTableColumnVisibility(product_columns, columnOptions);
 useHead({ title: () => t('pages.productsTitle') });
 
-const { products, loading, filter, total_products, exporting, updating } = storeToRefs(productStore);
+const { products, loading, filter, total_products, exporting, updating, importing, downloading_template } = storeToRefs(productStore);
 const initialize = ref(true);
 
 onMounted(async () => {
@@ -109,6 +123,17 @@ watch(
 	},
 );
 
+watch(
+	() => importing.value,
+	(value: boolean) => {
+		if (value) {
+			importLoadingModal.open();
+		} else {
+			importLoadingModal.close();
+		}
+	},
+);
+
 const selectProduct = async (e: Event, row: TableRow<Product>) => {
 	const product = row.original;
 	if (!product) return;
@@ -126,6 +151,18 @@ const updatePageSize = async (size: number) => {
 
 const exportProducts = async () => {
 	await productStore.exportProducts();
+};
+
+const importProductFile = async (file: File) => {
+	try {
+		await productStore.importProducts(file);
+	} catch {
+		// Store action already shows the failure notification.
+	}
+};
+
+const downloadProductImportTemplate = async () => {
+	await productStore.downloadImportTemplate();
 };
 </script>
 

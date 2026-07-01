@@ -23,6 +23,8 @@
 		"show": "Show",
 		"entries": "entries",
 		"export": "Export",
+		"import": "Import",
+		"downloadTemplate": "Template",
 		"showPassword": "Show password",
 		"hidePassword": "Hide password",
 		"required": "required",
@@ -919,7 +921,9 @@
 		"confirmationTitle": "Confirmation",
 		"confirmationMessage": "Are you sure you want to proceed?",
 		"confirmOrigSellPriceZeroTitle": "Selling price is zero",
-		"confirmOrigSellPriceZeroMessage": "You've set the selling price to 0 for this product. Do you want to save it anyway?"
+		"confirmOrigSellPriceZeroMessage": "You've set the selling price to 0 for this product. Do you want to save it anyway?",
+		"importingTitle": "Processing import",
+		"importingMessage": "Please wait while the file is being imported."
 	},
 	"components": {
 		"backButton": {

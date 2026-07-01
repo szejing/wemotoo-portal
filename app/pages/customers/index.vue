@@ -1,5 +1,16 @@
 <template>
 	<ZPagePanel id="customers" :title="$t('nav.customers')">
+		<template #navbar-right>
+			<ZImportActions
+				:downloading-template="processing"
+				:importing="importing"
+				:accept="CUSTOMER_IMPORT_ACCEPT"
+				:is-allowed-file="isAllowedCustomerImportFile"
+				:format-error-message="CUSTOMER_IMPORT_FORMAT_ERROR_MESSAGE"
+				@download-template="downloadCustomerImportTemplate"
+				@import="importCustomerFile"
+			/>
+		</template>
 		<template #toolbar>
 			<ZSectionFilterCustomers />
 		</template>
@@ -52,6 +63,8 @@ import { getCustomerColumns } from '~/utils/table-columns';
 import { columnOptionsFromLabelMap } from '~/utils/table-columns/visibility';
 import type { Customer } from '~/utils/types/customer';
 import type { TableRow } from '@nuxt/ui';
+import { ZModalImporting } from '#components';
+import { CUSTOMER_IMPORT_ACCEPT, CUSTOMER_IMPORT_FORMAT_ERROR_MESSAGE, isAllowedCustomerImportFile } from '~/repository/modules/customer/customer';
 
 const CUSTOMER_COLUMN_LABELS = {
 	customer_no: 'table.noLabel',
@@ -67,8 +80,10 @@ const { selectedColumnKeys, visibleColumns } = useTableColumnVisibility(customer
 useHead({ title: () => t('pages.customersTitle') });
 
 const customerStore = useCustomerStore();
-const { loading, customers, filter, total_customers, exporting } = storeToRefs(customerStore);
+const { loading, customers, filter, total_customers, exporting, importing, processing } = storeToRefs(customerStore);
 const initialize = ref(true);
+const overlay = useOverlay();
+const importLoadingModal = overlay.create(ZModalImporting, { props: { key: 'customer-import-loading' } });
 
 onMounted(async () => {
 	initialize.value = true;
@@ -78,6 +93,17 @@ onMounted(async () => {
 		initialize.value = false;
 	}
 });
+
+watch(
+	() => importing.value,
+	(value: boolean) => {
+		if (value) {
+			importLoadingModal.open();
+		} else {
+			importLoadingModal.close();
+		}
+	},
+);
 
 const selectCustomer = async (e: Event, row: TableRow<Customer>) => {
 	const customer = row.original;
@@ -96,6 +122,18 @@ const updatePageSize = async (size: number) => {
 
 const exportCustomers = async () => {
 	await customerStore.exportCustomers();
+};
+
+const importCustomerFile = async (file: File) => {
+	try {
+		await customerStore.importCustomers(file);
+	} catch {
+		// Store action already shows the failure notification.
+	}
+};
+
+const downloadCustomerImportTemplate = async () => {
+	await customerStore.downloadImportTemplate();
 };
 </script>
 

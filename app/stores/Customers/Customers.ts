@@ -10,6 +10,7 @@ import type { Range } from '~/utils/interface';
 import { getFormattedDate } from 'yeppi-common';
 import type { BaseODataReq } from '~/repository/base/base.req';
 import type { CustomerInsightInput } from '~/repository/modules/customer/models/request/customer-insights.req';
+import type { CustomerImportResp } from '~/repository/modules/customer/customer';
 
 type CustomerFilter = {
 	query: string;
@@ -33,6 +34,7 @@ export const useCustomerStore = defineStore('customerStore', {
 		loading: false as boolean,
 		processing: false as boolean,
 		exporting: false as boolean,
+		importing: false as boolean,
 		customers: [] as Customer[],
 		total_customers: 0 as number,
 		errors: [] as string[],
@@ -199,6 +201,56 @@ export const useCustomerStore = defineStore('customerStore', {
 			// } finally {
 			// 	this.exporting = false;
 			// }
+		},
+
+		async importCustomers(file: File): Promise<CustomerImportResp> {
+			this.importing = true;
+			const { $api } = useNuxtApp();
+
+			try {
+				const result = await $api.customer.importCustomers(file);
+				const created = result.created ?? 0;
+				const updated = result.updated ?? 0;
+				const failed = result.failed ?? 0;
+
+				if (failed > 0) {
+					failedNotification(`Customer import completed with ${failed} failed row(s)`);
+				} else {
+					successNotification(`Customer import completed: ${created} created, ${updated} updated`);
+				}
+
+				await this.getCustomers();
+				return result;
+			} catch (err: unknown | ErrorResponse) {
+				const message = (err as ErrorResponse).message ?? (err instanceof Error ? err.message : 'Failed to import customers');
+				failedNotification(message);
+				throw new Error(message);
+			} finally {
+				this.importing = false;
+			}
+		},
+
+		async downloadImportTemplate() {
+			const { $api } = useNuxtApp();
+			this.processing = true;
+
+			try {
+				const blob = await $api.customer.downloadImportTemplate();
+				const url = window.URL.createObjectURL(blob);
+				const link = document.createElement('a');
+				link.href = url;
+				link.download = `customer_import_template_${getFormattedDate(new Date(), 'yyyyMMdd_HHmmss')}.xlsx`;
+				document.body.appendChild(link);
+				link.click();
+				document.body.removeChild(link);
+				window.URL.revokeObjectURL(url);
+				successNotification('Customer import template downloaded');
+			} catch (err: unknown | ErrorResponse) {
+				const message = (err as ErrorResponse).message ?? 'Failed to download customer import template';
+				failedNotification(message);
+			} finally {
+				this.processing = false;
+			}
 		},
 	},
 });

@@ -23,6 +23,8 @@
 		"show": "Tunjuk",
 		"entries": "entri",
 		"export": "Eksport",
+		"import": "Import",
+		"downloadTemplate": "Templat",
 		"showPassword": "Tunjuk kata laluan",
 		"hidePassword": "Sembunyikan kata laluan",
 		"required": "wajib",
@@ -918,7 +920,9 @@
 		"confirmationTitle": "Pengesahan",
 		"confirmationMessage": "Adakah anda pasti mahu meneruskan?",
 		"confirmOrigSellPriceZeroTitle": "Harga jual ialah sifar",
-		"confirmOrigSellPriceZeroMessage": "Anda telah menetapkan harga jual kepada 0 untuk produk ini. Adakah anda mahu menyimpannya?"
+		"confirmOrigSellPriceZeroMessage": "Anda telah menetapkan harga jual kepada 0 untuk produk ini. Adakah anda mahu menyimpannya?",
+		"importingTitle": "Import sedang diproses",
+		"importingMessage": "Sila tunggu sementara fail sedang diimport."
 	},
 	"components": {
 		"backButton": {

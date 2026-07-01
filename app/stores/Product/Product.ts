@@ -1,4 +1,4 @@
-import { defaultProductRelations, ProductStatus, removeDuplicateExpands } from 'yeppi-common';
+import { defaultProductRelations, getFormattedDate, ProductStatus, removeDuplicateExpands } from 'yeppi-common';
 import { options_page_size } from '~/utils/options';
 import type { Product } from '~/utils/types/product';
 import { failedNotification, successNotification } from '../AppUi/AppUi';
@@ -7,6 +7,7 @@ import type { ProductCreate, ProductUpdate } from '~/utils/types/form/product-cr
 import { dir } from '~/utils/constants/dir';
 import type { BaseODataReq } from '~/repository/base/base.req';
 import type { ImageReq } from '~/repository/modules/image/models/request/image.req';
+import type { ProductImportResp } from '~/repository/modules/product/product';
 
 type ProductFilter = {
 	query: string;
@@ -76,6 +77,8 @@ export const useProductStore = defineStore('productStore', {
 		adding: false as boolean,
 		updating: false as boolean,
 		exporting: false as boolean,
+		importing: false as boolean,
+		downloading_template: false as boolean,
 		new_product: structuredClone(initialEmptyProduct),
 		products: [] as Product[],
 		total_products: 0 as number,
@@ -348,6 +351,57 @@ export const useProductStore = defineStore('productStore', {
 				failedNotification(message);
 			} finally {
 				this.loading = false;
+			}
+		},
+
+		async importProducts(file: File): Promise<ProductImportResp> {
+			this.importing = true;
+
+			const { $api } = useNuxtApp();
+
+			try {
+				const result = await $api.product.importProducts(file);
+				const created = result.created ?? 0;
+				const updated = result.updated ?? 0;
+				const failed = result.failed ?? 0;
+
+				if (failed > 0) {
+					failedNotification(`Product import completed with ${failed} failed row(s)`);
+				} else {
+					successNotification(`Product import completed: ${created} created, ${updated} updated`);
+				}
+
+				await this.getProducts();
+				return result;
+			} catch (err: unknown | ErrorResponse) {
+				const message = (err as ErrorResponse).message ?? (err instanceof Error ? err.message : 'Failed to import products');
+				failedNotification(message);
+				throw new Error(message);
+			} finally {
+				this.importing = false;
+			}
+		},
+
+		async downloadImportTemplate() {
+			const { $api } = useNuxtApp();
+			this.downloading_template = true;
+
+			try {
+				const blob = await $api.product.downloadImportTemplate();
+				const url = window.URL.createObjectURL(blob);
+				const link = document.createElement('a');
+				link.href = url;
+				link.download = `product_import_template_${getFormattedDate(new Date(), 'yyyyMMdd_HHmmss')}.xlsx`;
+				document.body.appendChild(link);
+				link.click();
+				document.body.removeChild(link);
+				window.URL.revokeObjectURL(url);
+				successNotification('Product import template downloaded');
+			} catch (err: unknown | ErrorResponse) {
+				const message = (err as ErrorResponse).message ?? 'Failed to download product import template';
+				failedNotification(message);
+			} finally {
+				this.downloading_template = false;
 			}
 		},
 

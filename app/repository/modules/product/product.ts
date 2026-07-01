@@ -9,6 +9,34 @@ import type { BaseODataReq } from '~/repository/base/base.req';
 import type { BaseODataResp } from '~/repository/base/base.resp';
 import type { Product } from '~/utils/types/product';
 
+const PRODUCT_IMPORT_ALLOWED_EXTENSIONS = ['.csv', '.xlsx'] as const;
+
+export const PRODUCT_IMPORT_ACCEPT = '.csv,.xlsx,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+export const PRODUCT_IMPORT_FORMAT_ERROR_MESSAGE = 'Unsupported product import file format. Allowed: CSV, XLSX';
+
+export type ProductImportResp = {
+	total: number;
+	created: number;
+	updated: number;
+	failed: number;
+	errors: Array<{
+		row: number;
+		code?: string;
+		message: string;
+	}>;
+};
+
+export function isAllowedProductImportFile(file: File): boolean {
+	const filename = file.name.toLowerCase();
+	return PRODUCT_IMPORT_ALLOWED_EXTENSIONS.some((extension) => filename.endsWith(extension));
+}
+
+function assertAllowedProductImportFormat(file: File): void {
+	if (!isAllowedProductImportFile(file)) {
+		throw new Error(PRODUCT_IMPORT_FORMAT_ERROR_MESSAGE);
+	}
+}
+
 class ProductModule extends HttpFactory {
 	private RESOURCE = MerchantRoutes.Products;
 
@@ -61,6 +89,29 @@ class ProductModule extends HttpFactory {
 		return await this.call<ProductResp>({
 			method: 'PATCH',
 			url: `${this.RESOURCE.Restore(product.code)}`,
+		});
+	}
+
+	async importProducts(file: File): Promise<ProductImportResp> {
+		assertAllowedProductImportFormat(file);
+
+		const formData = new FormData();
+		formData.append('file', file);
+
+		return await this.call<ProductImportResp>({
+			method: 'POST',
+			url: `${this.RESOURCE.Import()}`,
+			body: formData,
+		});
+	}
+
+	async downloadImportTemplate(): Promise<Blob> {
+		return await this.call<Blob>({
+			method: 'GET',
+			url: `${this.RESOURCE.ImportTemplate()}`,
+			fetchOptions: {
+				responseType: 'blob',
+			},
 		});
 	}
 }
