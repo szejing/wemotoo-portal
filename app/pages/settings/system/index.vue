@@ -25,7 +25,13 @@
 import { ICONS } from '~/utils/icons';
 
 const { t } = useI18n();
+const appUiStore = useAppUiStore();
 useHead({ title: () => t('pages.systemSettingsTitle') });
+
+const filterAllowedItems = (items: Array<{ labelKey: string; to: string }>) =>
+	items
+		.filter((item) => !appUiStore.excludeRoutes.includes(item.to) && !appUiStore.excludeRoutes.includes(item.labelKey))
+		.map((item) => ({ label: t(item.labelKey), to: item.to }));
 
 const systemGroups = computed(() => [
 	{
@@ -33,10 +39,11 @@ const systemGroups = computed(() => [
 		description: t('pages.settingsMenuDesc'),
 		icon: ICONS.SETTINGS_ROUNDED,
 		color: 'slate' as const,
-		items: [
-			{ label: t('nav.configuration'), to: '/settings/configuration' },
-			{ label: t('nav.reasons'), to: '/settings/reasons' },
-		],
+		items: filterAllowedItems([
+			{ labelKey: 'nav.configuration', to: '/settings/configuration' },
+			{ labelKey: 'nav.reasons', to: '/settings/reasons' },
+			{ labelKey: 'nav.activityLogs', to: '/settings/system/activity-logs' },
+		]),
 	},
 ]);
 </script>

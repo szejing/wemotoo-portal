@@ -21,6 +21,15 @@ const isPathAllowed = (path: string, allowedPaths: string[]): boolean => {
 	return allowedPaths.some((allowed) => normalized === allowed || (allowed !== '/' && normalized.startsWith(allowed + '/')));
 };
 
+const isPathExcluded = (path: string, excludedRoutes: string[]): boolean => {
+	const normalized = path === '/' ? '/' : path.replace(/\/$/, '');
+	return excludedRoutes.some((excluded) => {
+		if (!excluded.startsWith('/')) return false;
+		const normalizedExcluded = excluded === '/' ? '/' : excluded.replace(/\/$/, '');
+		return normalized === normalizedExcluded || (normalizedExcluded !== '/' && normalized.startsWith(normalizedExcluded + '/'));
+	});
+};
+
 export default defineNuxtRouteMiddleware((to) => {
 	if (import.meta.server) return;
 
@@ -28,6 +37,17 @@ export default defineNuxtRouteMiddleware((to) => {
 	if (!accessToken.value || publicPaths.includes(to.path)) return;
 
 	const appUiStore = useAppUiStore();
+	if (isPathExcluded(to.path, appUiStore.excludeRoutes)) {
+		const { t } = useI18n();
+		return showError(
+			createError({
+				statusCode: 403,
+				statusMessage: 'Forbidden',
+				data: { message: t('error.permissionRestricted') },
+			}),
+		);
+	}
+
 	const allowedPaths = [...getAllowedPaths(appUiStore.navigations), ...alwaysAllowedPaths];
 	if (allowedPaths.length === 0) return;
 

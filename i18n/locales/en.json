@@ -96,6 +96,7 @@
 		"appointments": "Appointments",
 		"sales": "Sales",
 		"orders": "Orders",
+		"activityLogs": "Activity Logs",
 		"notifications": "Notifications",
 		"payments": "Payments",
 		"refunds": "Refunds",
@@ -514,6 +515,7 @@
 		"productsListing": "Products",
 		"categoriesTitle": "Wemotoo CRM - Categories",
 		"brandsTitle": "Wemotoo CRM - Brands",
+		"activityLogsTitle": "Wemotoo CRM - Activity Logs",
 		"discountsTitle": "Wemotoo CRM - Discounts",
 		"vouchersTitle": "Wemotoo CRM - Vouchers",
 		"shopVouchersTitle": "Wemotoo CRM - Shop vouchers",
@@ -665,6 +667,7 @@
 		"noOrdersFound": "No orders found.",
 		"noProductsFound": "No products found.",
 		"noBrandsFound": "No brands found.",
+		"noActivityLogsFound": "No activity logs found.",
 		"noCategoriesFound": "No categories found.",
 		"categoriesCount": "Showing {total} categories",
 		"noOptionsFound": "No options found.",
@@ -693,6 +696,7 @@
 		"crmUserPasswordUpdateFailed": "Password update failed",
 		"tryAdjustingSearch": "Try adjusting your search to see more results.",
 		"showingToOf": "Showing {from} to {to} of {total} results",
+		"showingActivityLogs": "Showing {total} activity logs",
 		"totalLabel": "Total",
 		"transactionsLabel": "transactions",
 		"dashboardStatsAppointments": "Appointments",
@@ -870,10 +874,52 @@
 		"shippingZonePricing": "Pricing",
 		"shippingZoneFeeOverride": "Fee override",
 		"shippingZoneDaysOverride": "Est. days",
-		"reasonType": "Reason type"
+		"reasonType": "Reason type",
+		"createdAt": "Created at",
+		"action": "Action",
+		"actor": "Actor",
+		"source": "Source",
+		"visibility": "Visibility",
+		"reference": "Reference"
 	},
 	"options": {
 		"all": "All",
+		"activityLogAction": {
+			"created": "Created",
+			"updated": "Updated",
+			"deleted": "Deleted",
+			"restored": "Restored",
+			"imported": "Imported",
+			"checkout_created": "Checkout created",
+			"status_changed": "Status changed",
+			"payment_status_changed": "Payment status changed",
+			"customer_request_created": "Customer request created",
+			"refund_updated": "Refund updated",
+			"fulfillment_updated": "Fulfillment updated",
+			"shipment_updated": "Shipment updated",
+			"profile_updated": "Profile updated",
+			"login": "Login",
+			"logout": "Logout",
+			"relogin": "Relogin"
+		},
+		"activityLogActorType": {
+			"admin": "Admin",
+			"customer": "Customer",
+			"system": "System",
+			"webhook": "Webhook"
+		},
+		"activityLogSource": {
+			"admin_portal": "Admin portal",
+			"storefront": "Storefront",
+			"webhook": "Webhook",
+			"system": "System",
+			"import": "Import"
+		},
+		"activityLogVisibility": {
+			"admin": "Admin",
+			"customer": "Customer",
+			"both": "Both"
+		},
 		"reasonType": {
 			"returnExchange": "Return & exchange",
 			"cancelOrder": "Cancel order"
@@ -990,6 +1036,7 @@
 			"searchReasons": "Search reason code or description...",
 			"searchDiscounts": "Search discount code, name, or description...",
 			"searchVouchers": "Search voucher code, name, or linked discount...",
+			"searchActivityLogs": "Search description, reference, actor, request, or batch...",
 			"searchByNamePhoneEmail": "Search by Name / Phone No / Email...",
 			"activeFilters": "Active filters:",
 			"listing": "Listing",

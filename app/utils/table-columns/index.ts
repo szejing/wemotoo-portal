@@ -33,6 +33,7 @@ import { getReasonColumns } from './reason';
 import { getCourierColumns } from './courier';
 import { getStaffDepartmentColumns } from './staff-department';
 import { getNotificationColumns } from './notification';
+import { ACTIVITY_LOG_COLUMN_LABELS, getActivityLogColumns } from './activity-log';
 import type { SummBillTableRow, SummCountKey, SummCustomerVariant, SummItemRow } from './analytics/types';
 
 export {
@@ -75,6 +76,8 @@ export {
 	getCourierColumns,
 	getStaffDepartmentColumns,
 	getNotificationColumns,
+	ACTIVITY_LOG_COLUMN_LABELS,
+	getActivityLogColumns,
 	SUMM_PAYMENT_COLUMN_LABELS,
 };
 

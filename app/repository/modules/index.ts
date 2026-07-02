@@ -35,6 +35,7 @@ import ShippingZoneModule from './shipping-zone/shipping-zone';
 import ReasonModule from './reason/reason';
 import NotificationModule from './notification/notification';
 import StaffDepartmentModule from './staff-department/staff-department';
+import ActivityLogModule from './activity-log/activity-log';
 
 export {
 	CrmUserModule,
@@ -74,4 +75,5 @@ export {
 	ReasonModule,
 	NotificationModule,
 	StaffDepartmentModule,
+	ActivityLogModule,
 };

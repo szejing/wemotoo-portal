@@ -1,6 +1,5 @@
-import { UIcon } from '#components';
 import type { Column } from '@tanstack/vue-table';
-import { h } from 'vue';
+import { h, resolveComponent } from 'vue';
 import { TABLE_ALIGN_RIGHT, type TableCellAlign } from './styles';
 
 export function getSortableHeader<TData>(column: Column<TData, unknown>, label: string, align: TableCellAlign = 'left') {
@@ -17,6 +16,6 @@ export function getSortableHeader<TData>(column: Column<TData, unknown>, label: 
 			],
 			onClick: () => column.toggleSorting(column.getIsSorted() === 'asc'),
 		},
-		[h('span', label), h(UIcon, { name: icon, class: 'size-3.5 shrink-0 text-muted' })],
+		[h('span', label), h(resolveComponent('UIcon'), { name: icon, class: 'size-3.5 shrink-0 text-muted' })],
 	);
 }

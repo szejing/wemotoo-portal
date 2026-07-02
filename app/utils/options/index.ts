@@ -17,6 +17,17 @@ import {
 	getShipmentStatusOptions,
 } from './shipment-status';
 import { SHIPPING_ZONE_STATUS_FILTER_ALL, getShippingZoneStatusFilterItems } from './shipping-zone-filter';
+import {
+	ACTIVITY_LOG_FILTER_ALL,
+	getActivityLogActionLabel,
+	getActivityLogActionOptions,
+	getActivityLogActorTypeLabel,
+	getActivityLogActorTypeOptions,
+	getActivityLogSourceLabel,
+	getActivityLogSourceOptions,
+	getActivityLogVisibilityLabel,
+	getActivityLogVisibilityOptions,
+} from './activity-log';
 
 export {
 	options_page_size,
@@ -47,4 +58,13 @@ export {
 	getShipmentStatusOptions,
 	SHIPPING_ZONE_STATUS_FILTER_ALL,
 	getShippingZoneStatusFilterItems,
+	ACTIVITY_LOG_FILTER_ALL,
+	getActivityLogActionLabel,
+	getActivityLogActionOptions,
+	getActivityLogActorTypeLabel,
+	getActivityLogActorTypeOptions,
+	getActivityLogSourceLabel,
+	getActivityLogSourceOptions,
+	getActivityLogVisibilityLabel,
+	getActivityLogVisibilityOptions,
 };

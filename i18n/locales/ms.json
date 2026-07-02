@@ -96,6 +96,7 @@
 		"appointments": "Temujanji",
 		"sales": "Jualan",
 		"orders": "Pesanan",
+		"activityLogs": "Log Aktiviti",
 		"notifications": "Notifikasi",
 		"payments": "Pembayaran",
 		"refunds": "Pemulangan",
@@ -514,6 +515,7 @@
 		"productsListing": "Produk",
 		"categoriesTitle": "Wemotoo CRM - Kategori",
 		"brandsTitle": "Wemotoo CRM - Jenama",
+		"activityLogsTitle": "Wemotoo CRM - Log Aktiviti",
 		"discountsTitle": "Wemotoo CRM - Diskaun",
 		"vouchersTitle": "Wemotoo CRM - Baucar",
 		"shopVouchersTitle": "Wemotoo CRM - Baucar kedai",
@@ -664,6 +666,7 @@
 		"noOrdersFound": "Tiada pesanan dijumpai.",
 		"noProductsFound": "Tiada produk dijumpai.",
 		"noBrandsFound": "Tiada jenama dijumpai.",
+		"noActivityLogsFound": "Tiada log aktiviti dijumpai.",
 		"noCategoriesFound": "Tiada kategori dijumpai.",
 		"categoriesCount": "Memaparkan {total} kategori",
 		"noOptionsFound": "Tiada pilihan dijumpai.",
@@ -692,6 +695,7 @@
 		"crmUserPasswordUpdateFailed": "Gagal mengemas kini kata laluan",
 		"tryAdjustingSearch": "Cuba laraskan carian anda untuk lebih hasil.",
 		"showingToOf": "Menunjukkan {from} hingga {to} daripada {total} hasil",
+		"showingActivityLogs": "Menunjukkan {total} log aktiviti",
 		"totalLabel": "Jumlah",
 		"transactionsLabel": "transaksi",
 		"dashboardStatsAppointments": "Temujanji",
@@ -869,10 +873,52 @@
 		"shippingZonePricing": "Harga",
 		"shippingZoneFeeOverride": "Ganti yuran",
 		"shippingZoneDaysOverride": "Anggaran hari",
-		"reasonType": "Jenis sebab"
+		"reasonType": "Jenis sebab",
+		"createdAt": "Dicipta pada",
+		"action": "Tindakan",
+		"actor": "Pelaku",
+		"source": "Sumber",
+		"visibility": "Keterlihatan",
+		"reference": "Rujukan"
 	},
 	"options": {
 		"all": "Semua",
+		"activityLogAction": {
+			"created": "Dicipta",
+			"updated": "Dikemas kini",
+			"deleted": "Dipadam",
+			"restored": "Dipulihkan",
+			"imported": "Diimport",
+			"checkout_created": "Checkout dicipta",
+			"status_changed": "Status ditukar",
+			"payment_status_changed": "Status pembayaran ditukar",
+			"customer_request_created": "Permintaan pelanggan dicipta",
+			"refund_updated": "Bayaran balik dikemas kini",
+			"fulfillment_updated": "Pemenuhan dikemas kini",
+			"shipment_updated": "Penghantaran dikemas kini",
+			"profile_updated": "Profil dikemas kini",
+			"login": "Log masuk",
+			"logout": "Log keluar",
+			"relogin": "Log masuk semula"
+		},
+		"activityLogActorType": {
+			"admin": "Admin",
+			"customer": "Pelanggan",
+			"system": "Sistem",
+			"webhook": "Webhook"
+		},
+		"activityLogSource": {
+			"admin_portal": "Portal admin",
+			"storefront": "Kedai atas talian",
+			"webhook": "Webhook",
+			"system": "Sistem",
+			"import": "Import"
+		},
+		"activityLogVisibility": {
+			"admin": "Admin",
+			"customer": "Pelanggan",
+			"both": "Kedua-dua"
+		},
 		"reasonType": {
 			"returnExchange": "Pulangan & pertukaran",
 			"cancelOrder": "Batal pesanan"
@@ -989,6 +1035,7 @@
 			"searchReasons": "Cari kod atau keterangan sebab...",
 			"searchDiscounts": "Cari kod diskaun, nama, atau keterangan...",
 			"searchVouchers": "Cari kod baucar, nama, atau diskaun dipautkan...",
+			"searchActivityLogs": "Cari keterangan, rujukan, pelaku, permintaan, atau kelompok...",
 			"searchByNamePhoneEmail": "Cari mengikut Nama / No. Telefon / E-mel...",
 			"activeFilters": "Penapis aktif:",
 			"listing": "Senarai",

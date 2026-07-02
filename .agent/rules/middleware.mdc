@@ -35,6 +35,7 @@ export default defineNuxtRouteMiddleware(async (to, _from) => {
 - Prefer checking `import.meta.client` when logic is client-only (e.g. cookies, Pinia).
 - Use shared constants (e.g. `KEY` from `yeppi-common` or `~/composables/useWemotooCommon`) for cookie keys and routes.
 - Keep middleware focused: auth, role checks, or redirects. No heavy data loading.
+- For backend-controlled route rights, consume `exclude_routes` from auth state/navigation. Do not add frontend-only role checks for portal pages when the backend can exclude the nav key/path via `AuthService.getUserRights()`.
 
 ## Server Middleware (server/middleware/)
 

@@ -25,6 +25,7 @@ import type { CrmUserReq } from './crm-user/request/crm-user.req';
 import { IMAGE_FORMAT_ERROR_MESSAGE } from './image/image';
 
 import AffiliateModule from './affiliate/affiliate';
+import ActivityLogModule from './activity-log/activity-log';
 import AppointmentModule from './appointment/appointment';
 import AuthModule from './auth/auth';
 import CountryModule from './country/country';
@@ -159,6 +160,17 @@ describe('CrmUserModule', () => {
 		await mod.delete(u);
 		expect(lastFetch().opts.method).toBe('DELETE');
 		expect(lastFetch().url).toBe(MerchantRoutes.CrmUsers.Delete('u1'));
+	});
+});
+
+describe('ActivityLogModule', () => {
+	const mod = new ActivityLogModule();
+
+	it('getMany', async () => {
+		await mod.getMany(odata);
+		expect(lastFetch().url).toBe(MerchantRoutes.ActivityLogs.Many());
+		expect(lastFetch().opts.method).toBe('GET');
+		expect(lastFetch().opts.query).toEqual(odata);
 	});
 });
 

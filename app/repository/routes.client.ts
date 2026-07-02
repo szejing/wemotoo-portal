@@ -135,6 +135,9 @@ const MerchantRoutes = {
 		Read: (id: string) => `${prefix}/${API_PATH.MERCHANT}/${API_PATH.NOTIFICATIONS}/${id}/read`,
 		Open: (id: string) => `${prefix}/${API_PATH.MERCHANT}/${API_PATH.NOTIFICATIONS}/${id}/open`,
 	},
+	ActivityLogs: {
+		Many: () => `${prefix}/${API_PATH.MERCHANT}/activity-logs/many`,
+	},
 	Sales: {
 		Many: () => `${prefix}/${API_PATH.MERCHANT}/${API_PATH.SALES}/many`,
 		Single: (order_no: string) => `${prefix}/${API_PATH.MERCHANT}/${API_PATH.SALES}/${order_no}`,

@@ -122,6 +122,9 @@ export const Routes = {
 		Read: (id: string) => `${API_PATH.NOTIFICATIONS}/${id}/read`,
 		Open: (id: string) => `${API_PATH.NOTIFICATIONS}/${id}/open`,
 	},
+	ActivityLogs: {
+		Many: () => `activity-logs`,
+	},
 	Sales: {
 		Many: () => `${API_PATH.SALES}`,
 		Single: (order_no: string) => `${API_PATH.SALES}/${order_no}`,

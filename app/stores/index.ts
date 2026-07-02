@@ -29,6 +29,7 @@ import { useShippingMethodStore } from './ShippingMethod/ShippingMethod';
 import { useShippingZoneStore } from './ShippingZone/ShippingZone';
 import { useReasonStore } from './Reason/Reason';
 import { useNotificationStore } from './Notification/Notification';
+import { useActivityLogStore } from './ActivityLog/ActivityLog';
 
 export {
 	useAuthStore,
@@ -62,4 +63,5 @@ export {
 	useShippingZoneStore,
 	useReasonStore,
 	useNotificationStore,
+	useActivityLogStore,
 };
