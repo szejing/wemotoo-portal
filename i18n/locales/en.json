@@ -146,9 +146,19 @@
 		"logOut": "Log out"
 	},
 	"affiliate": {
+		"addAffiliate": "Add Affiliate",
+		"createAffiliate": "Create affiliate",
+		"customer": "Customer",
 		"slug": "Slug",
+		"slugPlaceholder": "Optional custom referral slug",
 		"tier": "Tier",
 		"tiers": "Tiers",
+		"selectCustomer": "Select customer",
+		"searchCustomers": "Search customers...",
+		"selectTier": "Select tier (optional)",
+		"clearTier": "Clear tier",
+		"minReferrals": "Min referrals",
+		"commissionPercentage": "Commission %",
 		"referrals": "Referrals",
 		"balance": "Balance",
 		"createdAt": "Created at"

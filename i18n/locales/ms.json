@@ -146,9 +146,19 @@
 		"logOut": "Log keluar"
 	},
 	"affiliate": {
+		"addAffiliate": "Tambah Ahli Gabungan",
+		"createAffiliate": "Cipta ahli gabungan",
+		"customer": "Pelanggan",
 		"slug": "Slug",
+		"slugPlaceholder": "Slug rujukan tersuai pilihan",
 		"tier": "Tier",
 		"tiers": "Tier",
+		"selectCustomer": "Pilih pelanggan",
+		"searchCustomers": "Cari pelanggan...",
+		"selectTier": "Pilih tier (pilihan)",
+		"clearTier": "Kosongkan tier",
+		"minReferrals": "Rujukan minimum",
+		"commissionPercentage": "Komisen %",
 		"referrals": "Rujukan",
 		"balance": "Baki",
 		"createdAt": "Dicipta pada"

@@ -1,5 +1,5 @@
 <template>
-	<ZPagePanel id="affiliate-tiers" :title="$t('affiliate.tiers')" back-to="/affiliates">
+	<ZPagePanel id="affiliate-tiers" :title="$t('affiliate.tiers')" back-to="/marketing/affiliates">
 		<div class="space-y-6 max-w-3xl">
 			<UCard>
 				<template #header>
@@ -9,13 +9,14 @@
 					<UFormField :label="$t('common.name')">
 						<UInput v-model="newTier.name" required />
 					</UFormField>
-					<UFormField label="Min referrals">
+					<UFormField :label="$t('affiliate.minReferrals')">
 						<UInput v-model.number="newTier.min_referrals" type="number" min="0" required />
 					</UFormField>
-					<UFormField label="Commission %">
+					<UFormField :label="$t('affiliate.commissionPercentage')">
 						<UInput v-model.number="newTier.default_commission_percentage" type="number" min="0" step="0.01" required />
 					</UFormField>
 					<UButton type="submit" color="primary" :loading="adding">
+						<UIcon v-if="!adding" :name="ICONS.ADD_OUTLINE" class="w-4 h-4" />
 						{{ $t('common.create') }}
 					</UButton>
 				</form>
@@ -36,8 +37,8 @@
 						<thead>
 							<tr>
 								<th class="px-4 py-2 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400">{{ $t('common.name') }}</th>
-								<th class="px-4 py-2 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400">Min referrals</th>
-								<th class="px-4 py-2 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400">Commission %</th>
+								<th class="px-4 py-2 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400">{{ $t('affiliate.minReferrals') }}</th>
+								<th class="px-4 py-2 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400">{{ $t('affiliate.commissionPercentage') }}</th>
 								<th class="px-4 py-2 w-20" />
 							</tr>
 						</thead>

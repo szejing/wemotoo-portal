@@ -35,7 +35,7 @@ const operationGroups = computed(() => [
 		color: 'blue' as const,
 		items: [
 			{ label: t('nav.staffs'), to: '/operation/staff' },
-			{ label: t('nav.staffDepartments'), to: '/operation/staff-departments' },
+			// { label: t('nav.staffDepartments'), to: '/operation/staff-departments' },
 			{ label: t('nav.outlets'), to: '/operation/outlets' },
 		],
 	},

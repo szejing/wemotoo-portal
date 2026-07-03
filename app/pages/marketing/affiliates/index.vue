@@ -1,9 +1,12 @@
 <template>
 	<ZPagePanel id="affiliates" :title="$t('nav.affiliates')">
 		<template #navbar-right>
-			<UButton variant="outline" color="neutral" @click="navigateTo('/affiliates/tiers')">
-				{{ $t('affiliate.tiers') }}
-			</UButton>
+			<div class="flex items-center gap-2">
+				<UButton variant="outline" color="neutral" @click="navigateTo('/marketing/affiliates/tiers')">
+					{{ $t('affiliate.tiers') }}
+				</UButton>
+				<ZCreateButton :label="$t('affiliate.addAffiliate')" @click="createAffiliateOpen = true" />
+			</div>
 		</template>
 		<template #toolbar>
 			<ZSectionFilterAffiliates />
@@ -42,6 +45,7 @@
 				<UPagination v-model="filter.current_page" :items-per-page="filter.page_size" :total="total_count" @update:page="updatePage" />
 			</div>
 		</div>
+		<AffiliateCreationModal v-model:open="createAffiliateOpen" />
 	</ZPagePanel>
 </template>
 
@@ -73,6 +77,7 @@ const affiliateStore = useAffiliateStore();
 const overlay = useOverlay();
 const loadingModal = overlay.create(ZModalLoading, { props: { key: 'loading' } });
 const { loading, updating, affiliates, filter, total_count } = storeToRefs(affiliateStore);
+const createAffiliateOpen = ref(false);
 
 watch(
 	() => updating.value,
@@ -88,7 +93,7 @@ watch(
 const selectAffiliate = (_e: Event, row: TableRow<Affiliate>) => {
 	const affiliate = row.original;
 	if (!affiliate?.id) return;
-	navigateTo(`/affiliates/${encodeURIComponent(affiliate.id)}`);
+	navigateTo(`/marketing/affiliates/${encodeURIComponent(affiliate.id)}`);
 };
 
 const updatePage = async (page: number) => {

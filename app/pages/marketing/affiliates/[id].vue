@@ -1,5 +1,5 @@
 <template>
-	<ZPagePanel id="affiliate-detail" :title="pageTitle" back-to="/affiliates">
+	<ZPagePanel id="affiliate-detail" :title="pageTitle" back-to="/marketing/affiliates">
 		<div v-if="loading && !current_affiliate" class="w-full animate-in fade-in duration-200 space-y-6 max-w-3xl">
 			<div class="space-y-4">
 				<USkeleton class="h-8 w-48" />

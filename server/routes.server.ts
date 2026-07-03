@@ -219,6 +219,17 @@ export const Routes = {
 		Delete: (code: string) => `${API_PATH.VOUCHERS}/${code}`,
 		Restore: (code: string) => `${API_PATH.VOUCHERS}/restore/${code}`,
 	},
+	Affiliates: {
+		Many: () => `${API_PATH.AFFILIATES}`,
+		BySlug: (slug: string) => `${API_PATH.AFFILIATES}/by-slug/${slug}`,
+		Single: (id: string) => `${API_PATH.AFFILIATES}/${id}`,
+		Create: () => `${API_PATH.AFFILIATES}`,
+		Tiers: () => `${API_PATH.AFFILIATES}/tiers`,
+		TierCreate: () => `${API_PATH.AFFILIATES}/tiers`,
+		TierUpdate: (id: number | string) => `${API_PATH.AFFILIATES}/tiers/${id}`,
+		TierDelete: (id: number | string) => `${API_PATH.AFFILIATES}/tiers/${id}`,
+		MyReport: () => `${API_PATH.AFFILIATES}/my-report`,
+	},
 	Fulfillment: {
 		Create: (order_no: string) => `fulfillment/${order_no}/create`,
 		MarkProcessing: (order_no: string) => `fulfillment/${order_no}/processing`,
