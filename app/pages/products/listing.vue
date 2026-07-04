@@ -8,6 +8,8 @@
 					:accept="PRODUCT_IMPORT_ACCEPT"
 					:is-allowed-file="isAllowedProductImportFile"
 					:format-error-message="PRODUCT_IMPORT_FORMAT_ERROR_MESSAGE"
+					:import-sources="productImportSources"
+					:source-modal-title="t('import.selectTemplate')"
 					@download-template="downloadProductImportTemplate"
 					@import="importProductFile"
 				/>
@@ -67,7 +69,7 @@ import { columnOptionsFromLabelMap } from '~/utils/table-columns/visibility';
 import type { Product } from '~/utils/types/product';
 import type { TableRow } from '@nuxt/ui';
 import { ZModalImporting, ZModalLoading } from '#components';
-import { PRODUCT_IMPORT_ACCEPT, PRODUCT_IMPORT_FORMAT_ERROR_MESSAGE, isAllowedProductImportFile } from '~/repository/modules/product/product';
+import { PRODUCT_IMPORT_ACCEPT, PRODUCT_IMPORT_FORMAT_ERROR_MESSAGE, isAllowedProductImportFile, type ProductImportTemplateType } from '~/repository/modules/product/product';
 import { ICONS } from '~/utils/icons';
 
 const { t } = useI18n();
@@ -88,6 +90,18 @@ const product_columns = computed(() => getProductColumns(t));
 const columnOptions = computed(() => columnOptionsFromLabelMap(t, PRODUCT_COLUMN_LABELS));
 const { selectedColumnKeys, visibleColumns } = useTableColumnVisibility(product_columns, columnOptions);
 useHead({ title: () => t('pages.productsTitle') });
+const productImportSources = computed(() => [
+	{
+		label: t('import.ourTemplate'),
+		value: 'wemotoo',
+		description: t('import.ourTemplateDescription'),
+	},
+	{
+		label: t('import.sitegiant'),
+		value: 'sitegiant',
+		description: t('import.sitegiantDescription'),
+	},
+]);
 
 const { products, loading, filter, total_products, exporting, updating, importing, downloading_template } = storeToRefs(productStore);
 const initialize = ref(true);
@@ -153,9 +167,9 @@ const exportProducts = async () => {
 	await productStore.exportProducts();
 };
 
-const importProductFile = async (file: File) => {
+const importProductFile = async (file: File, templateType: ProductImportTemplateType = 'wemotoo') => {
 	try {
-		await productStore.importProducts(file);
+		await productStore.importProducts(file, templateType);
 	} catch {
 		// Store action already shows the failure notification.
 	}

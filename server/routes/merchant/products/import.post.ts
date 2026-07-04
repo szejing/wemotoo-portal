@@ -31,6 +31,14 @@ export default defineEventHandler(async (event) => {
 		}
 
 		assertAllowedProductImportFile(file);
+		const templateType = String(formData.get('template_type') || 'wemotoo');
+
+		if (!['wemotoo', 'sitegiant'].includes(templateType)) {
+			throw createError({
+				statusCode: 400,
+				statusMessage: 'Unsupported product import template type',
+			});
+		}
 
 		const merchantId = getCookie(event, KEY.X_MERCHANT_ID) || '';
 		if (!merchantId) {
@@ -43,6 +51,7 @@ export default defineEventHandler(async (event) => {
 		const newFormData = new FormData();
 		const blob = new Blob([file], { type: file.type });
 		newFormData.append('merchant_id', merchantId);
+		newFormData.append('template_type', templateType);
 		newFormData.append('file', blob, file.name);
 
 		const result = await $fetch(`${Routes.Products.Import()}`, {

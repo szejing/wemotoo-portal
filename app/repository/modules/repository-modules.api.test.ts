@@ -420,6 +420,18 @@ describe('ProductModule', () => {
 		expect(fd).toBeInstanceOf(FormData);
 		const uploaded = fd.get('file') as File;
 		expect(uploaded.name).toBe('products.csv');
+		expect(fd.get('template_type')).toBe('wemotoo');
+	});
+
+	it('importProducts sends selected Sitegiant template type', async () => {
+		const file = new File(['code,name'], 'products.xlsx', {
+			type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+		});
+
+		await mod.importProducts(file, 'sitegiant');
+
+		const fd = lastFetch().opts.body as FormData;
+		expect(fd.get('template_type')).toBe('sitegiant');
 	});
 
 	it('importProducts rejects unsupported file extensions before network call', async () => {
@@ -601,7 +613,9 @@ describe('CustomerModule', () => {
 	});
 
 	it('importCustomers sends allowed spreadsheet file as FormData', async () => {
-		const file = new File(['name,email_address'], 'customers.csv', { type: 'text/csv' });
+		const file = new File(['name,email_address'], 'customers.csv', {
+			type: 'text/csv',
+		});
 
 		await mod.importCustomers(file);
 

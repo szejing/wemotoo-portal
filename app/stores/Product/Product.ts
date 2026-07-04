@@ -7,7 +7,7 @@ import type { ProductCreate, ProductUpdate } from '~/utils/types/form/product-cr
 import { dir } from '~/utils/constants/dir';
 import type { BaseODataReq } from '~/repository/base/base.req';
 import type { ImageReq } from '~/repository/modules/image/models/request/image.req';
-import type { ProductImportResp } from '~/repository/modules/product/product';
+import type { ProductImportResp, ProductImportTemplateType } from '~/repository/modules/product/product';
 
 type ProductFilter = {
 	query: string;
@@ -354,13 +354,13 @@ export const useProductStore = defineStore('productStore', {
 			}
 		},
 
-		async importProducts(file: File): Promise<ProductImportResp> {
+		async importProducts(file: File, templateType: ProductImportTemplateType = 'wemotoo'): Promise<ProductImportResp> {
 			this.importing = true;
 
 			const { $api } = useNuxtApp();
 
 			try {
-				const result = await $api.product.importProducts(file);
+				const result = await $api.product.importProducts(file, templateType);
 				const created = result.created ?? 0;
 				const updated = result.updated ?? 0;
 				const failed = result.failed ?? 0;

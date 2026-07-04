@@ -967,6 +967,13 @@
 		"grossAmount": "Gross Amount",
 		"netAmount": "Net Amount"
 	},
+	"import": {
+		"selectTemplate": "Choose import template",
+		"ourTemplate": "Our template",
+		"ourTemplateDescription": "Use the standard Wemotoo product template.",
+		"sitegiant": "Sitegiant",
+		"sitegiantDescription": "Use a Sitegiant product export with variants."
+	},
 	"modal": {
 		"leavePage": "Leave page?",
 		"leavePageMessage": "You have unsaved changes. Are you sure you want to leave?",

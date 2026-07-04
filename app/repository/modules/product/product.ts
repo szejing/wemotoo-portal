@@ -13,6 +13,7 @@ const PRODUCT_IMPORT_ALLOWED_EXTENSIONS = ['.csv', '.xlsx'] as const;
 
 export const PRODUCT_IMPORT_ACCEPT = '.csv,.xlsx,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
 export const PRODUCT_IMPORT_FORMAT_ERROR_MESSAGE = 'Unsupported product import file format. Allowed: CSV, XLSX';
+export type ProductImportTemplateType = 'wemotoo' | 'sitegiant';
 
 export type ProductImportResp = {
 	total: number;
@@ -92,11 +93,12 @@ class ProductModule extends HttpFactory {
 		});
 	}
 
-	async importProducts(file: File): Promise<ProductImportResp> {
+	async importProducts(file: File, templateType: ProductImportTemplateType = 'wemotoo'): Promise<ProductImportResp> {
 		assertAllowedProductImportFormat(file);
 
 		const formData = new FormData();
 		formData.append('file', file);
+		formData.append('template_type', templateType);
 
 		return await this.call<ProductImportResp>({
 			method: 'POST',

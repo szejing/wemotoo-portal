@@ -1,5 +1,5 @@
 <template>
-	<div v-if="loading || requests.length > 0" class="mt-4 rounded-lg">
+	<div v-if="requests.length > 0" class="mt-4 rounded-lg">
 		<UCard
 			class="border border-warning/70"
 			:ui="{

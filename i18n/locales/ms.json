@@ -966,6 +966,13 @@
 		"grossAmount": "Jumlah Kasar",
 		"netAmount": "Jumlah Bersih"
 	},
+	"import": {
+		"selectTemplate": "Pilih templat import",
+		"ourTemplate": "Templat kami",
+		"ourTemplateDescription": "Gunakan templat produk standard Wemotoo.",
+		"sitegiant": "Sitegiant",
+		"sitegiantDescription": "Gunakan eksport produk Sitegiant dengan varian."
+	},
 	"modal": {
 		"leavePage": "Tinggalkan halaman?",
 		"leavePageMessage": "Anda mempunyai perubahan yang belum disimpan. Adakah anda pasti mahu meninggalkan?",
