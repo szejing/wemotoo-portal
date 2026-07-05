@@ -1,0 +1,43 @@
+---
+description: Creating and maintaining shareable Z components (app/components/Z/)
+globs: app/components/Z/**/*.vue
+alwaysApply: false
+---
+
+# Z Shareable Components
+
+`app/components/Z/` holds reusable UI building blocks shared across domains (inputs, sections, modals, toolbars, pickers). Full extraction workflow: skill **shareable-components** (`.agent/skills/shareable-components/SKILL.md`).
+
+## When to Create
+
+- The same UI block (form section, card, toolbar, modal pattern) is used in **2+ pages or components**.
+- Usages are identical in structure and differ only by bound state, flags (e.g. disabled), or handlers.
+- Do NOT extract single-use, page-specific blocks into `Z/` — keep those in the page or domain folder (e.g. `Form/`).
+
+## Placement
+
+- Generic, cross-domain primitive → `Z/` root (e.g. `Z/CreateButton.vue`, `Z/BackButton.vue`, `Z/Quantity.vue`).
+- Domain-specific input/form section → `Z/Input/<Domain>/` (e.g. `Z/Input/Product/BasicInfoSection.vue`, `Z/Input/Order/Detail/Customer.vue`).
+- List/summary filter sections → `Z/Section/` (e.g. `Z/Section/Filter/OrderSumm/`).
+- Modals → `Z/Modal/`, select menus → `Z/SelectMenu/`, upload areas → `Z/Dropzone/`.
+
+## Naming
+
+- PascalCase file named after the component; one component per file.
+- Nuxt auto-import name is path-based: `Z/Input/Product/BasicInfoSection.vue` → `<ZInputProductBasicInfoSection />`. Choose folder/file names so the resulting tag reads naturally.
+- Client-only components use the `.client.vue` suffix (e.g. `TextEditor.client.vue`).
+
+## Component API
+
+- **State**: prefer a single `state` prop holding the parent's reactive object; use `toRef(props, 'state')` inside so `v-model="state.field"` mutations flow back. The parent stays the source of truth.
+- **Behaviour flags**: mode differences are boolean/enum props (e.g. `codeDisabled` for update vs create), not copies of the component.
+- **Events**: side effects the parent must own (file upload, delete, submit) are typed emits (e.g. `'update:thumbnail': [files: File[]]`), never direct store writes.
+- Type everything: `defineProps<{ ... }>()` / `withDefaults(...)` and tuple-syntax `defineEmits`. Export the state type (e.g. `ProductBasicInfoState`) when parents need it.
+- Keep Z components presentational and generic: no page routing logic, no Pinia store access, no repository calls — pass data in via props, raise events out.
+
+## Conventions
+
+- Build on Nuxt UI v4 components (`UButton`, `UFormField`, `UCard`, `UModal`, ...) before custom markup; see `styling-ui-nuxt-ui.mdc`.
+- Icons from `ICONS` in `~/utils/icons`; user-facing copy through i18n (`t('...')` / `$t('...')`), with defaults resolved via `computed` when a prop overrides the translation.
+- When extracting, update **all** call sites to use the new component and add minimal handlers where a usage lacked one, so the shared API stays consistent.
+- Verify with `npm run typecheck` and `npm run lint` after adding or changing a Z component.

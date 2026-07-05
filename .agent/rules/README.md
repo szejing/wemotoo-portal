@@ -35,6 +35,8 @@ File extension: `.mdc` (Markdown with Cursor frontmatter; valid for both editors
 
 - **`styling-legacy.mdc`** – Legacy CSS-only styling (no Tailwind). Enable only for non–Nuxt UI or legacy components; conflicts with @nuxt/ui.
 
+- **`z-shareable-components.mdc`** – Shareable primitives in `app/components/Z/`: when to extract, placement (`Z/`, `Z/Input/<Domain>/`, `Z/Section/`), naming, state-prop + typed-emits API, and no store/repository access. Full workflow: skill **shareable-components**.
+
 - **`composables.mdc`** – Composables in `app/composables/`. Naming (`useXxx`), structure, and when to use them.
 
 ### Responsive / Mobile
@@ -63,6 +65,7 @@ File extension: `.mdc` (Markdown with Cursor frontmatter; valid for both editors
 | Validation         | `app/utils/schema/*`        | schema.mdc             |
 | Types / models     | `app/utils/types`, repo models | types.mdc          |
 | Pages & components | `app/pages/*`, `app/components/*` | vue-pages-components.mdc |
+| Shared Z primitives | `app/components/Z/*`       | z-shareable-components.mdc |
 | Styling / UI       | Pages, components, layouts | styling-ui-nuxt-ui.mdc (prefer [Nuxt UI](https://ui.nuxt.com/docs/components)) |
 | Mobile / Responsive| Pages, components, layouts | mobile-ui.mdc          |
 | Composables        | `app/composables/*`         | composables.mdc        |
