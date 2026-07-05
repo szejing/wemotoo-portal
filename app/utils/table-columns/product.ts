@@ -14,6 +14,12 @@ export function getProductColumns(t: TranslateFn): TableColumn<Product>[] {
 		{
 			accessorKey: 'name',
 			header: ({ column }) => getSortableHeader(column, t('table.codeAndName')),
+			meta: {
+				class: {
+					th: 'text-left max-w-sm',
+					td: 'text-left max-w-sm min-w-[12rem]',
+				},
+			},
 			cell: ({ row }) => {
 				const thumbnailUrl = row.original.thumbnail?.url;
 				const variants = row.original.variants;
@@ -37,8 +43,11 @@ export function getProductColumns(t: TranslateFn): TableColumn<Product>[] {
 								class: 'w-10 h-10 rounded-md object-cover flex-shrink-0',
 							}),
 					h('div', { class: 'flex-1 min-w-0' }, [
-						h('div', { class: 'flex items-center gap-1.5' }, [statusDot, h('span', { class: 'font-semibold text-sm text-highlighted' }, row.original.name)]),
-						h('div', { class: 'text-xs text-muted font-mono italic' }, row.original.code),
+						h('div', { class: 'flex items-center gap-1.5 min-w-0' }, [
+							statusDot,
+							h('span', { class: 'font-semibold text-sm text-highlighted truncate', title: row.original.name ?? undefined }, row.original.name),
+						]),
+						h('div', { class: 'text-xs text-muted font-mono italic truncate', title: row.original.code ?? undefined }, row.original.code),
 						variantBadge.length > 0 ? h('div', { class: 'mt-1 flex flex-wrap items-center gap-1' }, [...variantBadge]) : null,
 					]),
 				];

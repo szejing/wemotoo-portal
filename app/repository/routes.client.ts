@@ -42,6 +42,7 @@ const MerchantRoutes = {
 	Products: {
 		Create: () => `${prefix}/${API_PATH.MERCHANT}/${API_PATH.PROD}/create`,
 		Single: (code: string) => `${prefix}/${API_PATH.MERCHANT}/${API_PATH.PROD}/${code}`,
+		BySlug: (slug: string) => `${prefix}/${API_PATH.MERCHANT}/${API_PATH.PROD}/by-slug/${encodeURIComponent(slug)}`,
 		Many: () => `${prefix}/${API_PATH.MERCHANT}/${API_PATH.PROD}/many`,
 		Import: () => `${prefix}/${API_PATH.MERCHANT}/${API_PATH.PROD}/import`,
 		ImportTemplate: () => `${prefix}/${API_PATH.MERCHANT}/${API_PATH.PROD}/import/template`,

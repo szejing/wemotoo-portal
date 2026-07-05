@@ -71,6 +71,7 @@ import type { TableRow } from '@nuxt/ui';
 import { ZModalImporting, ZModalLoading } from '#components';
 import { PRODUCT_IMPORT_ACCEPT, PRODUCT_IMPORT_FORMAT_ERROR_MESSAGE, isAllowedProductImportFile, type ProductImportTemplateType } from '~/repository/modules/product/product';
 import { ICONS } from '~/utils/icons';
+import { productDetailPath } from '~/utils/product-route';
 
 const { t } = useI18n();
 const productStore = useProductStore();
@@ -152,7 +153,7 @@ const selectProduct = async (e: Event, row: TableRow<Product>) => {
 	const product = row.original;
 	if (!product) return;
 
-	navigateTo(`/products/${product.code}`);
+	navigateTo(productDetailPath(product));
 };
 
 const updatePage = async (page: number) => {
@@ -167,7 +168,8 @@ const exportProducts = async () => {
 	await productStore.exportProducts();
 };
 
-const importProductFile = async (file: File, templateType: ProductImportTemplateType = 'wemotoo') => {
+const importProductFile = async (file: File, importSource?: string) => {
+	const templateType: ProductImportTemplateType = importSource === 'sitegiant' ? 'sitegiant' : 'wemotoo';
 	try {
 		await productStore.importProducts(file, templateType);
 	} catch {

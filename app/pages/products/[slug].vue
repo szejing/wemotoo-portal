@@ -1,5 +1,5 @@
 <template>
-	<ZPagePanel id="product-detail" :title="`${$t('pages.productDetail')} #${current_product?.code ?? code}`" back-to="/products" grow>
+	<ZPagePanel id="product-detail" :title="`${$t('pages.productDetail')} #${current_product?.code ?? slug}`" back-to="/products" grow>
 		<div class="container w-full mx-auto">
 			<FormProductUpdateLoading v-if="isLoading" />
 			<FormProductUpdate v-else-if="current_product" ref="formRef" :product="current_product" />
@@ -60,7 +60,7 @@ import { ZModalConfirmation } from '#components';
 definePageMeta({ middleware: 'product-detail' });
 
 const route = useRoute();
-const code = route.params.code as string;
+const slug = route.params.slug as string;
 
 const overlay = useOverlay();
 const productStore = useProductStore();
@@ -70,7 +70,7 @@ const formRef = ref<{ submit: () => void } | null>(null);
 const isLoading = ref(!current_product.value);
 
 const { t } = useI18n();
-useHead({ title: () => t('pages.productDetailTitle') + (current_product.value?.code ?? code) });
+useHead({ title: () => t('pages.productDetailTitle') + (current_product.value?.code ?? slug) });
 
 onBeforeRouteLeave(() => {
 	current_product.value = undefined;
@@ -78,7 +78,7 @@ onBeforeRouteLeave(() => {
 
 onBeforeMount(async () => {
 	if (!current_product.value) {
-		const product = await productStore.getProduct(code as string);
+		const product = await productStore.getProductBySlug(slug);
 
 		if (product) {
 			productStore.current_product = product;

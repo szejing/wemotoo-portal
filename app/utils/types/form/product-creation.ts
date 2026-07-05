@@ -6,6 +6,7 @@ import type { ProductVariationInput } from '../product-variation';
 
 export type ProductCreate = {
 	code?: string;
+	slug?: string;
 	name?: string;
 	short_desc?: string;
 	long_desc?: string;
@@ -34,6 +35,7 @@ export type ProductCreate = {
 
 export type ProductUpdate = {
 	code?: string;
+	slug?: string;
 	name?: string;
 	short_desc?: string;
 	long_desc?: string;

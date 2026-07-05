@@ -56,6 +56,13 @@ class ProductModule extends HttpFactory {
 		});
 	}
 
+	async getSingleBySlug(slug: string): Promise<ProductResp> {
+		return await this.call<ProductResp>({
+			method: 'GET',
+			url: `${this.RESOURCE.BySlug(slug)}`,
+		});
+	}
+
 	async create(product: CreateProductReq): Promise<CreateProductResp> {
 		return await this.call<CreateProductResp>({
 			method: 'POST',

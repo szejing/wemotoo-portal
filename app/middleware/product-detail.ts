@@ -1,6 +1,6 @@
 export default defineNuxtRouteMiddleware((to) => {
-	const code = to.params.code;
-	if (!code) {
+	const slug = to.params.slug;
+	if (!slug) {
 		return navigateTo('/products/listing');
 	}
 });

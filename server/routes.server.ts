@@ -36,6 +36,7 @@ export const Routes = {
 	Products: {
 		Create: () => `${API_PATH.PROD}/`,
 		Single: (code: string) => `${API_PATH.PROD}/${code}`,
+		BySlug: (slug: string) => `${API_PATH.PROD}/by-slug/${encodeURIComponent(slug)}`,
 		Many: () => `${API_PATH.PROD}/`,
 		Import: () => `${API_PATH.PROD}/import`,
 		ImportTemplate: () => `${API_PATH.PROD}/import/template`,

@@ -15,6 +15,7 @@ export function transformProductToUpdate(
 
 	return {
 		code: product.code,
+		slug: product.slug,
 		name: product.name,
 		short_desc: product.short_desc,
 		long_desc: product.long_desc,

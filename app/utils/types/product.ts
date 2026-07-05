@@ -60,6 +60,7 @@ export type ProductVariantInput = {
 
 export type Product = {
 	code?: string;
+	slug?: string;
 	name?: string;
 	short_desc?: string;
 	long_desc?: string;

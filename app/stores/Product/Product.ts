@@ -128,6 +128,21 @@ export const useProductStore = defineStore('productStore', {
 			}
 		},
 
+		async getProductBySlug(slug: string): Promise<Product | undefined> {
+			const { $api } = useNuxtApp();
+
+			try {
+				const data = await $api.product.getSingleBySlug(slug);
+
+				if (data.product) {
+					return data.product;
+				}
+			} catch (err: unknown | ErrorResponse) {
+				const message = (err as ErrorResponse).message ?? 'Failed to process product';
+				failedNotification(message);
+			}
+		},
+
 		async getProducts(): Promise<void> {
 			this.loading = true;
 			const { $api } = useNuxtApp();
@@ -267,6 +282,7 @@ export const useProductStore = defineStore('productStore', {
 
 				// Build payload with only defined fields (partial update: omit = no change)
 				const body: Record<string, unknown> = {};
+				if (product.slug !== undefined) body.slug = product.slug;
 				if (product.name !== undefined) body.name = product.name;
 				if (product.short_desc !== undefined) body.short_desc = product.short_desc;
 				if (product.long_desc !== undefined) body.long_desc = product.long_desc;
