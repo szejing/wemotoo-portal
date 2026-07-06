@@ -8,6 +8,7 @@ import type { ErrorResponse } from '~/repository/base/error';
 export const useSettingStore = defineStore('settingStore', {
 	state: () => ({
 		loading: false as boolean,
+		updating: false as boolean,
 		segments: [] as SettingSegment[],
 		settings: [] as Setting[],
 		updatedSettings: [] as Setting[],
@@ -21,16 +22,14 @@ export const useSettingStore = defineStore('settingStore', {
 			const { $api } = useNuxtApp();
 			try {
 				const { data } = await $api.setting.getMany({
-					$top: this.page_size,
-					$count: true,
 					$expand: 'setting_templs,segment_children.setting_templs',
-					$skip: (this.current_page - 1) * this.page_size,
 					$orderby: 'seq_no asc',
 				});
 
-				if (data) {
-					this.segments = data[0]?.segments ?? [];
-					this.settings = data[0]?.settings.map((setting) => new Setting(setting)) ?? [];
+				const payload = data?.[0];
+				if (payload) {
+					this.segments = payload.segments ?? [];
+					this.settings = payload.settings?.map((setting) => new Setting(setting)) ?? [];
 				}
 			} catch (err: unknown | ErrorResponse) {
 				const message = (err as ErrorResponse).message ?? 'Failed to load settings';
@@ -58,10 +57,10 @@ export const useSettingStore = defineStore('settingStore', {
 		},
 
 		async updateSettings() {
-			this.loading = true;
+			this.updating = true;
 			const { $api } = useNuxtApp();
 			try {
-				const data = await $api.setting.saveMany({
+				const { data } = await $api.setting.saveMany({
 					settings: this.updatedSettings.map((setting) => ({
 						group_code: setting.group_code,
 						set_code: setting.set_code,
@@ -69,14 +68,18 @@ export const useSettingStore = defineStore('settingStore', {
 					})),
 				});
 
-				if (data.segments) {
-					this.segments = data.segments;
+				const payload = data?.[0];
+				if (payload) {
+					this.segments = payload.segments ?? [];
+					this.settings = payload.settings?.map((setting) => new Setting(setting)) ?? [];
+					this.clearUpdatedSettings();
+					successNotification('Settings updated');
 				}
 			} catch (err: unknown | ErrorResponse) {
 				const message = (err as ErrorResponse).message ?? 'Failed to update settings';
 				failedNotification(message);
 			} finally {
-				this.loading = false;
+				this.updating = false;
 			}
 		},
 	},

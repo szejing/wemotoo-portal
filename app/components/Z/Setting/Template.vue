@@ -5,46 +5,46 @@
 
 			<div class="min-w-[50%] text-end">
 				<UInput
-					v-if="template.input_type === InputTypeEnum.TEXT"
+					v-if="getInputType(template) === InputTypeEnum.TEXT"
 					type="text"
-					:model-value="getSettingValue(template)"
+					:model-value="getTextSettingValue(template)"
 					:disabled="template.is_disabled"
 					:placeholder="template.default_val"
 					@update:model-value="(value) => updateSettingValue(template, value)"
 				/>
 				<UInput
-					v-if="template.input_type === InputTypeEnum.NUMBER"
+					v-if="getInputType(template) === InputTypeEnum.NUMBER"
 					type="number"
-					:model-value="getSettingValue(template)"
+					:model-value="getTextSettingValue(template)"
 					:disabled="template.is_disabled"
 					:placeholder="template.default_val"
 					@update:model-value="(value) => updateSettingValue(template, value)"
 				/>
-				<UCheckbox
-					v-if="template.input_type === InputTypeEnum.BOOLEAN"
-					:model-value="getSettingValue(template)"
+				<USwitch
+					v-if="getInputType(template) === InputTypeEnum.BOOLEAN"
+					:model-value="getBooleanSettingValue(template)"
 					:disabled="template.is_disabled"
-					@update:model-value="(value: boolean | 'indeterminate') => updateSettingValue(template, value)"
+					@update:model-value="(value) => updateSettingValue(template, value)"
 				/>
 				<UTextarea
-					v-if="template.input_type === InputTypeEnum.TEXTAREA"
-					:model-value="getSettingValue(template)"
+					v-if="getInputType(template) === InputTypeEnum.TEXTAREA"
+					:model-value="getTextSettingValue(template)"
 					:disabled="template.is_disabled"
 					:placeholder="template.default_val"
 					:rows="4"
 					@update:model-value="(value) => updateSettingValue(template, value)"
 				/>
 				<UInput
-					v-if="template.input_type === InputTypeEnum.MASKEDTEXTBOX"
+					v-if="getInputType(template) === InputTypeEnum.MASKEDTEXTBOX"
 					type="text"
-					:model-value="getSettingValue(template)"
+					:model-value="getTextSettingValue(template)"
 					:disabled="template.is_disabled"
 					:placeholder="template.default_val"
 					@update:model-value="(value) => updateSettingValue(template, value)"
 				/>
-				<div v-if="template.input_type === InputTypeEnum.GETFILENAME" class="space-y-1">
+				<div v-if="getInputType(template) === InputTypeEnum.GETFILENAME" class="space-y-1">
 					<UInput type="file" :disabled="template.is_disabled" @change="handleFileChange(template, $event)" />
-					<p v-if="getSettingValue(template)" class="text-xs text-gray-500">Current: {{ getSettingValue(template) }}</p>
+					<p v-if="getTextSettingValue(template)" class="text-xs text-gray-500">Current: {{ getTextSettingValue(template) }}</p>
 				</div>
 			</div>
 		</div>
@@ -66,27 +66,39 @@ const props = defineProps({
 const { templates } = toRefs(props);
 
 const settingsStore = useSettingStore();
-const { settings } = storeToRefs(settingsStore);
+const { settings, updatedSettings } = storeToRefs(settingsStore);
 
-const getSettingValue = (template: SettingTempl): string | number | boolean | any => {
-	const value = settings.value.find((setting: Setting) => setting.set_code === template.set_code)?.set_value;
+const getInputType = (template: SettingTempl) => Number(template.input_type);
 
-	if (template.input_type === InputTypeEnum.BOOLEAN) {
-		return value === 'true' || value === '1';
+const getRawSettingValue = (template: SettingTempl): string | undefined => {
+	const pending = updatedSettings.value.find((setting: Setting) => setting.set_code === template.set_code);
+	if (pending) {
+		return pending.set_value;
 	}
 
-	if (template.input_type === InputTypeEnum.NUMBER) {
-		return Number(value);
-	}
-
-	return value;
+	return settings.value.find((setting: Setting) => setting.set_code === template.set_code)?.set_value ?? template.default_val;
 };
 
-const updateSettingValue = (template: SettingTempl, value: string | number | boolean | any) => {
+const getTextSettingValue = (template: SettingTempl): string => getRawSettingValue(template) ?? template.default_val ?? '';
+
+const getBooleanSettingValue = (template: SettingTempl): boolean => {
+	const value = getRawSettingValue(template);
+	return value === 'true' || value === '1';
+};
+
+const serializeSettingValue = (template: SettingTempl, value: string | number | boolean): string => {
+	if (getInputType(template) === InputTypeEnum.BOOLEAN) {
+		return value === true || value === 'true' || value === '1' ? '1' : '0';
+	}
+
+	return String(value);
+};
+
+const updateSettingValue = (template: SettingTempl, value: string | number | boolean) => {
 	const settingData = {
 		group_code: template.group_code,
 		set_code: template.set_code,
-		set_value: value,
+		set_value: serializeSettingValue(template, value),
 		value_type: template.input_type,
 	};
 	const updatedSetting = new Setting(settingData as unknown as Setting);

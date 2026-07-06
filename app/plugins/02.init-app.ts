@@ -1,28 +1,26 @@
-import { KEY } from 'yeppi-common';
-import { useAuthStore } from '~/stores';
+const publicPaths = ['/login', '/forgot-password', '/reset-password'];
 
 export default defineNuxtPlugin(async (_) => {
-	if (import.meta.client) {
-		try {
-			const cookie_access_token = useCookie(KEY.ACCESS_TOKEN) || '';
-			const cookie_merchant_id = useCookie(KEY.X_MERCHANT_ID) || '';
+	if (!import.meta.client) {
+		return;
+	}
 
-			if (!cookie_access_token.value || !cookie_merchant_id.value) {
-				navigateTo('/login');
-				return;
-			}
+	const route = useRoute();
+	if (publicPaths.includes(route.path)) {
+		return;
+	}
 
-			const authStore = useAuthStore();
-			const result = await authStore.verify();
-			if (!result) {
-				authStore.clearCookies();
-				navigateTo('/login');
-				return;
-			}
-			const appStore = useAppStore();
-			await appStore.init();
-		} catch {
-			navigateTo('/login');
+	try {
+		const authStore = useAuthStore();
+		const verified = await authStore.verify();
+		if (!verified) {
+			authStore.clearCookies();
+			return navigateTo('/login');
 		}
+
+		const appStore = useAppStore();
+		await appStore.init();
+	} catch {
+		// Session gating runs in auth.global; avoid duplicate redirects that race hydration.
 	}
 });

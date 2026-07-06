@@ -16,8 +16,8 @@ class SettingModule extends HttpFactory {
 		});
 	}
 
-	async saveMany(settings: UpdateSettingReq): Promise<SettingsResp> {
-		return await this.call<SettingsResp>({
+	async saveMany(settings: UpdateSettingReq): Promise<BaseODataResp<SettingsResp>> {
+		return await this.call<BaseODataResp<SettingsResp>>({
 			method: 'POST',
 			url: `${this.RESOURCE.SaveMany()}`,
 			body: settings,

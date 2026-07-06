@@ -23,20 +23,21 @@ const props = defineProps({
 
 const { segment } = toRefs(props);
 
+const filterExternalTemplates = (templates: SettingSegment['setting_templs'] | undefined) =>
+	(templates ?? []).filter((template) => !template.is_internal);
+
 // Filter out internal templates for the main segment
-const filteredSettingTempls = computed(() => {
-	return segment.value.setting_templs.filter((template) => !template.is_internal);
-});
+const filteredSettingTempls = computed(() => filterExternalTemplates(segment.value.setting_templs));
 
 // Filter out internal templates for child segments and only show children with external templates
-const visibleChildren = computed(() => {
-	return segment.value.segment_children
+const visibleChildren = computed(() =>
+	(segment.value.segment_children ?? [])
 		.map((child) => ({
 			...child,
-			filteredTempls: child.setting_templs.filter((template) => !template.is_internal),
+			filteredTempls: filterExternalTemplates(child.setting_templs),
 		}))
-		.filter((child) => child.filteredTempls.length > 0);
-});
+		.filter((child) => child.filteredTempls.length > 0),
+);
 
 // Hide the entire segment if no external templates exist in main segment or any children
 const shouldHide = computed(() => {
