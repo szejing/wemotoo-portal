@@ -65,10 +65,17 @@ class AuthModule extends HttpFactory {
 	 * refresh session
 	 * @returns
 	 */
-	async verify(): Promise<VerifyResp> {
+	async verify(options?: { merchant_id?: string; authorization?: string }): Promise<VerifyResp> {
+		const headers: Record<string, string> = {};
+		if (options?.authorization) {
+			headers.Authorization = options.authorization;
+		}
+
 		return await this.call<VerifyResp>({
 			method: 'POST',
 			url: `${this.RESOURCE.Verify()}`,
+			body: options?.merchant_id ? { merchant_id: options.merchant_id } : undefined,
+			headers,
 		});
 	}
 

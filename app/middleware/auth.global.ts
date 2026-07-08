@@ -1,5 +1,6 @@
-import { KEY } from '~/composables/useWemotooCommon';
+import { KEY } from 'yeppi-common';
 import { useAuthStore } from '~/stores';
+import { resolveSessionMerchantId } from '~/utils/auth/merchant-id';
 
 const publicPaths = ['/login', '/forgot-password', '/reset-password'];
 
@@ -19,7 +20,7 @@ export default defineNuxtRouteMiddleware(async (to, _from) => {
 
 	// Must run on server too; otherwise SSR renders the protected layout while the client redirects to /login,
 	// causing hydration mismatches (e.g. UDashboardGroup shell vs auth layout).
-	if (!accessToken.value || !merchantId.value) {
+	if (!accessToken.value || !resolveSessionMerchantId(merchantId.value)) {
 		return navigateTo('/login');
 	}
 

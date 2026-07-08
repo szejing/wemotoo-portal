@@ -116,6 +116,8 @@ export async function signedFetch(
 		body?: any;
 		headers?: Record<string, string>;
 		includeAccessToken?: boolean;
+		includeMerchantId?: boolean;
+		includeApiKey?: boolean;
 		merchant_id?: string;
 		[key: string]: any;
 	} = {},
@@ -132,6 +134,9 @@ export async function signedFetch(
 	const fetchBody = upstreamFetchBody(method, options.body);
 	const bodyForHash = rawBodyForSignature(method, fetchBody);
 	const sigHeaders = getSignatureHeaders(event, method, pathForSig, bodyForHash);
+	const includeMerchantId = options.includeMerchantId !== false;
+	const includeAccessToken = options.includeAccessToken !== false;
+	const includeApiKey = options.includeApiKey !== false;
 	const cookie_merchant_id = getCookie(event, KEY.X_MERCHANT_ID) || '';
 	const merchant_id =
 		options.merchant_id != null && options.merchant_id !== ''
@@ -139,9 +144,20 @@ export async function signedFetch(
 			: options.body != null && typeof options.body === 'object' && options.body.merchant_id != null && options.body.merchant_id !== ''
 				? String(options.body.merchant_id)
 				: cookie_merchant_id;
-	const baseHeaders = generateHeaders(event, options.includeAccessToken !== false, merchant_id);
+	const baseHeaders = includeApiKey
+		? generateHeaders(event, includeAccessToken, includeMerchantId ? merchant_id : '')
+		: generateSignatureOnlyHeaders(event, includeAccessToken, includeMerchantId ? merchant_id : '');
 	const headers = { ...baseHeaders, ...sigHeaders, ...(options.headers || {}) };
-	const { includeAccessToken, merchant_id: _omit, method: _method, body: _body, ...fetchOptions } = options;
+	if (!includeMerchantId) {
+		delete headers['x-merchant-id'];
+	}
+	if (!includeAccessToken) {
+		delete headers.Authorization;
+	}
+	if (!includeApiKey) {
+		delete headers['x-api-key'];
+	}
+	const { includeAccessToken: _omitAccess, includeMerchantId: _omitMerchant, includeApiKey: _omitApiKey, merchant_id: _omit, method: _method, body: _body, ...fetchOptions } = options;
 	// Request path must match what we signed (/api/...). Avoid double "api" when baseURL already includes /api.
 	const basePath = (baseURL || '').replace(/\/+$/, '');
 	const baseHasApi = basePath.endsWith('/api');
@@ -174,13 +190,18 @@ export const generateHeaders = (event: any, includeAccessToken: boolean = true, 
 	const cookie_access_token = getCookie(event, KEY.ACCESS_TOKEN) || '';
 	const cookie_merchant_id = getCookie(event, KEY.X_MERCHANT_ID) || '';
 
-	const headers = {
+	const headers: Record<string, string> = {
 		'Accept': 'application/json',
 		'Content-Type': 'application/json',
 		'x-api-key': config.apiKey,
-		'x-merchant-id': merchant_id != '' ? merchant_id : cookie_merchant_id,
 		[X_PLATFORM_HEADER]: APP_PLATFORM_WEMOTOO,
 	};
+
+	if (merchant_id !== '') {
+		headers['x-merchant-id'] = merchant_id;
+	} else if (cookie_merchant_id !== '') {
+		headers['x-merchant-id'] = cookie_merchant_id;
+	}
 
 	if (!includeAccessToken) {
 		return headers;
@@ -190,6 +211,25 @@ export const generateHeaders = (event: any, includeAccessToken: boolean = true, 
 		...headers,
 		Authorization: 'Bearer ' + cookie_access_token,
 	};
+};
+
+export const generateSignatureOnlyHeaders = (event: any, includeAccessToken: boolean = true, merchant_id: string = '') => {
+	const headers: Record<string, string> = {
+		'Accept': 'application/json',
+		'Content-Type': 'application/json',
+		[X_PLATFORM_HEADER]: APP_PLATFORM_WEMOTOO,
+	};
+
+	if (merchant_id !== '') {
+		headers['x-merchant-id'] = merchant_id;
+	}
+
+	if (includeAccessToken) {
+		const cookie_access_token = getCookie(event, KEY.ACCESS_TOKEN) || '';
+		headers.Authorization = 'Bearer ' + cookie_access_token;
+	}
+
+	return headers;
 };
 
 /**

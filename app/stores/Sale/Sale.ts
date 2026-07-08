@@ -35,6 +35,7 @@ export const useSaleStore = defineStore('saleStore', {
 	state: () => ({
 		exporting: false as boolean,
 		loading: false as boolean,
+		resending_email: false as boolean,
 		bills: [] as Bill[],
 		total_bills: 0 as number,
 		filter: initialEmptySaleFilter,
@@ -181,6 +182,28 @@ export const useSaleStore = defineStore('saleStore', {
 				throw err;
 			} finally {
 				this.loading = false;
+			}
+		},
+
+		async resendCurrentStatusEmail(order_no: string): Promise<boolean> {
+			this.resending_email = true;
+
+			const { $api } = useNuxtApp();
+
+			try {
+				const data = await $api.sale.resendCurrentStatusEmail(order_no);
+
+				if (data.status) {
+					successNotification('Email resent successfully');
+				}
+
+				return !!data.status;
+			} catch (err: unknown | ErrorResponse) {
+				const message = (err as ErrorResponse).message ?? 'Failed to resend email';
+				failedNotification(message);
+				throw err;
+			} finally {
+				this.resending_email = false;
 			}
 		},
 	},

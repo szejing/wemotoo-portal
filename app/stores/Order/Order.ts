@@ -48,6 +48,7 @@ export const useOrderStore = defineStore('orderStore', {
 		loading: false as boolean,
 		updating: false as boolean,
 		exporting: false as boolean,
+		resending_email: false as boolean,
 		urgent_customer_requests_loading: false as boolean,
 		orders: [] as OrderHistory[],
 		urgent_customer_requests: [] as OrderHistory[],
@@ -290,6 +291,27 @@ export const useOrderStore = defineStore('orderStore', {
 				const message = (err as ErrorResponse).message ?? 'Failed to process order';
 				failedNotification(message);
 				throw err;
+			}
+		},
+
+		async resendCurrentStatusEmail(order_no: string): Promise<boolean> {
+			const { $api } = useNuxtApp();
+			this.resending_email = true;
+
+			try {
+				const data = await $api.order.resendCurrentStatusEmail(order_no);
+
+				if (data.status) {
+					successNotification('Email resent successfully');
+				}
+
+				return !!data.status;
+			} catch (err: unknown | ErrorResponse) {
+				const message = (err as ErrorResponse).message ?? 'Failed to resend email';
+				failedNotification(message);
+				throw err;
+			} finally {
+				this.resending_email = false;
 			}
 		},
 

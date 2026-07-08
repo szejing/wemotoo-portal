@@ -58,6 +58,17 @@ class SaleModule extends HttpFactory {
 			body: { customer_no, status },
 		});
 	}
+
+	/**
+	 * Resends the customer email matching the sale's current status.
+	 * @returns
+	 */
+	async resendCurrentStatusEmail(order_no: string): Promise<UpdateSaleStatusResp> {
+		return await this.call<UpdateSaleStatusResp>({
+			method: 'POST',
+			url: `${this.RESOURCE.ResendEmail(encodeURIComponent(order_no))}`,
+		});
+	}
 }
 
 export default SaleModule;

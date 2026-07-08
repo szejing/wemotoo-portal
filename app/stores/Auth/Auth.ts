@@ -3,6 +3,7 @@ import { KEY } from 'yeppi-common';
 import { useMerchantInfoStore } from '~/stores/MerchantInfo/MerchantInfo';
 import { useAppStore } from '~/stores/App';
 import { useAppUiStore } from '~/stores/AppUi/AppUi';
+import { ensureMerchantIdCookie, resolveSessionMerchantId, writeWmidToStorage } from '~/utils/auth/merchant-id';
 import type { User } from '~/utils/types/user';
 import type { LoginResp } from '~/repository/modules/auth/models/response/login.resp';
 import type { VerifyResp } from '~/repository/modules/auth/models/response/verify.resp';
@@ -45,10 +46,12 @@ export const useAuthStore = defineStore('authStore', {
 			try {
 				const mid = useCookie(KEY.X_MERCHANT_ID, { maxAge: 60 * 60 * 24 * 7 });
 				mid.value = merchant_id;
+				writeWmidToStorage(merchant_id);
 
 				const data: LoginResp = await $api.auth.login({ merchant_id, email_address, password });
 
 				mid.value = merchant_id;
+				writeWmidToStorage(merchant_id);
 
 				const access_token = useCookie(KEY.ACCESS_TOKEN, { maxAge: 60 * 60 * 24 * 7 });
 				access_token.value = data.token;
@@ -127,7 +130,16 @@ export const useAuthStore = defineStore('authStore', {
 			const appUiStore = useAppUiStore();
 
 			try {
-				const data: VerifyResp = await $api.auth.verify();
+				const merchantCookie = useCookie(KEY.X_MERCHANT_ID);
+				const accessTokenCookie = useCookie(KEY.ACCESS_TOKEN);
+				const merchant_id = resolveSessionMerchantId(merchantCookie.value);
+				ensureMerchantIdCookie(merchant_id);
+
+				const accessToken = accessTokenCookie.value?.trim();
+				const data: VerifyResp = await $api.auth.verify({
+					merchant_id,
+					authorization: accessToken ? `Bearer ${accessToken}` : undefined,
+				});
 
 				if (!data.user) {
 					this.clearCookies();

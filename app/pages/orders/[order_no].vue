@@ -197,6 +197,32 @@
 							@submit="handleUpdateOrderStatus"
 						/>
 
+						<UCard class="email-actions-card">
+							<template #header>
+								<div class="card-header">
+									<h3 class="sidebar-title">
+										<UIcon name="i-heroicons-envelope" class="w-5 h-5" />
+										Customer email
+									</h3>
+								</div>
+							</template>
+
+							<div class="quick-actions">
+								<p class="text-sm text-muted">{{ resend_email_description }}</p>
+								<UButton
+									block
+									color="primary"
+									variant="soft"
+									icon="i-heroicons-paper-airplane"
+									:disabled="!can_resend_status_email"
+									:loading="is_resending_email"
+									@click="handleResendCurrentStatusEmail"
+								>
+									{{ resend_email_button_text }}
+								</UButton>
+							</div>
+						</UCard>
+
 						<ZSectionOrderDetailPayment :order="orderForModal" @refresh="refreshOrder" />
 
 						<!-- Shipment Information -->
@@ -224,6 +250,32 @@
 								:updating="updating"
 								@submit="handleUpdateOrderStatus"
 							/>
+
+							<UCard class="email-actions-card">
+								<template #header>
+									<div class="card-header">
+										<h3 class="sidebar-title">
+											<UIcon name="i-heroicons-envelope" class="w-5 h-5" />
+											Customer email
+										</h3>
+									</div>
+								</template>
+
+								<div class="quick-actions">
+									<p class="text-sm text-muted">{{ resend_email_description }}</p>
+									<UButton
+										block
+										color="primary"
+										variant="soft"
+										icon="i-heroicons-paper-airplane"
+										:disabled="!can_resend_status_email"
+										:loading="is_resending_email"
+										@click="handleResendCurrentStatusEmail"
+									>
+										{{ resend_email_button_text }}
+									</UButton>
+								</div>
+							</UCard>
 
 							<ZSectionOrderDetailPayment :order="orderForModal" @refresh="refreshOrder" />
 
@@ -255,7 +307,8 @@ import { useMediaQuery } from '@vueuse/core';
 const orderStore = useOrderStore();
 const saleStore = useSaleStore();
 const fulfillmentStore = useFulfillmentStore();
-const { updating } = storeToRefs(orderStore);
+const { updating, resending_email: order_resending_email } = storeToRefs(orderStore);
+const { resending_email: sale_resending_email } = storeToRefs(saleStore);
 
 const loading = computed(() => orderStore.loading || saleStore.loading);
 
@@ -309,6 +362,8 @@ const orderForModal = computed((): OrderHistory | undefined => {
 	return order.value;
 });
 
+type ResendEmailAction = 'order-confirmation' | 'invoice' | 'receipt' | 'refund' | 'cancellation';
+
 const overlay = useOverlay();
 const new_order_status = ref<OrderStatus>(OrderStatus.PENDING_PAYMENT);
 
@@ -322,6 +377,82 @@ const { t } = useI18n();
 const order_detail_items_editable = computed(() => order.value?.status === OrderStatus.PENDING_PAYMENT);
 
 const order_detail_item_columns = computed(() => getOrderDetailItemColumns(t));
+
+const is_cash_pending_record = computed(() => {
+	const current = order.value;
+	const paymentMethod = String(current?.metadata?.payment_method ?? '').trim().toUpperCase();
+
+	return (
+		paymentMethod === 'CASH' &&
+		(current?.status === OrderStatus.PENDING_PAYMENT || current?.status === OrderStatus.PROCESSING || current?.status === OrderStatus.CONFIRMED) &&
+		current?.payment_status === PaymentStatus.PENDING
+	);
+});
+
+const resend_email_action = computed<ResendEmailAction | undefined>(() => {
+	const current = order.value;
+	if (!current) return undefined;
+
+	if (is_cash_pending_record.value) {
+		return 'order-confirmation';
+	}
+
+	if (current.status === OrderStatus.PROCESSING && current.payment_status === PaymentStatus.PENDING) {
+		return 'invoice';
+	}
+
+	if (
+		(current.status === OrderStatus.PROCESSING || current.status === OrderStatus.PAID || current.status === OrderStatus.COMPLETED) &&
+		current.payment_status === PaymentStatus.PAID
+	) {
+		return 'receipt';
+	}
+
+	if (current.status === OrderStatus.REFUNDED && current.payment_status === PaymentStatus.REFUNDED) {
+		return 'refund';
+	}
+
+	if (current.status === OrderStatus.CANCELLED) {
+		return 'cancellation';
+	}
+
+	return undefined;
+});
+
+const resend_email_label = computed(() => {
+	switch (resend_email_action.value) {
+		case 'order-confirmation':
+			return 'order confirmation';
+		case 'invoice':
+			return 'invoice';
+		case 'receipt':
+			return 'receipt';
+		case 'refund':
+			return 'refund receipt';
+		case 'cancellation':
+			return 'cancellation email';
+		default:
+			return '';
+	}
+});
+
+const can_resend_status_email = computed(() => !!record.value?.customer?.email_address && !!resend_email_action.value);
+const is_resending_email = computed(() => (type.value === 'order' ? order_resending_email.value : sale_resending_email.value));
+const resend_email_description = computed(() => {
+	if (!record.value?.customer?.email_address) {
+		return 'Customer email is missing.';
+	}
+	if (!resend_email_action.value) {
+		return 'No email available for this status.';
+	}
+	return `Ready to resend ${resend_email_label.value} to ${record.value.customer.email_address}.`;
+});
+const resend_email_button_text = computed(() => {
+	if (!resend_email_action.value) {
+		return 'No email available';
+	}
+	return `Resend ${resend_email_label.value}`;
+});
 
 const order_items_table_meta = computed<TableMeta<ItemModel>>(() => ({
 	class: {
@@ -498,6 +629,22 @@ const refresh_button_text = computed(() => {
 
 const handleUpdateOrderStatus = async () => {
 	await updateOrderStatus(new_order_status.value);
+};
+
+const handleResendCurrentStatusEmail = async () => {
+	if (!record.value?.order_no || !can_resend_status_email.value) {
+		return;
+	}
+
+	try {
+		if (type.value === 'order') {
+			await orderStore.resendCurrentStatusEmail(record.value.order_no);
+		} else {
+			await saleStore.resendCurrentStatusEmail(record.value.order_no);
+		}
+	} catch {
+		// Store actions show the failure toast.
+	}
 };
 
 const executeOrderStatusUpdate = async (new_status: OrderStatus) => {
@@ -737,14 +884,16 @@ const editCustomerDetail = async () => {
 
 .customer-card,
 .items-card,
-.remarks-card {
+.remarks-card,
+.email-actions-card {
 	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 	transition: box-shadow 0.2s ease;
 }
 
 .customer-card:hover,
 .items-card:hover,
-.remarks-card:hover {
+.remarks-card:hover,
+.email-actions-card:hover {
 	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 

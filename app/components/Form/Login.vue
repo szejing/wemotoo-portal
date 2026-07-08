@@ -67,7 +67,8 @@ const loginSchema = computed(() => LoginValidation(t));
 
 type Schema = z.infer<ReturnType<typeof LoginValidation>>;
 
-const LOGIN_MERCHANT_ID_KEY = 'wemotoo-login-merchant-id';
+import { WMID_STORAGE_KEY } from '~/utils/auth/merchant-id';
+
 const LOGIN_EMAIL_KEY = 'wemotoo-login-email';
 
 const state = reactive({
@@ -80,7 +81,7 @@ const state = reactive({
 const loadStoredMerchantId = () => {
 	if (import.meta.client) {
 		try {
-			const storedMerchantId = localStorage.getItem(LOGIN_MERCHANT_ID_KEY);
+			const storedMerchantId = localStorage.getItem(WMID_STORAGE_KEY);
 			if (storedMerchantId?.trim()) state.merchant_id = storedMerchantId.trim().toUpperCase();
 
 			const storedEmail = localStorage.getItem(LOGIN_EMAIL_KEY);
@@ -110,7 +111,7 @@ const onSubmit = async (event: FormSubmitEvent<Schema>) => {
 
 	if (success) {
 		try {
-			localStorage.setItem(LOGIN_MERCHANT_ID_KEY, merchant_id.trim());
+			localStorage.setItem(WMID_STORAGE_KEY, merchant_id.trim());
 			localStorage.setItem(LOGIN_EMAIL_KEY, email_address.trim());
 		} catch {
 			// ignore (e.g. private mode)

@@ -53,6 +53,7 @@ export type OrderHistory = {
 	voided_qty: number;
 	ref_no?: string;
 	remarks?: string;
+	metadata?: Record<string, unknown>;
 	currency: Currency;
 	items: ItemModel[];
 	payments: PaymentModel[];

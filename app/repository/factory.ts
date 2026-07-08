@@ -41,11 +41,14 @@ class HttpFactory {
 	}: IHttpFactory): Promise<T> {
 		try {
 			return await $fetch<T>(url, {
+				...fetchOptions,
 				method,
 				body,
 				query,
-				...fetchOptions,
-				...headers,
+				headers: {
+					...headers,
+					...(fetchOptions?.headers ?? {}),
+				},
 			});
 		} catch (error: any) {
 			// if (error instanceof 401) {

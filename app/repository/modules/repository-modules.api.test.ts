@@ -99,9 +99,11 @@ describe('AuthModule', () => {
 	});
 
 	it('verify', async () => {
-		await auth.verify();
+		await auth.verify({ merchant_id: 'M00001', authorization: 'Bearer token' });
 		expect(lastFetch().url).toBe(MerchantRoutes.Auth.Verify());
 		expect(lastFetch().opts.method).toBe('POST');
+		expect(lastFetch().opts.body).toEqual({ merchant_id: 'M00001' });
+		expect(lastFetch().opts.headers?.Authorization).toBe('Bearer token');
 	});
 
 	it('refreshToken', async () => {
@@ -238,6 +240,12 @@ describe('OrderModule', () => {
 		expect(lastFetch().opts.method).toBe('POST');
 		expect(lastFetch().opts.responseType).toBe('blob');
 	});
+
+	it('resendCurrentStatusEmail posts to encoded order resend route', async () => {
+		await (mod as any).resendCurrentStatusEmail('ORD/1');
+		expect(lastFetch().url).toBe(MerchantRoutes.Orders.ResendEmail(encodeURIComponent('ORD/1')));
+		expect(lastFetch().opts.method).toBe('POST');
+	});
 });
 
 describe('OrderSummaryModule (summ-order)', () => {
@@ -351,6 +359,12 @@ describe('SaleModule', () => {
 	it('getBillDetailsByOrderNo', async () => {
 		await mod.getBillDetailsByOrderNo('B/1');
 		expect(lastFetch().url).toBe(MerchantRoutes.Sales.Single(encodeURIComponent('B/1')));
+	});
+
+	it('resendCurrentStatusEmail posts to encoded sale resend route', async () => {
+		await (mod as any).resendCurrentStatusEmail('B/1');
+		expect(lastFetch().url).toBe(MerchantRoutes.Sales.ResendEmail(encodeURIComponent('B/1')));
+		expect(lastFetch().opts.method).toBe('POST');
 	});
 });
 

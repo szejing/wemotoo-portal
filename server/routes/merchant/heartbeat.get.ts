@@ -4,5 +4,7 @@ export default defineEventHandler(async (event) => {
 	return signedFetch(event, 'heartbeat', {
 		method: 'GET',
 		includeAccessToken: false,
+		includeMerchantId: false,
+		includeApiKey: false,
 	});
 });

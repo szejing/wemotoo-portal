@@ -96,6 +96,17 @@ class OrderModule extends HttpFactory {
 	}
 
 	/**
+	 * Resends the customer email matching the order's current status.
+	 * @returns
+	 */
+	async resendCurrentStatusEmail(order_no: string): Promise<UpdateOrderStatusResp> {
+		return await this.call<UpdateOrderStatusResp>({
+			method: 'POST',
+			url: `${this.RESOURCE.ResendEmail(encodeURIComponent(order_no))}`,
+		});
+	}
+
+	/**
 	 * Exports orders as CSV
 	 * @returns Blob containing CSV data
 	 */
