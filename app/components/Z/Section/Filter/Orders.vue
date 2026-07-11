@@ -20,12 +20,6 @@
 				<ZSelectMenuCurrency v-model:currency-code="filter.currency_code" @update:model-value="handleCurrencyChange" />
 			</div> -->
 
-			<!-- Status Filter - Mobile Only -->
-			<div class="flex flex-col gap-1.5 sm:hidden">
-				<label class="text-xs font-medium text-gray-700 dark:text-gray-300">{{ $t('components.filter.status') }}</label>
-				<ZSelectMenuOrderStatus v-model:status="filter.status" @update:model-value="handleStatusChange" />
-			</div>
-
 			<!-- Actions -->
 			<div class="flex flex-col gap-1.5 col-span-full">
 				<div class="flex gap-2">
@@ -58,8 +52,8 @@
 				{{ $t('components.filter.order') }}: {{ filter.query }}
 				<UIcon name="i-heroicons-x-mark" class="w-3 h-3 ml-1 cursor-pointer" />
 			</UBadge>
-			<UBadge v-if="filter.status" color="success" variant="subtle" size="sm" @click="clearFilter('status')">
-				{{ $t('components.filter.status') }}: {{ capitalizeFirstLetter(filter.status) }}
+			<UBadge v-if="hasPartialStatusFilter" color="success" variant="subtle" size="sm" @click="clearFilter('status')">
+				{{ $t('components.filter.status') }}: {{ statusBadgeLabel }}
 				<UIcon name="i-heroicons-x-mark" class="w-3 h-3 ml-1 cursor-pointer" />
 			</UBadge>
 			<UBadge v-if="filter.currency_code && filter.currency_code !== 'MYR'" color="warning" variant="subtle" size="sm">
@@ -72,16 +66,32 @@
 <script lang="ts" setup>
 import type { Range } from '~/utils/interface';
 import { sub, format } from 'date-fns';
+import { getDefaultOrderStatuses, getOrderStatusOptions, isAllOrderStatusesSelected } from '~/utils/options';
 
+const { t } = useI18n();
 const orderStore = useOrderStore();
 const { filter } = storeToRefs(orderStore);
 
 const is_loading = computed(() => orderStore.loading);
 const searchTimeout = ref<ReturnType<typeof setTimeout> | null>(null);
 
+const statusLabelMap = computed(() => {
+	const map = new Map<string, string>();
+	for (const option of getOrderStatusOptions(t)) {
+		map.set(option.value, option.label);
+	}
+	return map;
+});
+
+const hasPartialStatusFilter = computed(() => filter.value.statuses.length > 0 && !isAllOrderStatusesSelected(filter.value.statuses));
+
+const statusBadgeLabel = computed(() =>
+	filter.value.statuses.map((status) => statusLabelMap.value.get(status) ?? capitalizeFirstLetter(status)).join(', '),
+);
+
 const hasActiveFilters = computed(() => {
 	const hasDateFilter = filter.value.date_range && (filter.value.date_range.start || filter.value.date_range.end);
-	return filter.value.query || filter.value.status || (filter.value.currency_code && filter.value.currency_code !== 'MYR') || hasDateFilter;
+	return filter.value.query || hasPartialStatusFilter.value || (filter.value.currency_code && filter.value.currency_code !== 'MYR') || hasDateFilter;
 });
 
 const formatDateRange = (range: Range) => {
@@ -112,17 +122,9 @@ const handleDateRangeChange = async (newValue: Range) => {
 	await search();
 };
 
-const handleCurrencyChange = async () => {
-	await search();
-};
-
-const handleStatusChange = async () => {
-	await search();
-};
-
 const clearFilters = async () => {
 	filter.value.query = '';
-	filter.value.status = undefined;
+	filter.value.statuses = getDefaultOrderStatuses();
 	filter.value.currency_code = 'MYR';
 	filter.value.date_range = {
 		start: sub(new Date(), { days: 14 }),
@@ -136,7 +138,7 @@ const clearFilter = async (filterKey: string) => {
 	if (filterKey === 'query') {
 		filter.value.query = '';
 	} else if (filterKey === 'status') {
-		filter.value.status = undefined;
+		filter.value.statuses = getDefaultOrderStatuses();
 	} else if (filterKey === 'date') {
 		filter.value.date_range = {
 			start: sub(new Date(), { days: 14 }),

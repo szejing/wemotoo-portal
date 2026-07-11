@@ -5,6 +5,7 @@ import { UBadge, UIcon, UTooltip } from '#components';
 import type { OrderHistory } from '~/utils/types/order-history';
 import { headerCell, moneyCell, numberCell, tableCellMeta } from '../styles';
 import { getOrderStatusOption } from '~/utils/options/order-status';
+import { formatCustomerNameEmail } from '~/utils/format-customer-name-email';
 
 type TranslateFn = (key: string) => string;
 
@@ -54,8 +55,8 @@ export function getOrderColumns(t: TranslateFn): TableColumn<OrderHistory>[] {
 			header: () => headerCell(t('table.customer')),
 			cell: ({ row }) => {
 				return h('div', { class: 'flex flex-col gap-1' }, [
-					h('p', { class: 'font-semibold text-highlighted' }, `${row.original.customer?.customer_no} | ${row.original.customer?.name}`),
-					h('p', { class: 'text-sm text-muted' }, row.original.customer?.email_address),
+					h('p', { class: 'font-semibold text-highlighted' }, row.original.customer?.customer_no),
+					h('p', { class: 'text-sm text-muted' }, formatCustomerNameEmail(row.original.customer?.name, row.original.customer?.email_address)),
 				]);
 			},
 		},

@@ -4,6 +4,32 @@ type TranslateFn = (key: string) => string;
 
 export type UiOrderStatus = OrderStatus | 'paid' | 'shipped' | 'delivered';
 
+/** All selectable order statuses for multi-select filters (excludes "All"). */
+export const ORDER_STATUS_FILTER_VALUES: OrderStatus[] = [
+	OrderStatus.PENDING_PAYMENT,
+	OrderStatus.PAID,
+	OrderStatus.PROCESSING,
+	OrderStatus.SHIPPED,
+	OrderStatus.DELIVERED,
+	OrderStatus.CANCELLED,
+	OrderStatus.REFUNDED,
+	OrderStatus.COMPLETED,
+	OrderStatus.REQUIRES_ACTION,
+	OrderStatus.CONFIRMED,
+];
+
+export function getDefaultOrderStatuses(): OrderStatus[] {
+	return [...ORDER_STATUS_FILTER_VALUES];
+}
+
+export function isAllOrderStatusesSelected(statuses: OrderStatus[]): boolean {
+	if (statuses.length !== ORDER_STATUS_FILTER_VALUES.length) {
+		return false;
+	}
+	const selected = new Set(statuses);
+	return ORDER_STATUS_FILTER_VALUES.every((status) => selected.has(status));
+}
+
 export const options_order_status: Array<'All' | UiOrderStatus> = [
 	'All',
 	OrderStatus.PENDING_PAYMENT,

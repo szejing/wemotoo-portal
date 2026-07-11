@@ -2,7 +2,8 @@
 /* eslint-disable @stylistic/indent */
 import { defineStore } from 'pinia';
 import { defaultOrderRelations, getFormattedDate, removeDuplicateExpands, OrderStatus, PaymentStatus } from 'yeppi-common';
-import { options_page_size } from '~/utils/options';
+import { getDefaultOrderStatuses, options_page_size } from '~/utils/options';
+import { buildOrderStatusODataFilter } from '~/utils/order-status-filter';
 import { failedNotification, successNotification } from '../AppUi/AppUi';
 import type { ErrorResponse } from '~/repository/base/error';
 import type { CustomerModel } from '~/utils/models/customer.model';
@@ -15,7 +16,8 @@ import type { Order } from '~/utils/types/order';
 
 type OrderFilter = {
 	query: string;
-	status: OrderStatus | undefined;
+	/** Selected order statuses; defaults to all statuses selected. */
+	statuses: OrderStatus[];
 	payment_status: PaymentStatus | undefined;
 	payment_method: string | undefined;
 	date_range: Range;
@@ -26,7 +28,7 @@ type OrderFilter = {
 
 const initialEmptyOrderFilter: OrderFilter = {
 	query: '',
-	status: undefined,
+	statuses: getDefaultOrderStatuses(),
 	payment_status: undefined,
 	payment_method: undefined,
 	date_range: {
@@ -81,22 +83,9 @@ export const useOrderStore = defineStore('orderStore', {
 			this.loading = true;
 			const { $api } = useNuxtApp();
 			try {
-				let filter = '';
-
-				// For 'All' status, don't add any status filter - let all statuses through
-				if (this.filter.payment_method === 'CASH' && this.filter.status === OrderStatus.PENDING_PAYMENT) {
-					filter = `status eq '${OrderStatus.PENDING_PAYMENT}' and payment_status eq '${PaymentStatus.PENDING}'`;
-				} else if (this.filter.status === OrderStatus.PENDING_PAYMENT || this.filter.status === OrderStatus.PROCESSING) {
-					filter = `status in ('${OrderStatus.PENDING_PAYMENT}', '${OrderStatus.PROCESSING}')`;
-				} else if (this.filter.status === OrderStatus.COMPLETED) {
-					filter = `status eq '${OrderStatus.COMPLETED}'`;
-				} else if (this.filter.status === OrderStatus.CANCELLED) {
-					filter = `status eq '${OrderStatus.CANCELLED}'`;
-				} else if (this.filter.status === OrderStatus.REQUIRES_ACTION) {
-					filter = `status eq '${OrderStatus.REQUIRES_ACTION}'`;
-				} else if (this.filter.status === OrderStatus.REFUNDED) {
-					filter = `status eq '${OrderStatus.REFUNDED}'`;
-				}
+				let filter = buildOrderStatusODataFilter(this.filter.statuses, {
+					payment_method: this.filter.payment_method,
+				});
 
 				if (this.filter.payment_status) {
 					const paymentFilter = `payment_status eq '${this.filter.payment_status}'`;
@@ -319,16 +308,9 @@ export const useOrderStore = defineStore('orderStore', {
 			this.exporting = true;
 			const { $api } = useNuxtApp();
 			try {
-				let filter = '';
-
-				// For 'All' status, don't add any status filter - let all statuses through
-				if (this.filter.status === OrderStatus.PENDING_PAYMENT) {
-					filter = `status in ('${OrderStatus.PENDING_PAYMENT}', '${OrderStatus.PROCESSING}')`;
-				} else if (this.filter.status === OrderStatus.COMPLETED) {
-					filter = `status eq '${OrderStatus.COMPLETED}'`;
-				} else if (this.filter.status === OrderStatus.CANCELLED) {
-					filter = `status in ('${OrderStatus.CANCELLED}', '${OrderStatus.REFUNDED}')`;
-				}
+				let filter = buildOrderStatusODataFilter(this.filter.statuses, {
+					payment_method: this.filter.payment_method,
+				});
 
 				let { start, end } = this.filter.date_range;
 

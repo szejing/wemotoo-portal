@@ -7,18 +7,13 @@
 		<div class="space-y-6">
 			<!-- Table Controls -->
 			<div class="flex flex-col sm:flex-row sm:items-center justify-end sm:justify-between gap-4">
-				<!-- Status Tabs - Desktop -->
-				<div class="hidden sm:flex gap-2">
-					<UButton
-						v-for="(tab, index) in tabItems"
-						:key="tab.value"
-						:variant="selectedTab === index ? 'solid' : 'soft'"
-						:color="selectedTab === index ? 'primary' : 'neutral'"
-						@click="selectTab(index)"
-					>
-						{{ tab.label }}
-					</UButton>
-				</div>
+				<ZSectionFilterStatuses
+					v-model="selectedStatuses"
+					:items="statusItems"
+					:placeholder="$t('components.selectMenu.selectOrderStatus')"
+					class="w-full sm:w-72"
+					@update:model-value="onStatusesChange"
+				/>
 
 				<!-- Table Actions -->
 				<ZTableToolbar
@@ -89,7 +84,7 @@
 
 <script lang="ts" setup>
 import { OrderStatus, PaymentStatus } from 'yeppi-common';
-import { getOrderStatusOptions, options_page_size } from '~/utils/options';
+import { getDefaultOrderStatuses, getOrderStatusOptions, options_page_size } from '~/utils/options';
 import { getOrderColumns } from '~/utils/table-columns';
 import { columnOptionsFromLabelMap } from '~/utils/table-columns/visibility';
 import type { TableRow } from '@nuxt/ui';
@@ -116,30 +111,27 @@ useHead({ title: () => t('pages.ordersTitle') });
 const orderStore = useOrderStore();
 const { orders, filter, loading, exporting } = storeToRefs(orderStore);
 const current_page = computed(() => filter.value.current_page);
-const selectedTab = ref(0);
 
-const tabItems = computed(() => getOrderStatusOptions(t));
+const statusItems = computed(() => getOrderStatusOptions(t).filter((option) => option.value !== 'All'));
 
-const tabIndexForStatus = (status: OrderStatus | string): number => {
-	if (status === OrderStatus.PENDING_PAYMENT || status === OrderStatus.PROCESSING) return 1;
-	if (status === OrderStatus.COMPLETED) return 2;
-	if (status === OrderStatus.PROCESSING) return 3;
-	if (status === OrderStatus.CANCELLED || status === OrderStatus.REFUNDED) return 4;
-	if (status === OrderStatus.REQUIRES_ACTION) return 5;
-	return 0;
-};
-
-const storeStatusFromQuery = (status: string): OrderStatus | undefined => {
-	if (status === OrderStatus.PENDING_PAYMENT) return OrderStatus.PENDING_PAYMENT;
-	if (status === OrderStatus.PROCESSING) return OrderStatus.PROCESSING;
-	if (status === OrderStatus.COMPLETED) return OrderStatus.COMPLETED;
-	if (status === OrderStatus.CANCELLED || status === OrderStatus.REFUNDED) return OrderStatus.CANCELLED;
-	if (status === OrderStatus.REQUIRES_ACTION) return OrderStatus.REQUIRES_ACTION;
-	return undefined;
-};
+const selectedStatuses = computed({
+	get() {
+		return filter.value.statuses as string[];
+	},
+	set(value: string[]) {
+		filter.value.statuses = value as OrderStatus[];
+	},
+});
 
 const VALID_ORDER_STATUSES = new Set(Object.values(OrderStatus));
 const VALID_PAYMENT_STATUSES = new Set(Object.values(PaymentStatus));
+
+const parseStatusQuery = (status: string | Array<string | null>): OrderStatus[] => {
+	const values = Array.isArray(status)
+		? status.filter((value): value is string => typeof value === 'string')
+		: status.split(',').map((part) => part.trim()).filter(Boolean);
+	return values.filter((value): value is OrderStatus => VALID_ORDER_STATUSES.has(value as OrderStatus));
+};
 
 const applyQueryToFilter = () => {
 	const start = route.query.start_date;
@@ -150,6 +142,7 @@ const applyQueryToFilter = () => {
 
 	filter.value.payment_status = undefined;
 	filter.value.payment_method = undefined;
+	filter.value.statuses = getDefaultOrderStatuses();
 
 	if (typeof start === 'string' && start) {
 		const d = new Date(start);
@@ -163,11 +156,15 @@ const applyQueryToFilter = () => {
 			filter.value.date_range.end = d;
 		}
 	}
-	if (typeof status === 'string' && VALID_ORDER_STATUSES.has(status as OrderStatus)) {
-		const mapped = storeStatusFromQuery(status);
-		if (mapped != null) {
-			filter.value.status = mapped;
-			selectedTab.value = tabIndexForStatus(status);
+	if (typeof status === 'string' && status) {
+		const parsed = parseStatusQuery(status);
+		if (parsed.length) {
+			filter.value.statuses = parsed;
+		}
+	} else if (Array.isArray(status)) {
+		const parsed = parseStatusQuery(status);
+		if (parsed.length) {
+			filter.value.statuses = parsed;
 		}
 	}
 	if (typeof paymentStatus === 'string' && VALID_PAYMENT_STATUSES.has(paymentStatus as PaymentStatus)) {
@@ -190,13 +187,10 @@ onMounted(async () => {
 	}
 });
 
-const selectTab = async (index: number) => {
-	selectedTab.value = index;
+const onStatusesChange = async () => {
 	filter.value.current_page = 1;
 	filter.value.payment_status = undefined;
 	filter.value.payment_method = undefined;
-	const tabValue = tabItems.value[index]?.value;
-	filter.value.status = tabValue === 'All' ? undefined : (tabValue as OrderStatus);
 	await orderStore.getOrders();
 };
 

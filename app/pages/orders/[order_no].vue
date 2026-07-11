@@ -197,31 +197,15 @@
 							@submit="handleUpdateOrderStatus"
 						/>
 
-						<UCard class="email-actions-card">
-							<template #header>
-								<div class="card-header">
-									<h3 class="sidebar-title">
-										<UIcon name="i-heroicons-envelope" class="w-5 h-5" />
-										Customer email
-									</h3>
-								</div>
-							</template>
-
-							<div class="quick-actions">
-								<p class="text-sm text-muted">{{ resend_email_description }}</p>
-								<UButton
-									block
-									color="primary"
-									variant="soft"
-									icon="i-heroicons-paper-airplane"
-									:disabled="!can_resend_status_email"
-									:loading="is_resending_email"
-									@click="handleResendCurrentStatusEmail"
-								>
-									{{ resend_email_button_text }}
-								</UButton>
-							</div>
-						</UCard>
+						<ZSectionOrderDetailCustomerEmail
+							:description="resend_email_description"
+							:resend-email-label="can_resend_status_email ? resend_email_label : undefined"
+							:customer-email-address="resend_email_customer_address"
+							:button-text="resend_email_button_text"
+							:disabled="!can_resend_status_email"
+							:loading="is_resending_email"
+							@resend="handleResendCurrentStatusEmail"
+						/>
 
 						<ZSectionOrderDetailPayment :order="orderForModal" @refresh="refreshOrder" />
 
@@ -251,31 +235,15 @@
 								@submit="handleUpdateOrderStatus"
 							/>
 
-							<UCard class="email-actions-card">
-								<template #header>
-									<div class="card-header">
-										<h3 class="sidebar-title">
-											<UIcon name="i-heroicons-envelope" class="w-5 h-5" />
-											Customer email
-										</h3>
-									</div>
-								</template>
-
-								<div class="quick-actions">
-									<p class="text-sm text-muted">{{ resend_email_description }}</p>
-									<UButton
-										block
-										color="primary"
-										variant="soft"
-										icon="i-heroicons-paper-airplane"
-										:disabled="!can_resend_status_email"
-										:loading="is_resending_email"
-										@click="handleResendCurrentStatusEmail"
-									>
-										{{ resend_email_button_text }}
-									</UButton>
-								</div>
-							</UCard>
+							<ZSectionOrderDetailCustomerEmail
+								:description="resend_email_description"
+								:resend-email-label="can_resend_status_email ? resend_email_label : undefined"
+								:customer-email-address="resend_email_customer_address"
+								:button-text="resend_email_button_text"
+								:disabled="!can_resend_status_email"
+								:loading="is_resending_email"
+								@resend="handleResendCurrentStatusEmail"
+							/>
 
 							<ZSectionOrderDetailPayment :order="orderForModal" @refresh="refreshOrder" />
 
@@ -300,6 +268,10 @@ import { ICONS } from '~/utils/icons';
 import type { ItemModel } from '~/utils/models/item.model';
 import type { OrderHistory } from '~/utils/types/order-history';
 import { getOrderDetailItemColumns } from '~/utils/table-columns';
+import {
+	resolveOrderResendEmailAction,
+	type OrderResendEmailAction,
+} from '~/utils/resolve-order-resend-email-action';
 import Activities from '~/components/ActivityLog/Activities.vue';
 import { useFulfillmentStore } from '~/stores/Fulfillment/Fulfillment';
 import { useMediaQuery } from '@vueuse/core';
@@ -362,7 +334,7 @@ const orderForModal = computed((): OrderHistory | undefined => {
 	return order.value;
 });
 
-type ResendEmailAction = 'order-confirmation' | 'invoice' | 'receipt' | 'refund' | 'cancellation';
+type ResendEmailAction = OrderResendEmailAction;
 
 const overlay = useOverlay();
 const new_order_status = ref<OrderStatus>(OrderStatus.PENDING_PAYMENT);
@@ -378,45 +350,15 @@ const order_detail_items_editable = computed(() => order.value?.status === Order
 
 const order_detail_item_columns = computed(() => getOrderDetailItemColumns(t));
 
-const is_cash_pending_record = computed(() => {
-	const current = order.value;
-	const paymentMethod = String(current?.metadata?.payment_method ?? '').trim().toUpperCase();
-
-	return (
-		paymentMethod === 'CASH' &&
-		(current?.status === OrderStatus.PENDING_PAYMENT || current?.status === OrderStatus.PROCESSING || current?.status === OrderStatus.CONFIRMED) &&
-		current?.payment_status === PaymentStatus.PENDING
-	);
-});
-
 const resend_email_action = computed<ResendEmailAction | undefined>(() => {
 	const current = order.value;
 	if (!current) return undefined;
 
-	if (is_cash_pending_record.value) {
-		return 'order-confirmation';
-	}
-
-	if (current.status === OrderStatus.PROCESSING && current.payment_status === PaymentStatus.PENDING) {
-		return 'invoice';
-	}
-
-	if (
-		(current.status === OrderStatus.PROCESSING || current.status === OrderStatus.PAID || current.status === OrderStatus.COMPLETED) &&
-		current.payment_status === PaymentStatus.PAID
-	) {
-		return 'receipt';
-	}
-
-	if (current.status === OrderStatus.REFUNDED && current.payment_status === PaymentStatus.REFUNDED) {
-		return 'refund';
-	}
-
-	if (current.status === OrderStatus.CANCELLED) {
-		return 'cancellation';
-	}
-
-	return undefined;
+	return resolveOrderResendEmailAction({
+		status: current.status,
+		payment_status: current.payment_status,
+		payment_method: current.metadata?.payment_method as string | undefined,
+	});
 });
 
 const resend_email_label = computed(() => {
@@ -437,7 +379,9 @@ const resend_email_label = computed(() => {
 });
 
 const can_resend_status_email = computed(() => !!record.value?.customer?.email_address && !!resend_email_action.value);
+
 const is_resending_email = computed(() => (type.value === 'order' ? order_resending_email.value : sale_resending_email.value));
+
 const resend_email_description = computed(() => {
 	if (!record.value?.customer?.email_address) {
 		return 'Customer email is missing.';
@@ -445,8 +389,12 @@ const resend_email_description = computed(() => {
 	if (!resend_email_action.value) {
 		return 'No email available for this status.';
 	}
-	return `Ready to resend ${resend_email_label.value} to ${record.value.customer.email_address}.`;
+	return '';
 });
+
+const resend_email_customer_address = computed(() =>
+	can_resend_status_email.value ? record.value?.customer?.email_address : undefined,
+);
 const resend_email_button_text = computed(() => {
 	if (!resend_email_action.value) {
 		return 'No email available';
@@ -884,16 +832,14 @@ const editCustomerDetail = async () => {
 
 .customer-card,
 .items-card,
-.remarks-card,
-.email-actions-card {
+.remarks-card {
 	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 	transition: box-shadow 0.2s ease;
 }
 
 .customer-card:hover,
 .items-card:hover,
-.remarks-card:hover,
-.email-actions-card:hover {
+.remarks-card:hover {
 	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
@@ -902,16 +848,6 @@ const editCustomerDetail = async () => {
 	color: var(--color-gray-700);
 	line-height: 1.6;
 	white-space: pre-wrap;
-}
-
-.quick-actions-card {
-	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.quick-actions {
-	display: flex;
-	flex-direction: column;
-	gap: 0.75rem;
 }
 
 @media (max-width: 640px) {

@@ -1,6 +1,13 @@
 import { getProductStatusColor, options_product_status, getProductStatusOptions } from './product-status';
 import { options_account_status, getAccountStatusOptions } from './account-status';
-import { options_order_status, getOrderStatusColor, getOrderStatusOptions } from './order-status';
+import {
+	options_order_status,
+	getOrderStatusColor,
+	getOrderStatusOptions,
+	ORDER_STATUS_FILTER_VALUES,
+	getDefaultOrderStatuses,
+	isAllOrderStatusesSelected,
+} from './order-status';
 import { options_order_item_status, getOrderItemStatusColor, getOrderItemStatusOptions } from './order-item-status';
 import { options_payment_status, getPaymentStatusColor, getPaymentStatusOptions } from './payment-status';
 import { options_page_size } from './page-size';
@@ -39,6 +46,9 @@ export {
 	options_order_status,
 	getOrderStatusColor,
 	getOrderStatusOptions,
+	ORDER_STATUS_FILTER_VALUES,
+	getDefaultOrderStatuses,
+	isAllOrderStatusesSelected,
 	options_order_item_status,
 	getOrderItemStatusColor,
 	getOrderItemStatusOptions,

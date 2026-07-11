@@ -47,7 +47,7 @@ export default defineNuxtConfig({
 				{ rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
 			],
 		},
-		baseURL: process.env.NODE_ENV === 'production' ? '/' : '/',
+		baseURL: process.env.NODE_ENV === 'prod' ? '/' : '/',
 	},
 
 	css: ['~/assets/css/main.css'],
