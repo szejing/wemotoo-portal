@@ -4,6 +4,7 @@ import { getFormattedDate, getOrderStatusColor, OrderStatus } from 'yeppi-common
 import { UBadge } from '#components';
 import { headerCell, moneyCell, numberCell, tableCellMeta } from '../styles';
 import type { SummCustomerRow, SummCustomerVariant, TranslateFn } from './types';
+import { getOrderStatusOption } from '~/utils/options/order-status';
 
 const SUMM_CUSTOMER_BASE_COLUMN_LABELS = {
 	biz_date: 'table.bizDate',
@@ -28,17 +29,8 @@ export function getSummCustomerColumnLabels(variant: SummCustomerVariant) {
 	} as const;
 }
 
-const statusLabelKeys: Partial<Record<OrderStatus, string>> = {
-	[OrderStatus.COMPLETED]: 'options.completed',
-	[OrderStatus.CANCELLED]: 'options.cancelled',
-	[OrderStatus.REFUNDED]: 'options.refunded',
-	[OrderStatus.PENDING_PAYMENT]: 'options.pendingPayment',
-	[OrderStatus.PROCESSING]: 'options.processing',
-	[OrderStatus.REQUIRES_ACTION]: 'options.requiresAction',
-};
-
 const statusCell = (t: TranslateFn, status: OrderStatus) =>
-	h(UBadge, { variant: 'subtle', color: getOrderStatusColor(status) ?? 'neutral', class: 'capitalize' }, () => t(statusLabelKeys[status] ?? status));
+	h(UBadge, { variant: 'subtle', color: getOrderStatusColor(status) ?? 'neutral', class: 'capitalize' }, () => getOrderStatusOption(t, status)?.label);
 
 const moneyFooter = (column: { getFacetedRowModel: () => { rows: TableRow<SummCustomerRow>[] } }, key: 'gross_amt' | 'net_amt') => {
 	const rows = column.getFacetedRowModel().rows;

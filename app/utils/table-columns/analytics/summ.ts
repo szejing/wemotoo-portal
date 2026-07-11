@@ -4,6 +4,7 @@ import type { TableColumn, TableRow } from '@nuxt/ui';
 import { getFormattedDate, getOrderStatusColor, OrderStatus } from 'yeppi-common';
 import { headerCell, moneyCell, mutedCell, numberCell, optionalCell, optionalMoneyCell } from '../styles';
 import type { SummBillTableRow, SummCountKey, TranslateFn } from './types';
+import { getOrderStatusOption } from '~/utils/options/order-status';
 
 type NumericSummColumnKey = keyof Pick<
 	SummBillTableRow,
@@ -64,15 +65,6 @@ export function getSummColumnLabels(countKey: SummCountKey) {
 	} as const;
 }
 
-const statusLabelKeys: Partial<Record<OrderStatus, string>> = {
-	[OrderStatus.COMPLETED]: 'options.completed',
-	[OrderStatus.CANCELLED]: 'options.cancelled',
-	[OrderStatus.REFUNDED]: 'options.refunded',
-	[OrderStatus.PENDING_PAYMENT]: 'options.pendingPayment',
-	[OrderStatus.PROCESSING]: 'options.processing',
-	[OrderStatus.REQUIRES_ACTION]: 'options.requiresAction',
-};
-
 const sumColumn = (rows: TableRow<SummBillTableRow>[], key: NumericSummColumnKey) => rows.reduce((total, row) => total + (row.original[key] ?? 0), 0);
 const footerCurrency = (rows: TableRow<SummBillTableRow>[]) => rows[0]?.original.currency_code ?? 'MYR';
 
@@ -113,7 +105,11 @@ export function getSummColumns(t: TranslateFn, countKey: SummCountKey): TableCol
 
 				if (!status) return mutedCell();
 
-				return h(UBadge, { variant: 'subtle', color: getOrderStatusColor(status) ?? 'neutral', class: 'capitalize' }, () => t(statusLabelKeys[status] ?? status));
+				return h(
+					UBadge,
+					{ variant: 'subtle', color: getOrderStatusColor(status) ?? 'neutral', class: 'capitalize' },
+					() => getOrderStatusOption(t, status)?.label,
+				);
 			},
 		},
 		createMoneyColumn('gross_amt', t('table.grossAmt')),

@@ -6,15 +6,7 @@ import type { SummSalePayment } from '~/utils/types/summ-sales';
 import { getSortableHeader } from '../sortable';
 import { moneyCell, numberCell, primaryCell, tableCellMeta } from '../styles';
 import type { TranslateFn } from './types';
-
-const statusLabelKeys: Partial<Record<OrderStatus, string>> = {
-	[OrderStatus.COMPLETED]: 'options.completed',
-	[OrderStatus.CANCELLED]: 'options.cancelled',
-	[OrderStatus.REFUNDED]: 'options.refunded',
-	[OrderStatus.PENDING_PAYMENT]: 'options.pendingPayment',
-	[OrderStatus.PROCESSING]: 'options.processing',
-	[OrderStatus.REQUIRES_ACTION]: 'options.requiresAction',
-};
+import { getOrderStatusOption } from '~/utils/options/order-status';
 
 export const SUMM_PAYMENT_COLUMN_LABELS = {
 	payment_type_desc: 'table.desc',
@@ -36,9 +28,9 @@ export function getSummPaymentColumns(t: TranslateFn): TableColumn<SummSalePayme
 			cell: ({ row }) => {
 				const status = row.original.status as OrderStatus;
 				const color = getOrderStatusColor(status) ?? 'neutral';
-				const labelKey = statusLabelKeys[status];
+				const label = getOrderStatusOption(t, status)?.label;
 
-				return h(UBadge, { variant: 'subtle', color }, () => (labelKey ? t(labelKey) : status));
+				return h(UBadge, { variant: 'subtle', color }, () => label);
 			},
 		},
 		{

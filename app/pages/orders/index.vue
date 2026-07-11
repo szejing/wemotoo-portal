@@ -89,7 +89,7 @@
 
 <script lang="ts" setup>
 import { OrderStatus, PaymentStatus } from 'yeppi-common';
-import { options_page_size } from '~/utils/options';
+import { getOrderStatusOptions, options_page_size } from '~/utils/options';
 import { getOrderColumns } from '~/utils/table-columns';
 import { columnOptionsFromLabelMap } from '~/utils/table-columns/visibility';
 import type { TableRow } from '@nuxt/ui';
@@ -118,14 +118,7 @@ const { orders, filter, loading, exporting } = storeToRefs(orderStore);
 const current_page = computed(() => filter.value.current_page);
 const selectedTab = ref(0);
 
-const tabItems = computed(() => [
-	{ label: t('options.all'), value: 'All' },
-	{ label: t('options.pending'), value: OrderStatus.PENDING_PAYMENT },
-	{ label: t('options.completed'), value: OrderStatus.COMPLETED },
-	{ label: t('options.cancelled'), value: OrderStatus.CANCELLED },
-	{ label: t('options.refunded'), value: OrderStatus.REFUNDED },
-	{ label: t('options.requiresAction'), value: OrderStatus.REQUIRES_ACTION },
-]);
+const tabItems = computed(() => getOrderStatusOptions(t));
 
 const tabIndexForStatus = (status: OrderStatus | string): number => {
 	if (status === OrderStatus.PENDING_PAYMENT || status === OrderStatus.PROCESSING) return 1;

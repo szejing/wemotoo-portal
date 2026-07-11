@@ -21,15 +21,20 @@ export function getOrderStatusOptions(t: TranslateFn) {
 	return [
 		{ value: 'All', label: t('options.all') },
 		{ value: OrderStatus.PENDING_PAYMENT, label: t('options.pendingPayment') },
-		{ value: 'paid', label: t('options.paid') },
+		{ value: OrderStatus.PAID, label: t('options.paid') },
 		{ value: OrderStatus.PROCESSING, label: t('options.processing') },
-		{ value: 'shipped', label: t('options.shipped') },
-		{ value: 'delivered', label: t('options.delivered') },
+		{ value: OrderStatus.SHIPPED, label: t('options.shipped') },
+		{ value: OrderStatus.DELIVERED, label: t('options.delivered') },
 		{ value: OrderStatus.CANCELLED, label: t('options.cancelled') },
 		{ value: OrderStatus.REFUNDED, label: t('options.refunded') },
 		{ value: OrderStatus.COMPLETED, label: t('options.completed') },
 		{ value: OrderStatus.REQUIRES_ACTION, label: t('options.requiresAction') },
+		{ value: OrderStatus.CONFIRMED, label: t('options.confirmed') },
 	];
+}
+
+export function getOrderStatusOption(t: TranslateFn, status: OrderStatus) {
+	return getOrderStatusOptions(t).find((option) => option.value === status);
 }
 
 export const getOrderStatusColor = (status: string): UiBadgeColor | undefined => {

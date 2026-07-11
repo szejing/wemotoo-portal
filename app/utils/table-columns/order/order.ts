@@ -4,6 +4,7 @@ import { getOrderStatusColor, OrderStatus, OrderType } from 'yeppi-common';
 import { UBadge, UIcon, UTooltip } from '#components';
 import type { OrderHistory } from '~/utils/types/order-history';
 import { headerCell, moneyCell, numberCell, tableCellMeta } from '../styles';
+import { getOrderStatusOption } from '~/utils/options/order-status';
 
 type TranslateFn = (key: string) => string;
 
@@ -63,16 +64,7 @@ export function getOrderColumns(t: TranslateFn): TableColumn<OrderHistory>[] {
 			header: () => headerCell(t('table.status'), 'center'),
 			cell: ({ row }) => {
 				const color = getOrderStatusColor(row.original.status) ?? 'neutral';
-
-				const value = {
-					[OrderStatus.COMPLETED]: t('options.completed'),
-					[OrderStatus.PAID]: t('options.paid'),
-					[OrderStatus.CANCELLED]: t('options.cancelled'),
-					[OrderStatus.REFUNDED]: t('options.refunded'),
-					[OrderStatus.PENDING_PAYMENT]: t('options.pendingPayment'),
-					[OrderStatus.PROCESSING]: t('options.processing'),
-					[OrderStatus.REQUIRES_ACTION]: t('options.requiresAction'),
-				}[row.original.status as string];
+				const value = getOrderStatusOption(t, row.original.status)?.label;
 
 				return h(UBadge, { class: 'capitalize', size: 'lg', variant: 'subtle', color }, () => value);
 			},
