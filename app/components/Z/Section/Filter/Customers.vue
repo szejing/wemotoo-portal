@@ -1,47 +1,34 @@
 <template>
-	<div class="w-full">
-		<!-- Compact Filter Grid -->
-		<div class="grid grid-cols-3 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-3">
-			<!-- Date Range Filter -->
-			<div class="flex flex-col col-span-full gap-1.5">
-				<label class="text-xs font-medium text-gray-700 dark:text-gray-300">{{ $t('components.filter.joinedDate') }}</label>
-				<ZDateRange v-model="filter.joined_date" @update:model-value="handleDateRangeChange" />
-			</div>
-
+	<div class="w-full min-w-80 sm:min-w-md lg:min-w-xl">
+		<div class="flex flex-col gap-3 mb-3">
 			<!-- Customer Search -->
-			<div class="flex flex-col col-span-3 sm:col-span-2 gap-1.5">
+			<div class="flex flex-col gap-1.5">
 				<label class="text-xs font-medium text-gray-700 dark:text-gray-300">{{ $t('components.filter.searchLabel') }}</label>
-				<UInput v-model="filter.query" :placeholder="$t('components.filter.searchByNamePhoneEmail')" :icon="ICONS.SEARCH_ROUNDED" @input="debouncedSearch" />
+				<UInput
+					v-model="filter.query"
+					:placeholder="$t('components.filter.searchByNamePhoneEmail')"
+					:icon="ICONS.SEARCH_ROUNDED"
+					class="w-full"
+					@input="debouncedSearch"
+				/>
 			</div>
 
 			<!-- Actions -->
-			<div class="flex flex-col gap-1.5 col-span-full">
-				<div class="flex gap-2">
-					<UButton variant="outline" color="neutral" :disabled="loading" @click="clearFilters">
-						<UIcon name="i-heroicons-arrow-path" class="w-4 h-4" />
-						{{ $t('components.filter.clear') }}
-					</UButton>
-					<UButton color="primary" :disabled="loading" :loading="loading" @click="search">
-						<UIcon :name="ICONS.SEARCH_ROUNDED" class="w-4 h-4" />
-						{{ $t('components.filter.search') }}
-					</UButton>
-				</div>
+			<div class="flex gap-2">
+				<UButton variant="outline" color="neutral" :disabled="loading" @click="clearFilters">
+					<UIcon name="i-heroicons-arrow-path" class="w-4 h-4" />
+					{{ $t('components.filter.clear') }}
+				</UButton>
+				<UButton color="primary" :disabled="loading" :loading="loading" @click="search">
+					<UIcon :name="ICONS.SEARCH_ROUNDED" class="w-4 h-4" />
+					{{ $t('components.filter.search') }}
+				</UButton>
 			</div>
 		</div>
 
 		<!-- Active Filters Display -->
 		<div v-if="hasActiveFilters" class="flex flex-wrap gap-2 items-center">
 			<span class="text-xs text-gray-600 dark:text-gray-400">{{ $t('components.filter.activeFilters') }}</span>
-			<UBadge
-				v-if="filter.joined_date && (filter.joined_date.start || filter.joined_date.end)"
-				color="primary"
-				variant="subtle"
-				size="sm"
-				@click="clearFilter('date')"
-			>
-				{{ $t('components.filter.joinedDate') }}: {{ formatDateRange(filter.joined_date) }}
-				<UIcon name="i-heroicons-x-mark" class="w-3 h-3 ml-1 cursor-pointer" />
-			</UBadge>
 			<UBadge v-if="filter.query" color="info" variant="subtle" size="sm" @click="clearFilter('query')">
 				{{ $t('components.filter.search') }}: {{ filter.query }}
 				<UIcon name="i-heroicons-x-mark" class="w-3 h-3 ml-1 cursor-pointer" />
@@ -51,28 +38,14 @@
 </template>
 
 <script lang="ts" setup>
-import type { Range } from '~/utils/interface';
-import { sub, format } from 'date-fns';
-
 const customerStore = useCustomerStore();
 const { filter, loading } = storeToRefs(customerStore);
 
 const searchTimeout = ref<ReturnType<typeof setTimeout> | null>(null);
 
 const hasActiveFilters = computed(() => {
-	const hasDateFilter = filter.value.joined_date && (filter.value.joined_date.start || filter.value.joined_date.end);
-	return filter.value.query || hasDateFilter;
+	return !!filter.value.query;
 });
-
-const formatDateRange = (range: Range) => {
-	if (!range) return '';
-	const startDate = range.start ? format(new Date(range.start), 'dd/MM/yyyy') : '';
-	const endDate = range.end ? format(new Date(range.end), 'dd/MM/yyyy') : '';
-	if (startDate && endDate) {
-		return `${startDate} - ${endDate}`;
-	}
-	return startDate || endDate;
-};
 
 const search = async () => {
 	await customerStore.getCustomers();
@@ -87,20 +60,8 @@ const debouncedSearch = () => {
 	}, 500);
 };
 
-const handleDateRangeChange = async (newValue: Range) => {
-	filter.value.joined_date = {
-		start: newValue.start ? new Date(newValue.start) : sub(new Date(), { days: 14 }),
-		end: newValue.end ? new Date(newValue.end) : new Date(),
-	};
-	await search();
-};
-
 const clearFilters = async () => {
 	filter.value.query = '';
-	filter.value.joined_date = {
-		start: undefined,
-		end: undefined,
-	};
 	filter.value.current_page = 1;
 	await search();
 };
@@ -108,11 +69,6 @@ const clearFilters = async () => {
 const clearFilter = async (filterKey: string) => {
 	if (filterKey === 'query') {
 		filter.value.query = '';
-	} else if (filterKey === 'date') {
-		filter.value.joined_date = {
-			start: undefined,
-			end: undefined,
-		};
 	}
 	await search();
 };

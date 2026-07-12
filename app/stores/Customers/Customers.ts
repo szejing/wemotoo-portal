@@ -68,14 +68,7 @@ export const useCustomerStore = defineStore('customerStore', {
 			this.loading = true;
 			const { $api } = useNuxtApp();
 			try {
-				const { query, joined_date } = this.filter;
-
-				let filter = '';
-
-				if (joined_date.start && joined_date.end) {
-					const joinedDateFilter = `created_at between '${getFormattedDate(joined_date.start, 'yyyy-MM-dd')}' and '${getFormattedDate(joined_date.end, 'yyyy-MM-dd')}'`;
-					filter = filter ? `${filter} and ${joinedDateFilter}` : joinedDateFilter;
-				}
+				const { query } = this.filter;
 
 				const queryParams: BaseODataReq = {
 					$top: this.filter.page_size,
@@ -83,11 +76,6 @@ export const useCustomerStore = defineStore('customerStore', {
 					$skip: (this.filter.current_page - 1) * this.filter.page_size,
 					$orderby: 'created_at desc',
 				};
-
-				// Only add $filter if it's not empty
-				if (filter) {
-					queryParams.$filter = filter;
-				}
 
 				// Use backend $search support for text search
 				if (query) {
