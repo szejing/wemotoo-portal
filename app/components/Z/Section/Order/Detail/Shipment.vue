@@ -75,6 +75,18 @@
 				<div class="flex flex-wrap items-center justify-between gap-3 border-t border-default pt-4">
 					<div class="flex flex-wrap gap-2">
 						<UButton
+							v-if="canMarkShipped"
+							size="sm"
+							color="primary"
+							icon="i-heroicons-truck"
+							data-testid="shipment-mark-shipped"
+							:disabled="isReadOnly || loading"
+							:loading="loading && canMarkShipped"
+							@click="handleMarkShipped"
+						>
+							{{ $t('components.shipment.markAsShipped') }}
+						</UButton>
+						<UButton
 							v-if="canMarkDelivered"
 							size="sm"
 							color="success"
@@ -238,6 +250,10 @@ const statusLabel = computed(() => {
 	return labels[shipment.value.status] ?? 'options.pending';
 });
 
+const canMarkShipped = computed(() => {
+	return shipment.value?.status === 'pending' && hasRawTrackingNumber.value;
+});
+
 const canMarkDelivered = computed(() => {
 	return shipment.value?.status === 'shipped' || shipment.value?.status === 'in_transit';
 });
@@ -365,6 +381,15 @@ const handleDeleteShipment = async () => {
 	});
 
 	confirmModal.open();
+};
+
+const handleMarkShipped = async () => {
+	if (!props.order?.shipment?.id || props.isReadOnly) {
+		return;
+	}
+
+	await shipmentStore.markShipped(props.order.shipment.id);
+	emit('refresh');
 };
 
 const handleMarkDelivered = async () => {

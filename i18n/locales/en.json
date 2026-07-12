@@ -1213,6 +1213,7 @@
 			"courierName": "Courier Name",
 			"trackingNo": "Tracking Number",
 			"shippingFee": "Shipping Fee",
+			"markAsShipped": "Mark as Shipped",
 			"markAsDelivered": "Mark as Delivered",
 			"confirmDelete": "Are you sure you want to delete this shipment?",
 			"confirmDeleteShippingMethod": "Are you sure you want to delete this shipping method?",

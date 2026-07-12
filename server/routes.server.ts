@@ -246,6 +246,7 @@ export const Routes = {
 		Update: (id: string) => `${API_PATH.SHIPMENT}/${id}`,
 		Delete: (id: string) => `${API_PATH.SHIPMENT}/${id}`,
 		MarkDelivered: (id: string) => `${API_PATH.SHIPMENT}/${id}/delivered`,
+		MarkShipped: (id: string) => `${API_PATH.SHIPMENT}/${id}/shipped`,
 	},
 	Couriers: {
 		Many: () => `${API_PATH.COURIERS}/`,

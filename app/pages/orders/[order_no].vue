@@ -262,16 +262,13 @@
 import type { TableRow } from '@nuxt/ui';
 import type { TableMeta, Row } from '@tanstack/vue-table';
 import { ZModalConfirmation, ZModalInformation, ZModalOrderDetailCustomer, ZModalOrderDetailItem } from '#components';
-import { OrderItemStatus, OrderStatus, OrderType, PaymentStatus, formatCurrency } from 'yeppi-common';
-import { failedNotification, successNotification } from '~/stores/AppUi/AppUi';
+import { OrderItemStatus, OrderStatus, OrderType, formatCurrency } from 'yeppi-common';
+import { successNotification } from '~/stores/AppUi/AppUi';
 import { ICONS } from '~/utils/icons';
 import type { ItemModel } from '~/utils/models/item.model';
 import type { OrderHistory } from '~/utils/types/order-history';
 import { getOrderDetailItemColumns } from '~/utils/table-columns';
-import {
-	resolveOrderResendEmailAction,
-	type OrderResendEmailAction,
-} from '~/utils/resolve-order-resend-email-action';
+import { resolveOrderResendEmailAction, type OrderResendEmailAction } from '~/utils/resolve-order-resend-email-action';
 import Activities from '~/components/ActivityLog/Activities.vue';
 import { useFulfillmentStore } from '~/stores/Fulfillment/Fulfillment';
 import { useMediaQuery } from '@vueuse/core';
@@ -392,9 +389,7 @@ const resend_email_description = computed(() => {
 	return '';
 });
 
-const resend_email_customer_address = computed(() =>
-	can_resend_status_email.value ? record.value?.customer?.email_address : undefined,
-);
+const resend_email_customer_address = computed(() => (can_resend_status_email.value ? record.value?.customer?.email_address : undefined));
 const resend_email_button_text = computed(() => {
 	if (!resend_email_action.value) {
 		return 'No email available';
@@ -576,7 +571,30 @@ const refresh_button_text = computed(() => {
 });
 
 const handleUpdateOrderStatus = async () => {
-	await updateOrderStatus(new_order_status.value);
+	if (!order.value) {
+		throw new Error('Order not found');
+	}
+
+	if (new_order_status.value == OrderStatus.CANCELLED) {
+		const confirmModal = overlay.create(ZModalConfirmation, {
+			props: {
+				message: t('components.orderDetail.confirmCancelOrder'),
+				titleVariant: 'danger',
+				action: 'delete',
+				onConfirm: async () => {
+					await executeOrderStatusUpdate(new_order_status.value);
+					confirmModal.close();
+				},
+				onCancel: () => {
+					confirmModal.close();
+				},
+			},
+		});
+		confirmModal.open();
+		return;
+	}
+
+	await executeOrderStatusUpdate(new_order_status.value);
 };
 
 const handleResendCurrentStatusEmail = async () => {
@@ -600,11 +618,6 @@ const executeOrderStatusUpdate = async (new_status: OrderStatus) => {
 		throw new Error('Order not found');
 	}
 
-	if (new_status == OrderStatus.COMPLETED && order.value.payment_status == PaymentStatus.PENDING) {
-		failedNotification(t('components.orderDetail.paymentInfoRequired'));
-		return;
-	}
-
 	try {
 		const shouldStay = await orderStore.updateStatus(order.value.order_no, order.value.customer.customer_no, new_status, type.value);
 		if (shouldStay) {
@@ -614,35 +627,8 @@ const executeOrderStatusUpdate = async (new_status: OrderStatus) => {
 			useRouter().back();
 		}
 	} catch {
-		failedNotification(t('components.orderDetail.error'));
+		// Order store already toasts the API error message.
 	}
-};
-
-const updateOrderStatus = async (new_status: OrderStatus) => {
-	if (!order.value) {
-		throw new Error('Order not found');
-	}
-
-	if (new_status == OrderStatus.CANCELLED) {
-		const confirmModal = overlay.create(ZModalConfirmation, {
-			props: {
-				message: t('components.orderDetail.confirmCancelOrder'),
-				titleVariant: 'danger',
-				action: 'delete',
-				onConfirm: async () => {
-					await executeOrderStatusUpdate(new_status);
-					confirmModal.close();
-				},
-				onCancel: () => {
-					confirmModal.close();
-				},
-			},
-		});
-		confirmModal.open();
-		return;
-	}
-
-	await executeOrderStatusUpdate(new_status);
 };
 
 const editCustomerDetail = async () => {

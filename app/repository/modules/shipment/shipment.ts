@@ -2,6 +2,7 @@ import HttpFactory from '~/repository/factory';
 import MerchantRoutes from '~/repository/routes.client';
 import type { CreateShipmentReq } from './models/request/create-shipment.req';
 import type { MarkDeliveredReq } from './models/request/mark-delivered.req';
+import type { MarkShippedReq } from './models/request/mark-shipped.req';
 import type { UpdateShipmentReq } from './models/request/update-shipment.req';
 import type { GetShipmentsResp } from './models/response/get-shipments.resp';
 import type { ShipmentResp } from './models/response/shipment.resp';
@@ -43,6 +44,14 @@ class ShipmentModule extends HttpFactory {
 		return await this.call<ShipmentResp>({
 			method: 'DELETE',
 			url: this.RESOURCE.Delete(id),
+		});
+	}
+
+	async markShipped(id: string, body: MarkShippedReq): Promise<ShipmentResp> {
+		return await this.call<ShipmentResp>({
+			method: 'PATCH',
+			url: this.RESOURCE.MarkShipped(id),
+			body,
 		});
 	}
 

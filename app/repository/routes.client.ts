@@ -262,6 +262,7 @@ const MerchantRoutes = {
 		Update: (id: string) => `${prefix}/${API_PATH.MERCHANT}/${API_PATH.SHIPMENT}/${id}`,
 		Delete: (id: string) => `${prefix}/${API_PATH.MERCHANT}/${API_PATH.SHIPMENT}/${id}`,
 		MarkDelivered: (id: string) => `${prefix}/${API_PATH.MERCHANT}/${API_PATH.SHIPMENT}/${id}/delivered`,
+		MarkShipped: (id: string) => `${prefix}/${API_PATH.MERCHANT}/${API_PATH.SHIPMENT}/${id}/shipped`,
 	},
 	Couriers: {
 		Many: () => `${prefix}/${API_PATH.MERCHANT}/${API_PATH.COURIERS}/many`,

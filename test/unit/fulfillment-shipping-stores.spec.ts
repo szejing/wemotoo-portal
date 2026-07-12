@@ -28,6 +28,7 @@ describe('fulfillment/shipment/shipping stores', () => {
 			create: vi.fn(),
 			update: vi.fn(),
 			remove: vi.fn(),
+			markShipped: vi.fn(),
 			markDelivered: vi.fn(),
 		},
 		shippingMethod: {
@@ -56,6 +57,27 @@ describe('fulfillment/shipment/shipping stores', () => {
 
 		expect(result?.id).toBe('f1');
 		expect(store.creating).toBe(false);
+		expect(successNotification).toHaveBeenCalled();
+	});
+
+	it('marks shipment as shipped', async () => {
+		apiMock.shipment.markShipped.mockResolvedValue({
+			shipment: {
+				id: 's1',
+				order_no: 'O1',
+				inv_no: 'I1',
+				courier_name: 'J&T',
+				tracking_no: 'TRK-1',
+				shipping_fee: 6,
+				status: 'shipped',
+			},
+		});
+		const store = useShipmentStore();
+
+		const result = await store.markShipped('s1');
+
+		expect(result?.status).toBe('shipped');
+		expect(store.updating).toBe(false);
 		expect(successNotification).toHaveBeenCalled();
 	});
 

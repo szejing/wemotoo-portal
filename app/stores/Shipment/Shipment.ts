@@ -114,6 +114,28 @@ export const useShipmentStore = defineStore('shipmentStore', {
 			}
 		},
 
+		async markShipped(id: string): Promise<OrderShipment | undefined> {
+			const { $api } = useNuxtApp();
+			const merchant_id = useCookie(KEY.X_MERCHANT_ID).value;
+			this.updating = true;
+
+			try {
+				const response = await $api.shipment.markShipped(id, {
+					merchant_id: String(merchant_id ?? ''),
+				});
+				this.lastShipment = response.shipment;
+				this.shipments = this.shipments.map((shipment) => (shipment.id === id ? response.shipment : shipment));
+				successNotification('Shipment marked as shipped');
+				return response.shipment;
+			} catch (err: unknown | ErrorResponse) {
+				const message = (err as ErrorResponse).message ?? 'Failed to mark shipment shipped';
+				failedNotification(message);
+				throw err;
+			} finally {
+				this.updating = false;
+			}
+		},
+
 		async markDelivered(id: string): Promise<OrderShipment | undefined> {
 			const { $api } = useNuxtApp();
 			const merchant_id = useCookie(KEY.X_MERCHANT_ID).value;

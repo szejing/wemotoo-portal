@@ -1212,6 +1212,7 @@
 			"courierName": "Nama Kurier",
 			"trackingNo": "Nombor Penjejakan",
 			"shippingFee": "Yuran Penghantaran",
+			"markAsShipped": "Tanda Sebagai Dihantar",
 			"markAsDelivered": "Tanda Sebagai Diterima",
 			"confirmDelete": "Adakah anda pasti mahu memadam penghantaran ini?",
 			"confirmDeleteShippingMethod": "Adakah anda pasti mahu memadam kaedah penghantaran ini?",
