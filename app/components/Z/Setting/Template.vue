@@ -46,6 +46,16 @@
 					<UInput type="file" :disabled="template.is_disabled" @change="handleFileChange(template, $event)" />
 					<p v-if="getTextSettingValue(template)" class="text-xs text-gray-500">Current: {{ getTextSettingValue(template) }}</p>
 				</div>
+				<USelect
+					v-if="getInputType(template) === InputTypeEnum.SELECT"
+					:model-value="getTextSettingValue(template)"
+					:items="getSelectItems(template)"
+					value-key="value"
+					label-key="label"
+					:disabled="template.is_disabled"
+					class="w-full"
+					@update:model-value="(value) => updateSettingValue(template, value)"
+				/>
 			</div>
 		</div>
 	</div>
@@ -55,6 +65,7 @@
 import type { SettingTempl } from '~/utils/types/setting-templ';
 import { InputType as InputTypeEnum } from 'yeppi-common';
 import { Setting } from '~/utils/types/setting';
+import { getOrderCompletionValidationItems } from '~/utils/options/order-completion-validation';
 
 const props = defineProps({
 	templates: {
@@ -85,6 +96,8 @@ const getBooleanSettingValue = (template: SettingTempl): boolean => {
 	const value = getRawSettingValue(template);
 	return value === 'true' || value === '1';
 };
+
+const getSelectItems = (template: SettingTempl) => getOrderCompletionValidationItems(template.data_source);
 
 const serializeSettingValue = (template: SettingTempl, value: string | number | boolean): string => {
 	if (getInputType(template) === InputTypeEnum.BOOLEAN) {
