@@ -7,12 +7,12 @@ export const TABLE_ALIGN_CENTER = 'text-center';
 export type TableCellAlign = 'left' | 'right' | 'center';
 
 export function headerCell(label: string, align: TableCellAlign = 'left') {
-	const alignClass = align === 'right' ? TABLE_ALIGN_RIGHT : align === 'center' ? TABLE_ALIGN_CENTER : undefined;
+	const alignClass = align === 'right' ? TABLE_ALIGN_RIGHT : align === 'center' ? TABLE_ALIGN_CENTER : 'text-left';
 	return h('div', { class: alignClass }, label);
 }
 
 export function numberCell(value: number, align: TableCellAlign = 'right') {
-	const alignClass = align === 'right' ? TABLE_ALIGN_RIGHT : align === 'center' ? TABLE_ALIGN_CENTER : undefined;
+	const alignClass = align === 'right' ? TABLE_ALIGN_RIGHT : align === 'center' ? TABLE_ALIGN_CENTER : 'text-left';
 	return h('div', { class: alignClass }, value);
 }
 

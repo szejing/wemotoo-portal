@@ -5,8 +5,9 @@ import { UBadge, UIcon } from '#components';
 import type { OrderHistory } from '~/utils/types/order-history';
 import type { ItemModel } from '~/utils/models';
 import { getSortableHeader } from './sortable';
-import { headerCell, moneyCell, tableCellMeta } from './styles';
+import { headerCell, moneyCell, mutedCell, tableCellMeta } from './styles';
 import { getOrderStatusColor } from '../options';
+import { getOrderStatusOption } from '../options/order-status';
 
 type TranslateFn = (key: string) => string;
 
@@ -49,13 +50,14 @@ export function getCustomerOrderHistoryColumns(
 			header: ({ column }) => getSortableHeader(column, t('table.orderStatus')),
 			cell: ({ row }) => {
 				const status = row.original.status;
-				const color = getOrderStatusColor(status) ?? 'neutral';
-				const label =
-					status === OrderStatus.COMPLETED ? t('options.completed') : status === OrderStatus.PENDING_PAYMENT ? t('options.pendingPayment') : (status ?? '—');
-				return h(UBadge, { color, variant: 'subtle', class: 'inline-flex items-center gap-1' }, () => [
-					status === OrderStatus.COMPLETED ? h(UIcon, { name: 'i-heroicons-check-circle', class: 'w-3.5 h-3.5' }) : null,
-					label,
-				]);
+
+				if (!status) return mutedCell();
+
+				return h(
+					UBadge,
+					{ variant: 'subtle', color: getOrderStatusColor(status) ?? 'neutral', class: 'capitalize' },
+					() => getOrderStatusOption(t, status)?.label,
+				);
 			},
 		},
 		{

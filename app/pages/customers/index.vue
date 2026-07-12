@@ -67,7 +67,7 @@ import { ZModalImporting } from '#components';
 import { CUSTOMER_IMPORT_ACCEPT, CUSTOMER_IMPORT_FORMAT_ERROR_MESSAGE, isAllowedCustomerImportFile } from '~/repository/modules/customer/customer';
 
 const CUSTOMER_COLUMN_LABELS = {
-	customer_no: 'table.noLabel',
+	row_index: 'table.noLabel',
 	name: 'table.name',
 	email_address: 'table.email',
 	phone_number: 'table.phone',

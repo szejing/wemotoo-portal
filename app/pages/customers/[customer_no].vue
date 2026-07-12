@@ -11,15 +11,13 @@
 			</div>
 		</div>
 
-		<div v-else-if="!current_customer" class="flex flex-col items-center justify-center py-16 gap-4">
+		<div v-else-if="customer_not_found" class="flex flex-col items-center justify-center py-16 gap-4">
 			<UIcon name="i-heroicons-user-group" class="w-16 h-16 text-neutral-300" />
-			<p class="text-default">{{ $t('pages.noCustomersFound') }}</p>
-			<UButton variant="outline" color="neutral" @click="navigateTo('/customers')">
-				{{ $t('common.cancel') }}
-			</UButton>
+			<p class="text-default">{{ $t('pages.customerNotFound', { customerNo: custNo }) }}</p>
+			<UButton color="primary" variant="soft" :to="'/customers'">{{ $t('nav.customers') }}</UButton>
 		</div>
 
-		<div v-else class="space-y-6 max-w-6xl">
+		<div v-else-if="current_customer" class="space-y-6 max-w-6xl">
 			<!-- Customer header card -->
 			<UCard>
 				<div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
@@ -104,7 +102,7 @@
 						</template>
 
 						<!-- Customer insights -->
-						<template #insights>
+						<!-- <template #insights>
 							<div class="py-2">
 								<CustomerInsightsPanel
 									:customer-no="custNo"
@@ -114,16 +112,21 @@
 									@remove="handleRemoveInsight"
 								/>
 							</div>
-						</template>
+						</template> -->
 
 						<!-- Appointments -->
 						<template #appointments>
 							<div class="py-2">
-								<UTable v-if="customer_appointments.length" :data="pagedCustomerAppointments" :columns="appointmentColumns" :loading="appointmentsLoading">
+								<UTable :data="pagedCustomerAppointments" :columns="appointmentColumns" :loading="appointmentsLoading">
 									<template #empty>
-										<div class="flex flex-col items-center justify-center py-8 gap-2">
-											<UIcon name="i-heroicons-calendar-days" class="w-10 h-10 text-neutral-300" />
-											<p class="text-sm text-muted">{{ $t('pages.noAppointmentsFoundForCustomer') }}</p>
+										<div class="flex flex-col items-center justify-center py-12 gap-3">
+											<UIcon name="i-heroicons-calendar-days" class="w-16 h-16 text-neutral-300" />
+											<div class="text-center">
+												<p class="font-medium text-default">{{ $t('pages.noAppointmentsFoundForCustomer') }}</p>
+												<p class="text-sm text-muted mt-1 max-w-sm">
+													{{ $t('pages.noAppointmentsFoundForCustomerDescription') }}
+												</p>
+											</div>
 										</div>
 									</template>
 								</UTable>
@@ -141,11 +144,22 @@
 						<!-- Orders -->
 						<template #orders>
 							<div class="py-2">
-								<UTable v-if="customer_orders.length" :data="pagedCustomerOrders" :columns="orderColumns" :loading="loading">
+								<UTable
+									:data="pagedCustomerOrders"
+									:columns="orderColumns"
+									:loading="loading"
+									:ui="{ tr: 'cursor-pointer' }"
+									@select="selectOrder"
+								>
 									<template #empty>
-										<div class="flex flex-col items-center justify-center py-8 gap-2">
-											<UIcon name="i-heroicons-shopping-cart" class="w-10 h-10 text-neutral-300" />
-											<p class="text-sm text-muted">{{ $t('pages.noOrdersFound') }}</p>
+										<div class="flex flex-col items-center justify-center py-12 gap-3">
+											<UIcon name="i-heroicons-shopping-cart" class="w-16 h-16 text-neutral-300" />
+											<div class="text-center">
+												<p class="font-medium text-default">{{ $t('pages.noOrdersFoundForCustomer') }}</p>
+												<p class="text-sm text-muted mt-1 max-w-sm">
+													{{ $t('pages.noOrdersFoundForCustomerDescription') }}
+												</p>
+											</div>
 										</div>
 									</template>
 								</UTable>
@@ -174,15 +188,18 @@
 </template>
 
 <script lang="ts" setup>
+import type { TableRow } from '@nuxt/ui';
 import { formatCurrency } from 'yeppi-common';
 import type { ItemModel } from '~/utils/models';
 import { getCustomerAppointmentColumns, getCustomerOrderHistoryColumns } from '~/utils/table-columns';
 import type { Appointment } from '~/utils/types/appointment';
+import type { OrderHistory } from '~/utils/types/order-history';
 import type { CustomerInsightKey, CustomerInsightConfidence, CustomerInsightSeverity } from 'yeppi-common';
 import { customerInsightTraitOptions } from '~/utils/options/customer-insights';
 
 const route = useRoute();
 const custNo = computed(() => String(route.params.customer_no ?? ''));
+const customer_not_found = ref(false);
 const customerStore = useCustomerStore();
 const appointmentStore = useAppointmentStore();
 const { loading, processing, current_customer, customer_orders } = storeToRefs(customerStore);
@@ -231,7 +248,7 @@ const lastActivityDisplay = computed(() => {
 const activeTab = ref('overview');
 const tabItems = computed(() => [
 	{ label: t('pages.overview'), value: 'overview', slot: 'overview' },
-	{ label: t('pages.customerInsights.title'), value: 'insights', slot: 'insights' },
+	// { label: t('pages.customerInsights.title'), value: 'insights', slot: 'insights' },
 	{ label: t('nav.appointments'), value: 'appointments', slot: 'appointments' },
 	{ label: t('nav.orders'), value: 'orders', slot: 'orders' },
 	// { label: t('pages.invoices'), value: 'invoices', slot: 'invoices' },
@@ -281,6 +298,13 @@ const updateOrdersPage = (page: number) => {
 	ordersPagination.current_page = page;
 };
 
+const selectOrder = (_e: Event, row: TableRow<OrderHistory>) => {
+	const order = row.original;
+	if (!order?.order_no) return;
+
+	navigateTo(`/orders/${encodeURIComponent(order.order_no)}?type=${order.type}`);
+};
+
 const handleAddInsight = async (payload: { key: CustomerInsightKey; note?: string; confidence?: string; severity?: string }) => {
 	const trait = customerInsightTraitOptions(t).find((item) => item.value === payload.key);
 	if (!trait) return;
@@ -317,7 +341,7 @@ onBeforeMount(async () => {
 		appointmentStore.getAppointmentsByCustomer(custNo.value),
 	]);
 	if (!customer) {
-		await navigateTo('/customers');
+		customer_not_found.value = true;
 		return;
 	}
 

@@ -11,8 +11,8 @@ export function getSortableHeader<TData>(column: Column<TData, unknown>, label: 
 		{
 			type: 'button',
 			class: [
-				'inline-flex items-center gap-1 text-default hover:text-highlighted',
-				align === 'right' ? `${TABLE_ALIGN_RIGHT} w-full justify-end` : undefined,
+				'inline-flex items-center gap-1 p-0 font-inherit text-default hover:text-highlighted',
+				align === 'right' ? `${TABLE_ALIGN_RIGHT} w-full justify-end` : 'w-full justify-start text-left',
 			],
 			onClick: () => column.toggleSorting(column.getIsSorted() === 'asc'),
 		},

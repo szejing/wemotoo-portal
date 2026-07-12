@@ -1,22 +1,23 @@
 import type { ColumnDef } from '@tanstack/vue-table';
 import type { Customer } from '~/utils/types/customer';
 import { getSortableHeader } from './sortable';
-import { headerCell, numberCell, primaryCell } from './styles';
+import { headerCell, numberCell, primaryCell, tableCellMeta } from './styles';
 
 type TranslateFn = (key: string) => string;
 
 export function getCustomerColumns(t: TranslateFn): ColumnDef<Customer>[] {
 	return [
 		{
-			accessorKey: 'customer_no',
-			header: () => headerCell(t('table.noLabel')),
-			cell: ({ row }) => numberCell(row.index + 1),
+			accessorKey: 'row_index',
+			header: () => headerCell(t('table.noLabel'), 'center'),
+			cell: ({ row }) => numberCell(row.index + 1, 'center'),
+			...tableCellMeta.center,
 		},
 		{
 			accessorKey: 'name',
 			header: ({ column }) => getSortableHeader(column, t('table.name')),
 			cell: ({ row }) => {
-				return h('div', { class: 'flex flex-col gap-1' }, [
+				return h('div', { class: 'flex flex-col gap-1 items-start min-w-0' }, [
 					h('p', { class: 'font-semibold text-highlighted' }, row.original.customer_no),
 					h('p', { class: 'text-sm text-muted' }, row.original.name),
 				]);
@@ -31,7 +32,7 @@ export function getCustomerColumns(t: TranslateFn): ColumnDef<Customer>[] {
 			accessorKey: 'phone_number',
 			header: () => headerCell(t('table.phone')),
 			cell: ({ row }) => {
-				return h('p', { class: 'text-sm text-muted' }, `(+${row.original.dial_code}) ${row.original.phone_no}`);
+				return h('p', { class: 'text-sm text-muted' }, `(${row.original.dial_code}) ${row.original.phone_no}`);
 			},
 		},
 	];
