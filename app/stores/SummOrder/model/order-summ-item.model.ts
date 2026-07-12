@@ -1,4 +1,4 @@
-import { OrderStatus, type OrderItemStatus } from 'yeppi-common';
+import type { OrderItemStatus } from 'yeppi-common';
 import { options_page_size } from '~/utils/options';
 import type { SummOrderItem } from '~/utils/types/summ-orders';
 import type { Range } from '~/utils/interface';
@@ -7,7 +7,6 @@ import { sub } from 'date-fns';
 type OrderSummItem = {
 	filter: {
 		date_range: Range;
-		status: OrderStatus | undefined;
 		item_status: OrderItemStatus | undefined;
 		currency_code: string;
 	};
@@ -25,7 +24,6 @@ export const initialEmptyOrderSummItem: OrderSummItem = {
 			start: sub(new Date(), { days: 14 }),
 			end: new Date(),
 		},
-		status: OrderStatus.PENDING_PAYMENT,
 		item_status: undefined,
 		currency_code: 'MYR',
 	},

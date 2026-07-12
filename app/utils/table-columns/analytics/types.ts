@@ -7,7 +7,7 @@ export type SummCustomerVariant = 'order' | 'sale';
 export type SummBillTableRow = {
 	biz_date: Date;
 	currency_code: string;
-	status?: OrderStatus;
+	status: OrderStatus;
 	gross_amt: number;
 	net_amt: number;
 	disc_amt?: number;

@@ -18,7 +18,7 @@
 
 			<UCard class="overflow-hidden" :ui="{ body: 'p-0 sm:p-0' }">
 				<UTable
-					:data="dailyRows"
+					:data="rows"
 					:columns="visibleDailyColumns"
 					:loading="loading"
 					:ui="{
@@ -49,8 +49,8 @@
 <script lang="ts" setup>
 import { OrderStatus } from 'yeppi-common';
 import { options_page_size } from '~/utils/options';
+import { mapSummBillsToTableRows } from '~/utils/summ-bill-table-rows';
 import { getSummColumns, getSummColumnLabels } from '~/utils/table-columns';
-import type { SummBillTableRow } from '~/utils/table-columns';
 import { columnOptionsFromLabelMap } from '~/utils/table-columns/visibility';
 
 const route = useRoute();
@@ -112,60 +112,12 @@ const { selectedColumnKeys, visibleColumns: visibleDailyColumns } = useTableColu
 	defaultHiddenKeys: ['currency_code', 'total_voided_qty'],
 });
 
-const dailyRows = computed<SummBillTableRow[]>(() => {
-	const grouped: { [key: string]: (typeof data.value)[0][] } = {};
-
-	data.value.forEach((item) => {
-		const date = new Date(item.biz_date).toISOString().split('T')[0] as string;
-		if (!grouped[date]) {
-			grouped[date] = [];
-		}
-		grouped[date].push(item);
-	});
-
-	return Object.entries(grouped).map(([date, items]) => {
-		const statuses = new Set(items.map((item) => item.status).filter(Boolean));
-		const totals = items.reduce(
-			(acc, item) => {
-				acc.total_orders += item.total_orders;
-				acc.total_qty += item.total_qty;
-				acc.total_voided_qty += item.total_voided_qty || 0;
-				acc.gross_amt += item.gross_amt;
-				acc.net_amt += item.net_amt;
-				acc.disc_amt += item.disc_amt ?? 0;
-				acc.gross_amt_exc += item.gross_amt_exc;
-				acc.net_amt_exc += item.net_amt_exc;
-				acc.tax_amt_inc += item.tax_amt_inc ?? 0;
-				acc.tax_amt_exc += item.tax_amt_exc ?? 0;
-				acc.void_amt += item.void_amt ?? 0;
-				acc.adj_amt += item.adj_amt ?? 0;
-				acc.currency_code = item.currency_code;
-				return acc;
-			},
-			{
-				total_orders: 0,
-				total_qty: 0,
-				total_voided_qty: 0,
-				gross_amt: 0,
-				net_amt: 0,
-				disc_amt: 0,
-				gross_amt_exc: 0,
-				net_amt_exc: 0,
-				tax_amt_inc: 0,
-				tax_amt_exc: 0,
-				void_amt: 0,
-				adj_amt: 0,
-				currency_code: 'MYR',
-			},
-		);
-
-		return {
-			biz_date: new Date(date),
-			status: statuses.size === 1 ? Array.from(statuses)[0] : undefined,
-			...totals,
-		};
-	});
-});
+const rows = computed(() =>
+	mapSummBillsToTableRows(data.value, {
+		// Status filter All (undefined) → keep one row per status for the day
+		groupByStatus: !order_summ.value.filter.status,
+	}),
+);
 
 const updatePage = async (page: number) => {
 	order_summ.value.current_page = page;

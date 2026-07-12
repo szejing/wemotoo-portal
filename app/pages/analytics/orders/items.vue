@@ -60,7 +60,7 @@
 </template>
 
 <script lang="ts" setup>
-import { OrderItemStatus, OrderStatus } from 'yeppi-common';
+import { OrderItemStatus } from 'yeppi-common';
 import { getSummItemColumns, getSummItemColumnLabels } from '~/utils/table-columns';
 import type { SummOrderItem } from '~/utils/types/summ-orders';
 import { columnOptionsFromLabelMap } from '~/utils/table-columns/visibility';
@@ -83,12 +83,12 @@ const orderItemTableUi = {
 	tfoot: 'bg-elevated/50 border-t border-default',
 } as const;
 
-const VALID_ORDER_STATUSES = new Set(Object.values(OrderStatus));
+const VALID_ITEM_STATUSES = new Set(Object.values(OrderItemStatus));
 
 function applyQueryToFilter() {
 	const start = route.query.start_date;
 	const end = route.query.end_date;
-	const status = route.query.status;
+	const itemStatus = route.query.item_status;
 	if (typeof start === 'string' && start) {
 		const d = new Date(start);
 		if (!Number.isNaN(d.getTime())) {
@@ -101,8 +101,8 @@ function applyQueryToFilter() {
 			orderSummStore.order_summ_item.filter.date_range.end = d;
 		}
 	}
-	if (typeof status === 'string' && VALID_ORDER_STATUSES.has(status as OrderStatus)) {
-		orderSummStore.order_summ_item.filter.item_status = status as OrderItemStatus;
+	if (typeof itemStatus === 'string' && VALID_ITEM_STATUSES.has(itemStatus as OrderItemStatus)) {
+		orderSummStore.order_summ_item.filter.item_status = itemStatus as OrderItemStatus;
 	}
 }
 
@@ -112,7 +112,7 @@ onMounted(async () => {
 });
 
 watch(
-	() => ({ start: route.query.start_date, end: route.query.end_date, status: route.query.status }),
+	() => ({ start: route.query.start_date, end: route.query.end_date, item_status: route.query.item_status }),
 	() => {
 		applyQueryToFilter();
 		orderSummStore.getOrderItemSummary();

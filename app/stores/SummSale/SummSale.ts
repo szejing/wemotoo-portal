@@ -116,7 +116,7 @@ export const useSummSaleStore = defineStore('summSaleStore', {
 
 				const { data, '@odata.count': total } = await $api.summSales.getSummSales({
 					$filter: filter,
-					$orderby: 'biz_date desc',
+					$orderby: 'biz_date desc,status asc',
 					$top: this.sale_summ.page_size,
 					$skip: (this.sale_summ.current_page - 1) * this.sale_summ.page_size,
 				});
@@ -161,7 +161,7 @@ export const useSummSaleStore = defineStore('summSaleStore', {
 
 				const blob = await $api.summSales.exportSalesSummary({
 					$filter: filter,
-					$orderby: 'biz_date desc',
+					$orderby: 'biz_date desc,status asc',
 					$top: this.sale_summ.page_size,
 					$skip: (this.sale_summ.current_page - 1) * this.sale_summ.page_size,
 				});

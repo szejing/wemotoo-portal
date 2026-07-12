@@ -6,6 +6,7 @@ import { initialEmptyOrderSummItem } from './model/order-summ-item.model';
 import { getFormattedDate } from 'yeppi-common';
 import { initialEmptyOrderSummCustomer } from './model/order-summ-customer.model';
 import type { Range } from '~/utils/interface';
+import { buildSummOrderItemODataFilter } from '~/utils/summ-order-item-filter';
 
 type TotalOrderAmt = {
 	currency_code: string;
@@ -120,7 +121,7 @@ export const useSummOrderStore = defineStore('summOrderStore', {
 
 				const { data, '@odata.count': total } = await $api.summOrder.getSummOrders({
 					$filter: filter,
-					$orderby: 'biz_date desc',
+					$orderby: 'biz_date desc,status asc',
 					$count: true,
 					$top: this.order_summ.page_size,
 					$skip: (this.order_summ.current_page - 1) * this.order_summ.page_size,
@@ -166,7 +167,7 @@ export const useSummOrderStore = defineStore('summOrderStore', {
 
 				const blob = await $api.summOrder.exportSummOrders({
 					$filter: filter,
-					$orderby: 'biz_date desc',
+					$orderby: 'biz_date desc,status asc',
 				});
 
 				if (blob) {
@@ -217,31 +218,7 @@ export const useSummOrderStore = defineStore('summOrderStore', {
 			const { $api } = useNuxtApp();
 
 			try {
-				let filter = '';
-
-				if (this.order_summ_item.filter.status) {
-					filter = `status eq '${this.order_summ_item.filter.status}'`;
-				}
-
-				if (this.order_summ_item.filter.item_status) {
-					const itemStatusFilter = `item_status eq '${this.order_summ_item.filter.item_status}'`;
-					filter = filter ? `${filter} and ${itemStatusFilter}` : itemStatusFilter;
-				}
-
-				if (this.order_summ_item.filter.currency_code) {
-					const currencyFilter = `currency_code eq '${this.order_summ_item.filter.currency_code}'`;
-					filter = filter ? `${filter} and ${currencyFilter}` : currencyFilter;
-				}
-
-				if (this.order_summ_item.filter.date_range.end) {
-					const dateFilter = `(biz_date between '${getFormattedDate(this.order_summ_item.filter.date_range.start!, 'yyyy-MM-dd')}' and '${
-						this.order_summ_item.filter.date_range.end ? getFormattedDate(this.order_summ_item.filter.date_range.end!, 'yyyy-MM-dd') : undefined
-					}')`;
-					filter = filter ? `${filter} and ${dateFilter}` : dateFilter;
-				} else {
-					const dateFilter = `biz_date le '${getFormattedDate(this.order_summ_item.filter.date_range.start!, 'yyyy-MM-dd')}'`;
-					filter = filter ? `${filter} and ${dateFilter}` : dateFilter;
-				}
+				const filter = buildSummOrderItemODataFilter(this.order_summ_item.filter);
 
 				const { data, '@odata.count': total } = await $api.summOrder.getSummOrderItems({
 					$filter: filter,
@@ -268,31 +245,7 @@ export const useSummOrderStore = defineStore('summOrderStore', {
 			const { $api } = useNuxtApp();
 
 			try {
-				let filter = '';
-
-				if (this.order_summ_item.filter.status) {
-					filter = `status eq '${this.order_summ_item.filter.status}'`;
-				}
-
-				if (this.order_summ_item.filter.item_status) {
-					const itemStatusFilter = `item_status eq '${this.order_summ_item.filter.item_status}'`;
-					filter = filter ? `${filter} and ${itemStatusFilter}` : itemStatusFilter;
-				}
-
-				if (this.order_summ_item.filter.currency_code) {
-					const currencyFilter = `currency_code eq '${this.order_summ_item.filter.currency_code}'`;
-					filter = filter ? `${filter} and ${currencyFilter}` : currencyFilter;
-				}
-
-				if (this.order_summ_item.filter.date_range.end) {
-					const dateFilter = `(biz_date between '${getFormattedDate(this.order_summ_item.filter.date_range.start!, 'yyyy-MM-dd')}' and '${
-						this.order_summ_item.filter.date_range.end ? getFormattedDate(this.order_summ_item.filter.date_range.end!, 'yyyy-MM-dd') : undefined
-					}')`;
-					filter = filter ? `${filter} and ${dateFilter}` : dateFilter;
-				} else {
-					const dateFilter = `biz_date le '${getFormattedDate(this.order_summ_item.filter.date_range.start!, 'yyyy-MM-dd')}'`;
-					filter = filter ? `${filter} and ${dateFilter}` : dateFilter;
-				}
+				const filter = buildSummOrderItemODataFilter(this.order_summ_item.filter);
 
 				const blob = await $api.summOrder.exportSummOrderItems({
 					$filter: filter,
