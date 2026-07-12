@@ -948,6 +948,7 @@
 		"refunded": "Refunded",
 		"pendingPayment": "Pending Payment",
 		"processing": "Processing",
+		"readyForPickup": "Ready for Pickup",
 		"packed": "Packed",
 		"fulfilled": "Fulfilled",
 		"requiresAction": "Requires Action",

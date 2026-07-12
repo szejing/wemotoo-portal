@@ -947,6 +947,7 @@
 		"refunded": "Dipulangkan",
 		"pendingPayment": "Menunggu Pembayaran",
 		"processing": "Diproses",
+		"readyForPickup": "Sedia untuk Diambil",
 		"packed": "Dibungkus",
 		"fulfilled": "Dipenuhi",
 		"requiresAction": "Perlu Tindakan",
