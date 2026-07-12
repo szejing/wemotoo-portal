@@ -1,6 +1,4 @@
-import { OrderStatus, PaymentStatus } from 'yeppi-common';
-
-export type OrderResendEmailAction = 'order-confirmation' | 'invoice' | 'receipt' | 'refund' | 'cancellation';
+import { OrderResendEmailAction, OrderStatus, PaymentStatus } from 'yeppi-common';
 
 type ResolveOrderResendEmailActionInput = {
 	status: OrderStatus;
@@ -8,51 +6,49 @@ type ResolveOrderResendEmailActionInput = {
 	payment_method?: string | null;
 };
 
-function isCashPendingOrder(input: ResolveOrderResendEmailActionInput): boolean {
+const isCashPendingOrder = (input: ResolveOrderResendEmailActionInput): boolean => {
 	const paymentMethod = String(input.payment_method ?? '')
 		.trim()
 		.toUpperCase();
 
 	return (
 		paymentMethod === 'CASH' &&
-		(input.status === OrderStatus.PENDING_PAYMENT ||
-			input.status === OrderStatus.PROCESSING ||
-			input.status === OrderStatus.CONFIRMED) &&
+		(input.status === OrderStatus.PENDING_PAYMENT || input.status === OrderStatus.PROCESSING || input.status === OrderStatus.CONFIRMED) &&
 		input.payment_status === PaymentStatus.PENDING
 	);
-}
+};
 
 /** Maps order status/payment to the customer email an admin can resend. */
-export function resolveOrderResendEmailAction(
-	input: ResolveOrderResendEmailActionInput,
-): OrderResendEmailAction | undefined {
+export function resolveOrderResendEmailAction(input: ResolveOrderResendEmailActionInput): OrderResendEmailAction | undefined {
 	if (isCashPendingOrder(input)) {
-		return 'order-confirmation';
+		return OrderResendEmailAction.ORDER_CONFIRMATION;
 	}
 
 	if (input.status === OrderStatus.CONFIRMED) {
-		return 'order-confirmation';
+		return OrderResendEmailAction.ORDER_CONFIRMATION;
 	}
 
 	if (input.status === OrderStatus.PROCESSING && input.payment_status === PaymentStatus.PENDING) {
-		return 'invoice';
+		return OrderResendEmailAction.INVOICE;
 	}
 
 	if (
-		(input.status === OrderStatus.PROCESSING ||
-			input.status === OrderStatus.PAID ||
-			input.status === OrderStatus.COMPLETED) &&
+		(input.status === OrderStatus.PROCESSING || input.status === OrderStatus.PAID || input.status === OrderStatus.COMPLETED) &&
 		input.payment_status === PaymentStatus.PAID
 	) {
-		return 'receipt';
+		return OrderResendEmailAction.RECEIPT;
 	}
 
 	if (input.status === OrderStatus.REFUNDED && input.payment_status === PaymentStatus.REFUNDED) {
-		return 'refund';
+		return OrderResendEmailAction.REFUND;
 	}
 
 	if (input.status === OrderStatus.CANCELLED) {
-		return 'cancellation';
+		return OrderResendEmailAction.CANCELLATION;
+	}
+
+	if (input.status === OrderStatus.SHIPPED) {
+		return OrderResendEmailAction.SHIPPED;
 	}
 
 	return undefined;

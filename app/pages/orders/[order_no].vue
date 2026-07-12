@@ -262,13 +262,13 @@
 import type { TableRow } from '@nuxt/ui';
 import type { TableMeta, Row } from '@tanstack/vue-table';
 import { ZModalConfirmation, ZModalInformation, ZModalOrderDetailCustomer, ZModalOrderDetailItem } from '#components';
-import { OrderItemStatus, OrderStatus, OrderType, formatCurrency } from 'yeppi-common';
+import { OrderItemStatus, OrderResendEmailAction, OrderStatus, OrderType, formatCurrency } from 'yeppi-common';
 import { successNotification } from '~/stores/AppUi/AppUi';
 import { ICONS } from '~/utils/icons';
 import type { ItemModel } from '~/utils/models/item.model';
 import type { OrderHistory } from '~/utils/types/order-history';
 import { getOrderDetailItemColumns } from '~/utils/table-columns';
-import { resolveOrderResendEmailAction, type OrderResendEmailAction } from '~/utils/resolve-order-resend-email-action';
+import { resolveOrderResendEmailAction } from '~/utils/resolve-order-resend-email-action';
 import Activities from '~/components/ActivityLog/Activities.vue';
 import { useFulfillmentStore } from '~/stores/Fulfillment/Fulfillment';
 import { useMediaQuery } from '@vueuse/core';
@@ -360,16 +360,18 @@ const resend_email_action = computed<ResendEmailAction | undefined>(() => {
 
 const resend_email_label = computed(() => {
 	switch (resend_email_action.value) {
-		case 'order-confirmation':
+		case OrderResendEmailAction.ORDER_CONFIRMATION:
 			return 'order confirmation';
-		case 'invoice':
+		case OrderResendEmailAction.INVOICE:
 			return 'invoice';
-		case 'receipt':
+		case OrderResendEmailAction.RECEIPT:
 			return 'receipt';
-		case 'refund':
+		case OrderResendEmailAction.REFUND:
 			return 'refund receipt';
-		case 'cancellation':
+		case OrderResendEmailAction.CANCELLATION:
 			return 'cancellation email';
+		case OrderResendEmailAction.SHIPPED:
+			return 'shipment email';
 		default:
 			return '';
 	}

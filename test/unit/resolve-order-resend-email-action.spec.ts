@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { OrderStatus, PaymentStatus } from 'yeppi-common';
+import { OrderResendEmailAction, OrderStatus, PaymentStatus } from 'yeppi-common';
 import { resolveOrderResendEmailAction } from '../../app/utils/resolve-order-resend-email-action';
 
 describe('resolveOrderResendEmailAction', () => {
@@ -10,7 +10,7 @@ describe('resolveOrderResendEmailAction', () => {
 				payment_status: PaymentStatus.PAID,
 				payment_method: 'FIUU',
 			}),
-		).toBe('order-confirmation');
+		).toBe(OrderResendEmailAction.ORDER_CONFIRMATION);
 
 		expect(
 			resolveOrderResendEmailAction({
@@ -18,7 +18,7 @@ describe('resolveOrderResendEmailAction', () => {
 				payment_status: PaymentStatus.PENDING,
 				payment_method: 'FIUU',
 			}),
-		).toBe('order-confirmation');
+		).toBe(OrderResendEmailAction.ORDER_CONFIRMATION);
 	});
 
 	it('returns order-confirmation for cash pending orders', () => {
@@ -28,7 +28,7 @@ describe('resolveOrderResendEmailAction', () => {
 				payment_status: PaymentStatus.PENDING,
 				payment_method: 'CASH',
 			}),
-		).toBe('order-confirmation');
+		).toBe(OrderResendEmailAction.ORDER_CONFIRMATION);
 	});
 
 	it('returns invoice for processing with pending payment', () => {
@@ -37,7 +37,7 @@ describe('resolveOrderResendEmailAction', () => {
 				status: OrderStatus.PROCESSING,
 				payment_status: PaymentStatus.PENDING,
 			}),
-		).toBe('invoice');
+		).toBe(OrderResendEmailAction.INVOICE);
 	});
 
 	it('returns receipt for paid processing/paid/completed orders', () => {
@@ -46,19 +46,19 @@ describe('resolveOrderResendEmailAction', () => {
 				status: OrderStatus.PROCESSING,
 				payment_status: PaymentStatus.PAID,
 			}),
-		).toBe('receipt');
+		).toBe(OrderResendEmailAction.RECEIPT);
 		expect(
 			resolveOrderResendEmailAction({
 				status: OrderStatus.PAID,
 				payment_status: PaymentStatus.PAID,
 			}),
-		).toBe('receipt');
+		).toBe(OrderResendEmailAction.RECEIPT);
 		expect(
 			resolveOrderResendEmailAction({
 				status: OrderStatus.COMPLETED,
 				payment_status: PaymentStatus.PAID,
 			}),
-		).toBe('receipt');
+		).toBe(OrderResendEmailAction.RECEIPT);
 	});
 
 	it('returns refund for refunded orders', () => {
@@ -67,7 +67,7 @@ describe('resolveOrderResendEmailAction', () => {
 				status: OrderStatus.REFUNDED,
 				payment_status: PaymentStatus.REFUNDED,
 			}),
-		).toBe('refund');
+		).toBe(OrderResendEmailAction.REFUND);
 	});
 
 	it('returns cancellation for cancelled orders', () => {
@@ -76,7 +76,16 @@ describe('resolveOrderResendEmailAction', () => {
 				status: OrderStatus.CANCELLED,
 				payment_status: PaymentStatus.PENDING,
 			}),
-		).toBe('cancellation');
+		).toBe(OrderResendEmailAction.CANCELLATION);
+	});
+
+	it('returns shipped for shipped orders', () => {
+		expect(
+			resolveOrderResendEmailAction({
+				status: OrderStatus.SHIPPED,
+				payment_status: PaymentStatus.PAID,
+			}),
+		).toBe(OrderResendEmailAction.SHIPPED);
 	});
 
 	it('returns undefined when no email matches', () => {
