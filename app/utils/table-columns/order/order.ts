@@ -1,13 +1,24 @@
-import { h } from 'vue';
+import { Fragment, h } from 'vue';
 import type { TableColumn } from '@nuxt/ui';
-import { getOrderStatusColor, OrderStatus, OrderType } from 'yeppi-common';
+import { getOrderStatusColor, OrderType, type UiBadgeColor } from 'yeppi-common';
 import { UBadge, UIcon, UTooltip } from '#components';
 import type { OrderHistory } from '~/utils/types/order-history';
-import { headerCell, moneyCell, numberCell, tableCellMeta } from '../styles';
+import { headerCell, moneyCell, tableCellMeta } from '../styles';
 import { getOrderStatusOption } from '~/utils/options/order-status';
 import { formatCustomerNameEmail } from '~/utils/format-customer-name-email';
 
 type TranslateFn = (key: string) => string;
+
+/** Full-height left strip gradient by order status (matches status badge colors). */
+const statusStripClassMap: Record<UiBadgeColor, string> = {
+	primary: 'bg-gradient-to-r from-primary-500 to-transparent',
+	secondary: 'bg-gradient-to-r from-secondary-500 to-transparent',
+	success: 'bg-gradient-to-r from-success-500 to-transparent',
+	warning: 'bg-gradient-to-r from-warning-500 to-transparent',
+	error: 'bg-gradient-to-r from-error-500 to-transparent',
+	info: 'bg-gradient-to-r from-info-500 to-transparent',
+	neutral: 'bg-gradient-to-r from-gray-400 to-transparent dark:from-gray-500',
+};
 
 export function getOrderColumns(t: TranslateFn): TableColumn<OrderHistory>[] {
 	return [
@@ -15,7 +26,23 @@ export function getOrderColumns(t: TranslateFn): TableColumn<OrderHistory>[] {
 			id: 'index',
 			accessorFn: (_row, index) => index,
 			header: () => headerCell(t('table.no'), 'center'),
-			cell: ({ row }) => numberCell(row.index + 1, 'center'),
+			cell: ({ row }) => {
+				const color = getOrderStatusColor(row.original.status) ?? 'neutral';
+				const stripClass = statusStripClassMap[color] ?? statusStripClassMap.neutral;
+
+				return h(Fragment, [
+					h('div', {
+						class: ['absolute inset-y-0 left-0 w-3 pointer-events-none', stripClass],
+						'aria-hidden': 'true',
+					}),
+					h('span', { class: 'relative block text-center' }, row.index + 1),
+				]);
+			},
+			meta: {
+				class: {
+					td: 'relative',
+				},
+			},
 		},
 		{
 			id: 'order_no',

@@ -12,9 +12,12 @@
 						<UPopover v-model:open="notificationPopoverOpen" :content="{ align: 'end' }">
 							<UButton class="notification-btn" color="secondary" variant="soft" square :aria-label="$t('notifications.open')" @click="refreshNotifications">
 								<UIcon :name="ICONS.BELL" class="size-5" />
-								<span v-if="notificationStore.unreadCount > 0" class="notification-count">
-									{{ notificationStore.unreadCount > 99 ? '99+' : notificationStore.unreadCount }}
-								</span>
+								<!-- ClientOnly: unreadCount is filled by client-only 02.init-app before hydrate; SSR always has 0 -->
+								<ClientOnly>
+									<span v-if="notificationStore.unreadCount > 0" class="notification-count">
+										{{ notificationStore.unreadCount > 99 ? '99+' : notificationStore.unreadCount }}
+									</span>
+								</ClientOnly>
 							</UButton>
 
 							<template #content>

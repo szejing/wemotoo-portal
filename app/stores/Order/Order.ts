@@ -12,7 +12,6 @@ import type { PaymentModel } from '~/utils/models/payment.model';
 import type { Range } from '~/utils/interface';
 import { sub } from 'date-fns';
 import type { CustomerRequest, OrderHistory } from '~/utils/types/order-history';
-import type { Order } from '~/utils/types/order';
 
 type OrderFilter = {
 	query: string;
