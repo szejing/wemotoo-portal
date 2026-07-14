@@ -1311,8 +1311,9 @@
 		"activities": {
 			"title": "Log Aktiviti",
 			"createdBy": "Dicipta oleh",
-			"courierService": "Perkhidmatan Kurier",
-			"trackingNo": "Nombor Penjejakan",
+			"copyTrackingNo": "Salin nombor penjejakan",
+			"copyTrackingSuccess": "Nombor penjejakan disalin",
+			"copyTrackingFailed": "Tidak dapat menyalin nombor penjejakan",
 			"empty": "Tiada aktiviti tersedia."
 		},
 		"productUpdate": {

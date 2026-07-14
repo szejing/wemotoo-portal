@@ -1,3 +1,57 @@
+<template>
+	<UCard>
+		<template #header>
+			<h3 class="text-base font-semibold">{{ $t('components.activities.title') }}</h3>
+		</template>
+
+		<UTimeline v-if="activities?.length" :items="timelineItems" :default-value="latestActivityValue" size="xs" color="primary">
+			<template #date="{ item }">
+				{{ new Date(item.date!).toLocaleString() }}
+			</template>
+
+			<template #title="{ item }">
+				<span class="inline-flex flex-wrap items-center gap-x-1.5 gap-y-1">
+					<template v-for="(segment, index) in item.segments" :key="`${item.value}-${index}`">
+						<span v-if="segment.type === 'text'">{{ segment.text }}</span>
+						<span v-else-if="segment.type === 'identifier'" class="italic underline decoration-dotted underline-offset-4">
+							{{ segment.text }}
+						</span>
+						<UBadge v-else :color="segment.color" variant="subtle" size="md" class="capitalize">
+							{{ segment.text }}
+						</UBadge>
+					</template>
+				</span>
+			</template>
+
+			<template #description="{ item }">
+				<div
+					v-if="item.courierService || item.trackingNo"
+					class="mt-1 mb-2 inline-grid w-fit max-w-full gap-1 rounded-md border-2 border-dotted border-primary/20 bg-primary-100 px-2.5 py-2 text-xs text-muted"
+				>
+					<p v-if="item.courierService" class="font-medium text-default">
+						{{ item.courierService }}
+					</p>
+					<p v-if="item.trackingNo" class="flex flex-wrap items-center gap-1">
+						<span class="tabular-nums break-all text-default">{{ item.trackingNo }}</span>
+						<UButton
+							data-testid="activity-copy-tracking"
+							color="primary"
+							variant="ghost"
+							size="xs"
+							square
+							icon="i-heroicons-clipboard-document"
+							:aria-label="$t('components.activities.copyTrackingNo')"
+							@click="copyTrackingNumber(item.trackingNo)"
+						/>
+					</p>
+				</div>
+				<p v-if="item.actor" class="text-xs text-muted">{{ $t('components.activities.createdBy') }}: {{ item.actor }}</p>
+			</template>
+		</UTimeline>
+		<p v-else class="text-sm text-muted">{{ $t('components.activities.empty') }}</p>
+	</UCard>
+</template>
+
 <script setup lang="ts">
 import type { TimelineItem } from '@nuxt/ui';
 import type { ActivityLogRichTextSegment } from '~/utils/activity-log-rich-text';
@@ -15,8 +69,25 @@ const props = defineProps<{
 	activities?: OrderActivity[];
 }>();
 
+const { t } = useI18n();
+const toast = useToast();
+
+const copyTrackingNumber = async (trackingNo?: string) => {
+	const text = trackingNo?.trim();
+	if (!text) {
+		toast.add({ title: t('components.activities.copyTrackingFailed'), color: 'warning' });
+		return;
+	}
+	try {
+		await navigator.clipboard.writeText(text);
+		toast.add({ title: t('components.activities.copyTrackingSuccess'), color: 'success' });
+	} catch {
+		toast.add({ title: t('components.activities.copyTrackingFailed'), color: 'error' });
+	}
+};
+
 const getActionText = (activity: OrderActivity): string => {
-	return activity.action ?? activity.desc ?? '-';
+	return activity.internal_desc ?? activity.desc ?? '-';
 };
 
 const getActorText = (activity: OrderActivity): string => {
@@ -61,46 +132,3 @@ const latestActivityValue = computed(() => {
 	return items[items.length - 1]?.value;
 });
 </script>
-
-<template>
-	<UCard>
-		<template #header>
-			<h3 class="text-base font-semibold">{{ $t('components.activities.title') }}</h3>
-		</template>
-
-		<UTimeline v-if="activities?.length" :items="timelineItems" :default-value="latestActivityValue" size="xs" color="primary">
-			<template #date="{ item }">
-				{{ new Date(item.date!).toLocaleString() }}
-			</template>
-
-			<template #title="{ item }">
-				<span class="inline-flex flex-wrap items-center gap-x-1.5 gap-y-1">
-					<template v-for="(segment, index) in item.segments" :key="`${item.value}-${index}`">
-						<span v-if="segment.type === 'text'">{{ segment.text }}</span>
-						<span v-else-if="segment.type === 'identifier'" class="italic underline decoration-dotted underline-offset-4">
-							{{ segment.text }}
-						</span>
-						<UBadge v-else :color="segment.color" variant="subtle" size="md" class="capitalize">
-							{{ segment.text }}
-						</UBadge>
-					</template>
-				</span>
-			</template>
-
-			<template #description="{ item }">
-				<div v-if="item.courierService || item.trackingNo" class="grid gap-1 text-xs text-muted">
-					<p v-if="item.courierService">
-						<span class="font-medium text-default">{{ $t('components.activities.courierService') }}:</span>
-						{{ item.courierService }}
-					</p>
-					<p v-if="item.trackingNo">
-						<span class="font-medium text-default">{{ $t('components.activities.trackingNo') }}:</span>
-						{{ item.trackingNo }}
-					</p>
-				</div>
-				<p v-if="item.actor" class="text-xs text-muted">{{ $t('components.activities.createdBy') }}: {{ item.actor }}</p>
-			</template>
-		</UTimeline>
-		<p v-else class="text-sm text-muted">{{ $t('components.activities.empty') }}</p>
-	</UCard>
-</template>

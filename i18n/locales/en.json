@@ -1312,8 +1312,9 @@
 		"activities": {
 			"title": "Activity Log",
 			"createdBy": "Created by",
-			"courierService": "Courier Service",
-			"trackingNo": "Tracking Number",
+			"copyTrackingNo": "Copy tracking number",
+			"copyTrackingSuccess": "Tracking number copied",
+			"copyTrackingFailed": "Could not copy tracking number",
 			"empty": "No activity available."
 		},
 		"productUpdate": {

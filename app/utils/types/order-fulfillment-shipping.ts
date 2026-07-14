@@ -112,6 +112,7 @@ export type OrderActivity = {
 	id?: number | string;
 	action?: string;
 	desc?: string;
+	internal_desc?: string;
 	created_by?: string;
 	user_id?: string;
 	created_at: string | Date;
