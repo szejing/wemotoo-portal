@@ -25,34 +25,43 @@ const batch = (): FulfillmentBatch => ({
 });
 
 describe('FulfillmentArrangementModal', () => {
-	it('preserves an absent courier snapshot for unrelated edits and clears its id when the name changes', async () => {
+	it('shows only the courier selector and tracking input', async () => {
 		const wrapper = await mountSuspended(FulfillmentArrangementModal, {
 			props: {
 				open: true,
 				batch: batch(),
-				shippingMethods: [],
+				couriers: [{ id: 1, name: 'Active Courier', is_active: true }],
+				save: vi.fn(),
+			},
+		});
+
+		expect(wrapper.findAllComponents({ name: 'USelectMenu' })).toHaveLength(1);
+		expect(wrapper.findAllComponents({ name: 'UInput' })).toHaveLength(1);
+		expect(wrapper.find('[name="shipping_method_id"]').exists()).toBe(false);
+		expect(wrapper.find('[name="shipping_fee"]').exists()).toBe(false);
+		expect(wrapper.find('[name="reason"]').exists()).toBe(false);
+	});
+
+	it('preserves an absent courier snapshot while editing its tracking number', async () => {
+		const wrapper = await mountSuspended(FulfillmentArrangementModal, {
+			props: {
+				open: true,
+				batch: batch(),
 				couriers: [{ id: 1, name: 'Active Courier', is_active: true }],
 				save: vi.fn(),
 			},
 		});
 		const internal = wrapper.vm.$ as unknown as {
 			setupState: {
-				state: {
-					courier_id: number | null;
-					courier_name: string;
-					tracking_no: string;
-				};
+				selectedCourier: { id: number | null; name: string };
+				courierOptions: { id: number | null; name: string }[];
+				state: { tracking_no: string };
 			};
 		};
-		const state = internal.setupState.state;
 
-		state.tracking_no = 'NEW-TRACKING';
+		internal.setupState.state.tracking_no = 'NEW-TRACKING';
 		await nextTick();
-		expect(state.courier_id).toBe(99);
-		expect(state.courier_name).toBe('Legacy Courier');
-
-		state.courier_name = 'Manual replacement';
-		await nextTick();
-		expect(state.courier_id).toBeNull();
+		expect(internal.setupState.selectedCourier).toEqual({ id: 99, name: 'Legacy Courier' });
+		expect(internal.setupState.courierOptions[0]).toEqual({ id: 99, name: 'Legacy Courier' });
 	});
 });

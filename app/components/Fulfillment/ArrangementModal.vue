@@ -1,22 +1,25 @@
 <script setup lang="ts">
 import type { FormSubmitEvent } from '#ui/types';
 import type { UpdateFulfillmentReq } from '~/repository/modules/fulfillment/models/request/update-fulfillment.req';
-import { createFulfillmentArrangementValidation } from '~/utils/schema/Fulfillment/ArrangementValidation';
 import { buildFulfillmentArrangementPayload } from '~/utils/fulfillment';
 import type { Courier } from '~/utils/types/courier';
-import type { FulfillmentBatch, ShippingMethodOption } from '~/utils/types/order-fulfillment-shipping';
+import type { FulfillmentBatch } from '~/utils/types/order-fulfillment-shipping';
 
 type ArrangementPayload = Omit<UpdateFulfillmentReq, 'merchant_id'>;
+
+type CourierOption = {
+	id: number | null;
+	name: string;
+	description?: string;
+};
 
 const open = defineModel<boolean>('open', { default: false });
 
 const props = withDefaults(defineProps<{
 	batch: FulfillmentBatch;
-	shippingMethods: ShippingMethodOption[];
 	couriers: Courier[];
 	save: (payload: ArrangementPayload) => Promise<void>;
 }>(), {
-	shippingMethods: () => [],
 	couriers: () => [],
 });
 
@@ -25,84 +28,30 @@ const emit = defineEmits<{
 	close: [saved?: boolean];
 }>();
 
-const { t } = useI18n();
 const saving = ref(false);
+const selectedCourier = ref<CourierOption>();
+const state = reactive({ tracking_no: '' });
 
-const original = computed(() => ({
-	shipping_method_id: props.batch.shipping_method?.id ?? null,
-	shipping_fee: Number(props.batch.shipping_fee),
-	courier_id: props.batch.courier_id,
-	courier_name: props.batch.courier_name ?? '',
-}));
-
-const state = reactive({
-	shipping_method_id: null as number | null,
-	shipping_fee: 0,
-	courier_id: null as number | null,
-	courier_name: '',
-	tracking_no: '',
-	reason: '',
-});
-
-const selectedShippingMethodId = computed<number | undefined>({
-	get: () => state.shipping_method_id ?? undefined,
-	set: (value) => {
-		state.shipping_method_id = value ?? null;
-	},
-});
-
-const selectedCourierId = computed<number | undefined>({
-	get: () => state.courier_id ?? undefined,
-	set: (value) => {
-		state.courier_id = value ?? null;
-	},
-});
-
-const applyBatch = () => {
-	state.shipping_method_id = original.value.shipping_method_id;
-	state.shipping_fee = original.value.shipping_fee;
-	state.courier_id = original.value.courier_id;
-	state.courier_name = original.value.courier_name;
-	state.tracking_no = props.batch.tracking_no ?? '';
-	state.reason = '';
-};
-
-const schema = computed(() => createFulfillmentArrangementValidation(t, original.value));
-const arrangementChanged = computed(() =>
-	state.shipping_method_id !== original.value.shipping_method_id || Number(state.shipping_fee) !== original.value.shipping_fee,
-);
-
-const methodOptions = computed(() => {
-	const options = props.shippingMethods
-		.filter((method) => method.is_active)
-		.map((method) => ({ value: Number(method.id), label: method.description }));
-	const current = props.batch.shipping_method;
-	if (current && !options.some((option) => option.value === Number(current.id))) {
-		options.unshift({ value: Number(current.id), label: current.description });
+const courierOptions = computed<CourierOption[]>(() => {
+	const options = props.couriers
+		.filter((courier) => courier.is_active)
+		.map((courier) => ({
+			id: courier.id,
+			name: courier.name,
+			description: courier.description ?? undefined,
+		}));
+	const snapshotName = props.batch.courier_name?.trim();
+	if (snapshotName && !options.some((option) => option.id === props.batch.courier_id)) {
+		options.unshift({ id: props.batch.courier_id ?? null, name: snapshotName });
 	}
 	return options;
 });
 
-const courierOptions = computed(() => props.couriers.map((courier) => ({
-	value: courier.id,
-	label: courier.name,
-	description: courier.description ?? undefined,
-})));
-
-watch(() => state.courier_id, (courierId) => {
-	if (courierId == null) return;
-	const selected = props.couriers.find((courier) => courier.id === courierId);
-	if (selected) state.courier_name = selected.name;
-});
-
-watch(() => state.courier_name, (courierName) => {
-	const selected = props.couriers.find((courier) => courier.id === state.courier_id);
-	const snapshotName = state.courier_id === original.value.courier_id ? original.value.courier_name : undefined;
-	const expectedName = selected?.name ?? snapshotName;
-	if (expectedName !== undefined && expectedName.trim().toLowerCase() !== courierName.trim().toLowerCase()) {
-		state.courier_id = null;
-	}
-});
+const applyBatch = () => {
+	selectedCourier.value = courierOptions.value.find((option) => option.id === props.batch.courier_id)
+		?? courierOptions.value.find((option) => option.name === props.batch.courier_name?.trim());
+	state.tracking_no = props.batch.tracking_no ?? '';
+};
 
 watch(open, (isOpen) => {
 	if (isOpen) applyBatch();
@@ -117,14 +66,17 @@ onMounted(() => {
 });
 
 const clearCourier = () => {
-	state.courier_id = null;
-	state.courier_name = '';
+	selectedCourier.value = undefined;
 };
 
-const onSubmit = async (event: FormSubmitEvent<typeof state>) => {
+const onSubmit = async (_event: FormSubmitEvent<typeof state>) => {
 	saving.value = true;
 	try {
-		await props.save(buildFulfillmentArrangementPayload(event.data));
+		await props.save(buildFulfillmentArrangementPayload({
+			courier_id: selectedCourier.value?.id ?? null,
+			courier_name: selectedCourier.value?.name ?? '',
+			tracking_no: state.tracking_no,
+		}));
 		emit('close', true);
 	} catch {
 		// The store displays API errors; keep the modal open for correction.
@@ -138,35 +90,22 @@ const onSubmit = async (event: FormSubmitEvent<typeof state>) => {
 	<UModal
 		v-model:open="open"
 		:title="$t('components.fulfillment.editArrangement')"
-		:description="$t('components.fulfillment.editArrangementDescription', { number: batch.batch_no })"
-		:ui="{ content: 'w-full sm:max-w-xl' }"
+		:ui="{ content: 'w-full sm:max-w-lg' }"
 		@after:leave="emit('after:leave')"
 	>
 		<template #body>
-			<UForm :schema="schema" :state="state" class="space-y-4" @submit="onSubmit">
-				<UFormField name="shipping_method_id" :label="$t('components.fulfillment.shippingMethod')">
-					<USelectMenu
-						v-model="selectedShippingMethodId"
-						:items="methodOptions"
-						value-key="value"
-						class="w-full"
-					/>
-				</UFormField>
-
-				<UFormField name="shipping_fee" :label="$t('components.fulfillment.shippingFee')" required>
-					<UInput v-model.number="state.shipping_fee" type="number" min="0" step="0.01" />
-				</UFormField>
-
-				<UFormField name="courier_id" :label="$t('components.fulfillment.registeredCourier')">
+			<UForm :state="state" class="space-y-4" @submit="onSubmit">
+				<UFormField :label="$t('components.fulfillment.courierName')">
 					<div class="flex items-center gap-2">
 						<USelectMenu
-							v-model="selectedCourierId"
+							v-model="selectedCourier"
+							data-testid="fulfillment-courier-select"
 							:items="courierOptions"
-							value-key="value"
+							label-key="name"
 							class="min-w-0 flex-1"
 						/>
 						<UButton
-							v-if="state.courier_id != null"
+							v-if="selectedCourier"
 							type="button"
 							color="neutral"
 							variant="ghost"
@@ -177,21 +116,8 @@ const onSubmit = async (event: FormSubmitEvent<typeof state>) => {
 					</div>
 				</UFormField>
 
-				<UFormField name="courier_name" :label="$t('components.fulfillment.courierName')">
-					<UInput v-model="state.courier_name" />
-				</UFormField>
-
 				<UFormField name="tracking_no" :label="$t('components.fulfillment.trackingNumber')">
-					<UInput v-model="state.tracking_no" />
-				</UFormField>
-
-				<UFormField
-					name="reason"
-					:label="$t('components.fulfillment.reason')"
-					:required="arrangementChanged"
-					:hint="arrangementChanged ? $t('components.fulfillment.reasonRequiredHint') : $t('components.fulfillment.reasonOptionalHint')"
-				>
-					<UTextarea v-model="state.reason" :rows="3" />
+					<UInput v-model="state.tracking_no" data-testid="fulfillment-tracking-input" class="w-full" />
 				</UFormField>
 
 				<div class="flex flex-col-reverse gap-2 pt-2 sm:flex-row sm:justify-end">
