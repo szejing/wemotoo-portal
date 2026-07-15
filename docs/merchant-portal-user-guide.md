@@ -166,17 +166,16 @@ Completion validation is owned by the backend and follows the merchant's order-c
    - Currency
 3. Click **Update**.
 
-### Manage Fulfillment Batches
+### Manage Shipping
 
-Order and sale details show one card for each fulfillment batch. Each card includes its fulfillment and shipment statuses, shipping method and fee, courier and tracking values, and relevant timestamps.
+Delivery order and sale details show shipping information in the desktop sidebar or mobile order-actions drawer. The card shows the shipping method, fee, zone, courier, and tracking number.
 
-1. In **Fulfillment batches**, choose the next available lifecycle action: **Start Processing**, **Mark as Packed**, or **Mark as Fulfilled**.
-2. Click **Edit** to update the batch's shipping method, explicit fee, courier, or tracking number.
-3. Enter a nonblank reason when changing the shipping method or fee. A reason is optional when only courier or tracking details change.
-4. Add a tracking number before using **Mark as Shipped**, then use **Mark as Delivered** when delivery is complete.
-5. Refresh the detail after an update if you need to confirm the latest aggregate order status.
+1. Click **Edit** to select the courier and enter the tracking number.
+2. Save the first tracking number to mark that shipment as shipped automatically.
+3. Click **Update status** and choose the available next packing or delivery status.
+4. Refresh the detail after an update if you need to confirm the latest aggregate order status.
 
-Fulfillment batches on completed sales remain editable. Batch deletion and splitting are not available yet; the portal only offers creation when the first repair or pickup batch is missing. Completion validation remains backend-owned.
+When an order has multiple fulfillment batches, the portal also shows the batch count plus lifecycle and shipment status badges for each batch. Fulfillment batches on converted sales remain editable. Batch deletion and splitting are not available yet, and completion validation remains backend-owned.
 
 ## Tips
 

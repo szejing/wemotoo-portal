@@ -37,6 +37,7 @@ describe('FulfillmentArrangementModal', () => {
 
 		expect(wrapper.findAllComponents({ name: 'USelectMenu' })).toHaveLength(1);
 		expect(wrapper.findAllComponents({ name: 'UInput' })).toHaveLength(1);
+		expect(wrapper.findComponent({ name: 'UModal' }).props('title')).toBe('Update shipping');
 		expect(wrapper.find('[name="shipping_method_id"]').exists()).toBe(false);
 		expect(wrapper.find('[name="shipping_fee"]').exists()).toBe(false);
 		expect(wrapper.find('[name="reason"]').exists()).toBe(false);

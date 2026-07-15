@@ -18,4 +18,15 @@ describe('order detail fulfillment owner', () => {
 		expect(source).toContain('fulfillments: current.fulfillments,');
 		expect(source.match(/resendCurrentStatusEmail\(record\.value\.order_no, resend_email_action\.value\)/g) ?? []).toHaveLength(2);
 	});
+
+	it('places delivery fulfillment controls in the desktop sidebar and mobile actions drawer', () => {
+		const source = readFileSync(resolve(process.cwd(), 'app/pages/orders/[order_no].vue'), 'utf8');
+		const occurrences = source.match(/<FulfillmentBatchList/g) ?? [];
+
+		expect(occurrences).toHaveLength(2);
+		expect(source.indexOf('<FulfillmentBatchList')).toBeGreaterThan(source.indexOf('<!-- Sidebar (desktop) -->'));
+		expect(source.match(/v-if="orderForModal && \(record\?\.order_type \?\? OrderType\.PICKUP\) === OrderType\.DELIVERY"/g) ?? []).toHaveLength(2);
+		expect(source.match(/:owner-type="ownerType"/g) ?? []).toHaveLength(2);
+		expect(source.match(/@refresh="getOrderDetails"/g) ?? []).toHaveLength(2);
+	});
 });

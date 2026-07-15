@@ -171,13 +171,6 @@
 						</div>
 					</UCard>
 
-					<FulfillmentBatchList
-						v-if="orderForModal"
-						:order="orderForModal"
-						:owner-type="ownerType"
-						@refresh="getOrderDetails"
-					/>
-
 					<!-- Remarks Section -->
 					<UCard v-if="record?.remarks" class="remarks-card">
 						<template #header>
@@ -216,6 +209,13 @@
 
 						<ZSectionOrderDetailPayment :order="orderForModal" @refresh="refreshOrder" />
 
+						<FulfillmentBatchList
+							v-if="orderForModal && (record?.order_type ?? OrderType.PICKUP) === OrderType.DELIVERY"
+							:order="orderForModal"
+							:owner-type="ownerType"
+							@refresh="getOrderDetails"
+						/>
+
 					</div>
 				</div>
 			</div>
@@ -249,6 +249,13 @@
 							/>
 
 							<ZSectionOrderDetailPayment :order="orderForModal" @refresh="refreshOrder" />
+
+							<FulfillmentBatchList
+								v-if="orderForModal && (record?.order_type ?? OrderType.PICKUP) === OrderType.DELIVERY"
+								:order="orderForModal"
+								:owner-type="ownerType"
+								@refresh="getOrderDetails"
+							/>
 
 						</div>
 					</template>
