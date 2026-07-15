@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { mountSuspended } from '@nuxt/test-utils/runtime';
 import FulfillmentBatchCard from '~/components/Fulfillment/BatchCard.vue';
+import type { FulfillmentAction } from '~/stores/Fulfillment/Fulfillment';
 import type { FulfillmentBatch } from '~/utils/types/order-fulfillment-shipping';
 
 const batch = (override: Partial<FulfillmentBatch> = {}): FulfillmentBatch => ({
@@ -24,67 +25,64 @@ const batch = (override: Partial<FulfillmentBatch> = {}): FulfillmentBatch => ({
 	...override,
 });
 
+const nextActions = (wrapper: Awaited<ReturnType<typeof mountSuspended>>) => {
+	const internal = wrapper.vm.$ as unknown as {
+		setupState: { nextActions: { action: FulfillmentAction; label: string }[] };
+	};
+	return internal.setupState.nextActions;
+};
+
 describe('FulfillmentBatchCard', () => {
-	it('shows batch statuses, arrangement, values, and relevant timestamps', async () => {
+	it('shows a compact shipping summary without technical batch metadata for one batch', async () => {
 		const wrapper = await mountSuspended(FulfillmentBatchCard, {
 			props: { batch: batch(), currencyCode: 'MYR' },
+		});
+
+		expect(wrapper.get('[data-testid="fulfillment-method"]').text()).toContain('Standard delivery');
+		expect(wrapper.get('[data-testid="fulfillment-fee"]').text()).toContain('8');
+		expect(wrapper.get('[data-testid="fulfillment-zone"]').text()).toBe('zone-1');
+		expect(wrapper.get('[data-testid="fulfillment-courier"]').text()).toBe('DHL');
+		expect(wrapper.get('[data-testid="fulfillment-tracking"]').text()).toBe('TRACK-1');
+		expect(wrapper.find('[data-testid="fulfillment-batch-number"]').exists()).toBe(false);
+		expect(wrapper.find('[data-testid="fulfillment-status-badges"]').exists()).toBe(false);
+		expect(wrapper.find('[data-testid^="fulfillment-action-"]').exists()).toBe(false);
+		expect(wrapper.find('[data-testid="fulfillment-created-at"]').exists()).toBe(false);
+		expect(wrapper.findComponent({ name: 'UPopover' }).exists()).toBe(true);
+		expect(wrapper.find('[data-testid="fulfillment-update-status"]').exists()).toBe(true);
+	});
+
+	it('shows the batch number and both statuses only when batch metadata is requested', async () => {
+		const wrapper = await mountSuspended(FulfillmentBatchCard, {
+			props: { batch: batch(), showBatchMeta: true },
 		});
 
 		expect(wrapper.get('[data-testid="fulfillment-batch-number"]').text()).toContain('1');
-		expect(wrapper.get('[data-testid="fulfillment-method"]').text()).toContain('Standard delivery');
-		expect(wrapper.get('[data-testid="fulfillment-fee"]').text()).toContain('8');
-		expect(wrapper.get('[data-testid="fulfillment-courier"]').text()).toBe('DHL');
-		expect(wrapper.get('[data-testid="fulfillment-tracking"]').text()).toBe('TRACK-1');
-		expect(wrapper.text()).not.toContain('Courier:');
-		expect(wrapper.text()).not.toContain('Tracking:');
-		expect(wrapper.find('[data-testid="fulfillment-created-at"]').exists()).toBe(true);
+		expect(wrapper.get('[data-testid="fulfillment-status-badges"]').findAllComponents({ name: 'UBadge' })).toHaveLength(2);
 	});
 
-	it('offers only valid lifecycle and shipment actions and never offers delete or split', async () => {
-		const wrapper = await mountSuspended(FulfillmentBatchCard, {
-			props: { batch: batch(), currencyCode: 'MYR' },
+	it('offers the next lifecycle status but never a manual shipped action', async () => {
+		const pendingWrapper = await mountSuspended(FulfillmentBatchCard, {
+			props: { batch: batch({ status: 'pending' }) },
+		});
+		const processingWrapper = await mountSuspended(FulfillmentBatchCard, {
+			props: { batch: batch({ status: 'processing' }) },
 		});
 
-		expect(wrapper.find('[data-testid="fulfillment-action-packed"]').exists()).toBe(true);
-		expect(wrapper.find('[data-testid="fulfillment-action-shipped"]').exists()).toBe(true);
-		expect(wrapper.find('[data-testid="fulfillment-action-delivered"]').exists()).toBe(false);
-		expect(wrapper.find('[data-testid="fulfillment-delete"]').exists()).toBe(false);
-		expect(wrapper.find('[data-testid="fulfillment-split"]').exists()).toBe(false);
+		expect(nextActions(pendingWrapper).map(({ action }) => action)).toEqual(['processing']);
+		expect(nextActions(processingWrapper).map(({ action }) => action)).toEqual(['packed']);
+		expect(nextActions(processingWrapper).map(({ action }) => action)).not.toContain('shipped');
 	});
 
-	it('enables delivered only after a shipped or in-transit batch', async () => {
-		const wrapper = await mountSuspended(FulfillmentBatchCard, {
-			props: {
-				batch: batch({ status: 'fulfilled', shipment_status: 'shipped', shipped_at: '2026-07-15T02:00:00.000Z' }),
-				currencyCode: 'MYR',
-			},
+	it('offers delivered only after a shipped or in-transit batch', async () => {
+		const shippedWrapper = await mountSuspended(FulfillmentBatchCard, {
+			props: { batch: batch({ status: 'fulfilled', shipment_status: 'shipped' }) },
+		});
+		const failedWrapper = await mountSuspended(FulfillmentBatchCard, {
+			props: { batch: batch({ status: 'fulfilled', shipment_status: 'failed' }) },
 		});
 
-		expect(wrapper.find('[data-testid="fulfillment-action-shipped"]').exists()).toBe(false);
-		expect(wrapper.find('[data-testid="fulfillment-action-delivered"]').exists()).toBe(true);
-	});
-
-	it('does not offer a shipment transition from a failed shipment state', async () => {
-		const wrapper = await mountSuspended(FulfillmentBatchCard, {
-			props: {
-				batch: batch({ shipment_status: 'failed' }),
-				currencyCode: 'MYR',
-			},
-		});
-
-		expect(wrapper.find('[data-testid="fulfillment-action-shipped"]').exists()).toBe(false);
-		expect(wrapper.find('[data-testid="fulfillment-action-delivered"]').exists()).toBe(false);
-	});
-
-	it('omits a nullable updated timestamp without hiding valid timestamps', async () => {
-		const wrapper = await mountSuspended(FulfillmentBatchCard, {
-			props: {
-				batch: batch({ updated_at: null }),
-				currencyCode: 'MYR',
-			},
-		});
-
-		expect(wrapper.find('[data-testid="fulfillment-created-at"]').exists()).toBe(true);
-		expect(wrapper.find('[data-testid="fulfillment-updated-at"]').exists()).toBe(false);
+		expect(nextActions(shippedWrapper).map(({ action }) => action)).toEqual(['delivered']);
+		expect(nextActions(failedWrapper)).toEqual([]);
+		expect(failedWrapper.find('[data-testid="fulfillment-update-status"]').exists()).toBe(false);
 	});
 });

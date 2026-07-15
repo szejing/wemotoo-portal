@@ -7,9 +7,11 @@ import type { FulfillmentBatch, FulfillmentLifecycleStatusValue, ShipmentStatusV
 const props = withDefaults(defineProps<{
 	batch: FulfillmentBatch;
 	currencyCode?: string;
+	showBatchMeta?: boolean;
 	loading?: boolean;
 }>(), {
 	currencyCode: 'MYR',
+	showBatchMeta: false,
 	loading: false,
 });
 
@@ -33,49 +35,37 @@ const shipmentLabels: Record<ShipmentStatusValue, string> = {
 	failed: 'options.failed',
 };
 
-const lifecycleAction = computed<FulfillmentAction | undefined>(() => {
-	if (props.batch.status === 'pending') return 'processing';
-	if (props.batch.status === 'processing') return 'packed';
-	if (props.batch.status === 'packed') return 'fulfilled';
-	return undefined;
+const nextActions = computed(() => {
+	const actions: { action: FulfillmentAction; label: string; color: 'primary' | 'success' }[] = [];
+	if (props.batch.status === 'pending') {
+		actions.push({ action: 'processing', label: 'components.fulfillment.startProcessing', color: 'primary' });
+	} else if (props.batch.status === 'processing') {
+		actions.push({ action: 'packed', label: 'components.fulfillment.markAsPacked', color: 'primary' });
+	} else if (props.batch.status === 'packed') {
+		actions.push({ action: 'fulfilled', label: 'components.fulfillment.markAsFulfilled', color: 'primary' });
+	}
+
+	if (['shipped', 'in_transit'].includes(props.batch.shipment_status)) {
+		actions.push({ action: 'delivered', label: 'components.fulfillment.markAsDelivered', color: 'success' });
+	}
+	return actions;
 });
-
-const canMarkShipped = computed(() => props.batch.shipment_status === 'pending');
-const canMarkDelivered = computed(() => ['shipped', 'in_transit'].includes(props.batch.shipment_status));
-const hasTrackingNumber = computed(() => Boolean(props.batch.tracking_no?.trim()));
-
-const lifecycleActionLabel = computed(() => {
-	if (lifecycleAction.value === 'processing') return 'components.fulfillment.startProcessing';
-	if (lifecycleAction.value === 'packed') return 'components.fulfillment.markAsPacked';
-	return 'components.fulfillment.markAsFulfilled';
-});
-
-const formatDateTime = (value: string | Date | null): string => {
-	if (!value) return '';
-	const date = new Date(value);
-	return Number.isNaN(date.getTime()) ? '' : date.toLocaleString();
-};
-
-const timestamps = computed(() => [
-	{ key: 'created-at', label: 'components.fulfillment.createdAt', value: formatDateTime(props.batch.created_at) },
-	{ key: 'packed-at', label: 'components.fulfillment.packedAt', value: formatDateTime(props.batch.packed_at) },
-	{ key: 'shipped-at', label: 'components.fulfillment.shippedAt', value: formatDateTime(props.batch.shipped_at) },
-	{ key: 'delivered-at', label: 'components.fulfillment.deliveredAt', value: formatDateTime(props.batch.delivered_at) },
-	{ key: 'updated-at', label: 'components.fulfillment.updatedAt', value: formatDateTime(props.batch.updated_at) },
-].filter((timestamp) => timestamp.value));
 </script>
 
 <template>
 	<UCard data-testid="fulfillment-batch-card">
 		<template #header>
-			<div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+			<div class="flex items-center justify-between gap-3">
 				<div class="flex items-center gap-2">
-					<UIcon name="i-heroicons-cube" class="size-5 shrink-0 text-main" />
-					<h3 data-testid="fulfillment-batch-number" class="font-semibold text-default">
+					<UIcon name="i-heroicons-truck" class="size-5 shrink-0 text-main" />
+					<h3 v-if="showBatchMeta" data-testid="fulfillment-batch-number" class="font-semibold text-default">
 						{{ $t('components.fulfillment.batchNumber', { number: batch.batch_no }) }}
 					</h3>
+					<h3 v-else class="font-semibold text-default">
+						{{ $t('components.fulfillment.shippingTitle') }}
+					</h3>
 				</div>
-				<div class="flex flex-wrap gap-2">
+				<div v-if="showBatchMeta" data-testid="fulfillment-status-badges" class="flex flex-wrap gap-2">
 					<UBadge :color="getFulfillmentStatusColor(batch.status)" variant="subtle">
 						{{ $t(lifecycleLabels[batch.status]) }}
 					</UBadge>
@@ -87,78 +77,40 @@ const timestamps = computed(() => [
 		</template>
 
 		<div class="space-y-4">
-			<div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
-				<div class="rounded-lg bg-elevated/60 p-3">
-					<p class="text-xs font-medium text-muted">{{ $t('components.fulfillment.shippingMethod') }}</p>
-					<p data-testid="fulfillment-method" class="mt-1 font-medium text-default">
+			<dl class="grid grid-cols-1 gap-3 text-sm">
+				<div>
+					<dt class="text-muted">{{ $t('components.fulfillment.shippingMethod') }}</dt>
+					<dd data-testid="fulfillment-method" class="mt-0.5 font-medium text-default">
 						{{ batch.shipping_method?.description || $t('components.fulfillment.notYetProvided') }}
-					</p>
+					</dd>
 				</div>
-				<div class="rounded-lg bg-elevated/60 p-3">
-					<p class="text-xs font-medium text-muted">{{ $t('components.fulfillment.shippingFee') }}</p>
-					<p data-testid="fulfillment-fee" class="mt-1 font-semibold text-default">
+				<div>
+					<dt class="text-muted">{{ $t('components.fulfillment.shippingFee') }}</dt>
+					<dd data-testid="fulfillment-fee" class="mt-0.5 font-medium text-default">
 						{{ formatCurrency(batch.shipping_fee, currencyCode) }}
-					</p>
+					</dd>
 				</div>
-			</div>
-
-			<div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
-				<div class="flex min-w-0 items-center gap-2 rounded-lg border border-default px-3 py-2.5">
-					<UIcon name="i-heroicons-building-office-2" class="size-4 shrink-0 text-muted" aria-hidden="true" />
-					<span data-testid="fulfillment-courier" class="truncate text-sm font-medium text-default">
+				<div>
+					<dt class="text-muted">{{ $t('components.fulfillment.shippingZone') }}</dt>
+					<dd data-testid="fulfillment-zone" class="mt-0.5 font-medium text-default">
+						{{ batch.shipping_zone_id || $t('components.fulfillment.notYetProvided') }}
+					</dd>
+				</div>
+				<div>
+					<dt class="text-muted">{{ $t('components.fulfillment.courierName') }}</dt>
+					<dd data-testid="fulfillment-courier" class="mt-0.5 break-words font-medium text-default">
 						{{ batch.courier_name?.trim() || $t('components.fulfillment.notYetProvided') }}
-					</span>
+					</dd>
 				</div>
-				<div class="flex min-w-0 items-center gap-2 rounded-lg border border-default px-3 py-2.5">
-					<UIcon name="i-heroicons-qr-code" class="size-4 shrink-0 text-muted" aria-hidden="true" />
-					<span data-testid="fulfillment-tracking" class="break-all text-sm font-medium text-default">
+				<div>
+					<dt class="text-muted">{{ $t('components.fulfillment.trackingNumber') }}</dt>
+					<dd data-testid="fulfillment-tracking" class="mt-0.5 break-all font-medium text-default">
 						{{ batch.tracking_no?.trim() || $t('components.fulfillment.notYetProvided') }}
-					</span>
-				</div>
-			</div>
-
-			<dl v-if="timestamps.length" class="grid grid-cols-1 gap-2 text-sm sm:grid-cols-2">
-				<div v-for="timestamp in timestamps" :key="timestamp.key" :data-testid="`fulfillment-${timestamp.key}`" class="flex items-baseline justify-between gap-3">
-					<dt class="text-muted">{{ $t(timestamp.label) }}</dt>
-					<dd class="text-right text-default">{{ timestamp.value }}</dd>
+					</dd>
 				</div>
 			</dl>
 
-			<div class="flex flex-col gap-2 border-t border-default pt-4 sm:flex-row sm:flex-wrap">
-				<UButton
-					v-if="lifecycleAction"
-					:data-testid="`fulfillment-action-${lifecycleAction}`"
-					size="sm"
-					color="primary"
-					:loading="loading"
-					:disabled="loading"
-					@click="emit('action', lifecycleAction, batch)"
-				>
-					{{ $t(lifecycleActionLabel) }}
-				</UButton>
-				<UButton
-					v-if="canMarkShipped"
-					data-testid="fulfillment-action-shipped"
-					size="sm"
-					color="primary"
-					variant="soft"
-					:loading="loading"
-					:disabled="loading || !hasTrackingNumber"
-					@click="emit('action', 'shipped', batch)"
-				>
-					{{ $t('components.fulfillment.markAsShipped') }}
-				</UButton>
-				<UButton
-					v-if="canMarkDelivered"
-					data-testid="fulfillment-action-delivered"
-					size="sm"
-					color="success"
-					:loading="loading"
-					:disabled="loading"
-					@click="emit('action', 'delivered', batch)"
-				>
-					{{ $t('components.fulfillment.markAsDelivered') }}
-				</UButton>
+			<div class="flex flex-wrap gap-2 border-t border-default pt-4">
 				<UButton
 					data-testid="fulfillment-edit"
 					size="sm"
@@ -170,10 +122,39 @@ const timestamps = computed(() => [
 				>
 					{{ $t('common.edit') }}
 				</UButton>
+
+				<UPopover v-if="nextActions.length" :content="{ align: 'start' }">
+					<UButton
+						data-testid="fulfillment-update-status"
+						size="sm"
+						color="neutral"
+						variant="soft"
+						icon="i-heroicons-arrow-path"
+						:disabled="loading"
+					>
+						{{ $t('components.fulfillment.updateStatus') }}
+					</UButton>
+					<template #content>
+						<div class="w-64 space-y-2 p-3">
+							<p class="text-sm font-medium text-default">
+								{{ $t('components.fulfillment.chooseNextStatus') }}
+							</p>
+							<UButton
+								v-for="item in nextActions"
+								:key="item.action"
+								:data-testid="`fulfillment-next-${item.action}`"
+								block
+								:color="item.color"
+								variant="soft"
+								:loading="loading"
+								@click="emit('action', item.action, batch)"
+							>
+								{{ $t(item.label) }}
+							</UButton>
+						</div>
+					</template>
+				</UPopover>
 			</div>
-			<p v-if="canMarkShipped && !hasTrackingNumber" class="text-xs text-muted">
-				{{ $t('components.fulfillment.trackingRequiredForShipped') }}
-			</p>
 		</div>
 	</UCard>
 </template>
