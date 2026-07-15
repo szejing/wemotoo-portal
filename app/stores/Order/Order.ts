@@ -1,7 +1,7 @@
 /* eslint-disable indent */
 /* eslint-disable @stylistic/indent */
 import { defineStore } from 'pinia';
-import { defaultOrderRelations, getFormattedDate, removeDuplicateExpands, OrderStatus, PaymentStatus } from 'yeppi-common';
+import { defaultOrderRelations, getFormattedDate, removeDuplicateExpands, OrderStatus, PaymentStatus, type OrderResendEmailAction } from 'yeppi-common';
 import { getDefaultOrderStatuses, options_page_size } from '~/utils/options';
 import { buildOrderStatusODataFilter } from '~/utils/order-status-filter';
 import { failedNotification, successNotification } from '../AppUi/AppUi';
@@ -282,12 +282,12 @@ export const useOrderStore = defineStore('orderStore', {
 			}
 		},
 
-		async resendCurrentStatusEmail(order_no: string): Promise<boolean> {
+		async resendCurrentStatusEmail(order_no: string, action: OrderResendEmailAction): Promise<boolean> {
 			const { $api } = useNuxtApp();
 			this.resending_email = true;
 
 			try {
-				const data = await $api.order.resendCurrentStatusEmail(order_no);
+				const data = await $api.order.resendCurrentStatusEmail(order_no, action);
 
 				if (data.status) {
 					successNotification('Email resent successfully');

@@ -30,9 +30,21 @@ export function getSaleColumns(t: TranslateFn): TableColumn<Bill>[] {
 			...tableCellMeta.rightNumeric,
 		},
 		{
-			accessorKey: 'net_amt',
+			accessorKey: 'net_total',
 			header: ({ column }) => getSortableHeader(column, t('table.netAmt'), 'right'),
-			cell: ({ row }) => numberCell(row.getValue('net_amt') as number),
+			cell: ({ row }) => numberCell(row.getValue('net_total') as number),
+			...tableCellMeta.rightNumeric,
+		},
+		{
+			accessorKey: 'shipping_fee',
+			header: ({ column }) => getSortableHeader(column, t('components.fulfillment.shippingFee'), 'right'),
+			cell: ({ row }) => numberCell(row.getValue('shipping_fee') as number),
+			...tableCellMeta.rightNumeric,
+		},
+		{
+			accessorKey: 'payable_total',
+			header: ({ column }) => getSortableHeader(column, t('table.totalAmt'), 'right'),
+			cell: ({ row }) => numberCell(row.getValue('payable_total') as number),
 			...tableCellMeta.rightNumeric,
 		},
 		{

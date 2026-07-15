@@ -55,7 +55,7 @@ import TaxRuleModule from './tax-rules/tax-rule';
 import TaxModule from './taxes/tax';
 import VoucherModule from './voucher/voucher';
 import type { CreateVoucherReq } from './voucher/models/request/create-voucher.req';
-import { DiscountType } from 'yeppi-common';
+import { DiscountType, OrderResendEmailAction } from 'yeppi-common';
 
 const odata: BaseODataReq = { $top: 10 };
 const dashboardRange = { start_date: '2025-01-01', end_date: '2025-01-31' };
@@ -242,9 +242,10 @@ describe('OrderModule', () => {
 	});
 
 	it('resendCurrentStatusEmail posts to encoded order resend route', async () => {
-		await (mod as any).resendCurrentStatusEmail('ORD/1');
+		await mod.resendCurrentStatusEmail('ORD/1', OrderResendEmailAction.SHIPPED);
 		expect(lastFetch().url).toBe(MerchantRoutes.Orders.ResendEmail(encodeURIComponent('ORD/1')));
 		expect(lastFetch().opts.method).toBe('POST');
+		expect(lastFetch().opts.body).toEqual({ action: OrderResendEmailAction.SHIPPED });
 	});
 });
 
@@ -362,9 +363,10 @@ describe('SaleModule', () => {
 	});
 
 	it('resendCurrentStatusEmail posts to encoded sale resend route', async () => {
-		await (mod as any).resendCurrentStatusEmail('B/1');
+		await mod.resendCurrentStatusEmail('B/1', OrderResendEmailAction.SHIPPED);
 		expect(lastFetch().url).toBe(MerchantRoutes.Sales.ResendEmail(encodeURIComponent('B/1')));
 		expect(lastFetch().opts.method).toBe('POST');
+		expect(lastFetch().opts.body).toEqual({ action: OrderResendEmailAction.SHIPPED });
 	});
 });
 

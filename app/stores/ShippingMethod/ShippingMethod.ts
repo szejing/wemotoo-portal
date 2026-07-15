@@ -7,6 +7,7 @@ import type { BaseODataReq } from '~/repository/base/base.req';
 import type { ShippingMethodOption } from '~/utils/types/order-fulfillment-shipping';
 import type { ShippingMethodUpdateBody, ShippingMethodWriteBody } from '~/repository/modules/shipping-method/models/request/create-shipping-method.req';
 import type { ShippingMethodFormFields } from '~/utils/types/form/shipping-method-form';
+import type { ResolveShippingMethodsReq } from '~/repository/modules/shipping-method/models/request/resolve-shipping-methods.req';
 
 type ShippingMethodFilter = {
 	query: string;
@@ -117,21 +118,24 @@ export const useShippingMethodStore = defineStore('shippingMethodStore', {
 			}
 		},
 
-		// async resolveShippingMethodsForAddress(params: { country_code?: string; state?: string; postal_code?: string }): Promise<ShippingMethodOption[]> {
-		// 	const { $api } = useNuxtApp();
-		// 	try {
-		// 		const response = await $api.shippingMethod.resolveMethods(params);
-		// 		return (response.resolved ?? []).map((row: ResolvedShippingMethodRow) => ({
-		// 			...row.shipping_method,
-		// 			fee: row.effective_fee,
-		// 			estimated_days: row.effective_estimated_days ?? row.shipping_method.estimated_days,
-		// 		}));
-		// 	} catch (err: unknown | ErrorResponse) {
-		// 		const message = (err as ErrorResponse).message ?? 'Failed to resolve shipping methods';
-		// 		failedNotification(message);
-		// 		throw err;
-		// 	}
-		// },
+		async resolveFulfillmentMethods(params: Omit<ResolveShippingMethodsReq, 'merchant_id'>): Promise<ShippingMethodOption[]> {
+			const { $api } = useNuxtApp();
+			const merchant_id = useCookie(KEY.X_MERCHANT_ID).value;
+
+			try {
+				const response = await $api.shippingMethod.resolveMethods({
+					merchant_id: String(merchant_id ?? ''),
+					...params,
+				});
+				return (response.shipping_methods ?? [])
+					.map((row) => ({ ...row.shipping_method, fee: Number(row.effective_fee) }))
+					.filter((method) => method.is_active);
+			} catch (err: unknown | ErrorResponse) {
+				const message = (err as ErrorResponse).message ?? 'Failed to resolve shipping methods';
+				failedNotification(message);
+				throw err;
+			}
+		},
 
 		async exportShippingMethods() {
 			this.exporting = true;

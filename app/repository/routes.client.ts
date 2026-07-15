@@ -247,22 +247,16 @@ const MerchantRoutes = {
 	},
 	Fulfillment: {
 		Create: (order_no: string) => `${prefix}/${API_PATH.MERCHANT}/fulfillment/${order_no}/create`,
-		MarkProcessing: (order_no: string) => `${prefix}/${API_PATH.MERCHANT}/fulfillment/${order_no}/processing`,
-		MarkPacked: (order_no: string) => `${prefix}/${API_PATH.MERCHANT}/fulfillment/${order_no}/packed`,
-		MarkFulfilled: (order_no: string) => `${prefix}/${API_PATH.MERCHANT}/fulfillment/${order_no}/fulfilled`,
+		Update: (id: string) => `${prefix}/${API_PATH.MERCHANT}/fulfillment/${id}`,
+		MarkProcessing: (id: string) => `${prefix}/${API_PATH.MERCHANT}/fulfillment/${id}/processing`,
+		MarkPacked: (id: string) => `${prefix}/${API_PATH.MERCHANT}/fulfillment/${id}/packed`,
+		MarkFulfilled: (id: string) => `${prefix}/${API_PATH.MERCHANT}/fulfillment/${id}/fulfilled`,
+		MarkShipped: (id: string) => `${prefix}/${API_PATH.MERCHANT}/fulfillment/${id}/shipped`,
+		MarkDelivered: (id: string) => `${prefix}/${API_PATH.MERCHANT}/fulfillment/${id}/delivered`,
 	},
 	/** Server-side Nominatim proxy (OpenStreetMap); no extra API key. */
 	Geocode: {
 		Search: () => `${prefix}/${API_PATH.MERCHANT}/geocode/search`,
-	},
-	Shipment: {
-		Many: () => `${prefix}/${API_PATH.MERCHANT}/${API_PATH.SHIPMENT}`,
-		Create: () => `${prefix}/${API_PATH.MERCHANT}/${API_PATH.SHIPMENT}`,
-		Single: (id: string) => `${prefix}/${API_PATH.MERCHANT}/${API_PATH.SHIPMENT}/${id}`,
-		Update: (id: string) => `${prefix}/${API_PATH.MERCHANT}/${API_PATH.SHIPMENT}/${id}`,
-		Delete: (id: string) => `${prefix}/${API_PATH.MERCHANT}/${API_PATH.SHIPMENT}/${id}`,
-		MarkDelivered: (id: string) => `${prefix}/${API_PATH.MERCHANT}/${API_PATH.SHIPMENT}/${id}/delivered`,
-		MarkShipped: (id: string) => `${prefix}/${API_PATH.MERCHANT}/${API_PATH.SHIPMENT}/${id}/shipped`,
 	},
 	Couriers: {
 		Many: () => `${prefix}/${API_PATH.MERCHANT}/${API_PATH.COURIERS}/many`,

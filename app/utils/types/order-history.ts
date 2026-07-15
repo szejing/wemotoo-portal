@@ -2,7 +2,7 @@ import type { OrderRequestType, OrderStatus, OrderType, PaymentStatus, ReasonTyp
 import type { TaxModel } from '../models/tax.model';
 import type { Currency } from './currency';
 import type { ItemModel, PaymentModel, CustomerModel } from '../models';
-import type { FulfillmentLifecycleStatusValue, OrderActivity, OrderFulfillment, OrderShipment } from './order-fulfillment-shipping';
+import type { FulfillmentBatch, FulfillmentLifecycleStatusValue, OrderActivity } from './order-fulfillment-shipping';
 
 export type CustomerRequestStatus = 'pending' | 'approved' | 'rejected' | 'cancelled';
 
@@ -39,6 +39,7 @@ export type OrderHistory = {
 	customer_no: string;
 	gross_amt: number;
 	payable_total: number;
+	shipping_fee: number;
 	net_amt: number;
 	net_total: number;
 	disc_amt?: number;
@@ -60,12 +61,9 @@ export type OrderHistory = {
 	customer: CustomerModel;
 	taxes: TaxModel[];
 	created_at: Date;
-	fulfillment?: OrderFulfillment;
-	shipment?: OrderShipment;
+	fulfillments: FulfillmentBatch[];
 	activities?: OrderActivity[];
 	logs?: OrderActivity[];
-	shipping_method_id?: number;
-	shipping_method?: { id: number; description: string };
 	customer_requests?: CustomerRequest[];
 	/** Pickup vs delivery (defaults to pickup on API when omitted) */
 	order_type?: OrderType;

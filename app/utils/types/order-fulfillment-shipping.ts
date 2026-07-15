@@ -1,5 +1,3 @@
-import type { Courier } from './courier';
-
 export type FulfillmentLifecycleStatusValue = 'pending' | 'processing' | 'packed' | 'fulfilled';
 
 export type ShipmentStatusValue = 'pending' | 'shipped' | 'in_transit' | 'delivered' | 'failed';
@@ -79,33 +77,24 @@ export type ShippingZoneRecord = ShippingZoneMutableFields & {
 	pricing_summary?: string;
 };
 
-export type OrderFulfillment = {
+export type FulfillmentBatch = {
 	id: string;
 	order_no: string;
 	inv_no: string;
+	batch_no: number;
 	status: FulfillmentLifecycleStatusValue;
-	packed_at?: string | Date | null;
-	created_at?: string | Date;
-	updated_at?: string | Date;
-};
-
-export type OrderShipment = {
-	id: string;
-	order_no: string;
-	inv_no: string;
-	/** Set when courier is assigned post-fulfillment (placeholder checkout rows may omit). */
-	courier_id?: number | null;
-	courier?: Courier | null;
-	courier_name?: string | null;
-	tracking_no?: string | null;
+	shipment_status: ShipmentStatusValue;
+	shipping_method: { id: number; description: string } | null;
+	shipping_zone_id: string | null;
 	shipping_fee: number;
-	status: ShipmentStatusValue;
-	shipped_at?: string | Date | null;
-	delivered_at?: string | Date | null;
-	created_at?: string | Date;
-	updated_at?: string | Date;
-	/** Joined snapshot when API includes relation */
-	shipping_method?: ShippingMethodOption | { id?: number; description?: string };
+	courier_id: number | null;
+	courier_name: string | null;
+	tracking_no: string | null;
+	packed_at: string | Date | null;
+	shipped_at: string | Date | null;
+	delivered_at: string | Date | null;
+	created_at: string | Date;
+	updated_at: string | Date | null;
 };
 
 export type OrderActivity = {

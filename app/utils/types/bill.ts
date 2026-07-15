@@ -1,7 +1,8 @@
-import type { OrderStatus, PaymentStatus } from 'yeppi-common';
+import type { OrderStatus, OrderType, PaymentStatus } from 'yeppi-common';
 import type { TaxModel } from '../models/tax.model';
 import type { Currency } from './currency';
 import type { ItemModel, PaymentModel, CustomerModel } from '../models';
+import type { FulfillmentBatch } from './order-fulfillment-shipping';
 
 export type Bill = {
 	biz_date: string;
@@ -13,6 +14,9 @@ export type Bill = {
 	payment_status: PaymentStatus;
 	gross_amt: number;
 	net_amt: number;
+	net_total: number;
+	shipping_fee: number;
+	payable_total: number;
 	disc_amt: number;
 	gross_amt_exc: number;
 	net_amt_exc: number;
@@ -24,7 +28,9 @@ export type Bill = {
 	voided_qty: number;
 	ref_no: string;
 	remarks: string;
+	order_type: OrderType;
 	currency: Currency;
+	fulfillments: FulfillmentBatch[];
 	items: ItemModel[];
 	payments: PaymentModel[];
 	customer: CustomerModel;

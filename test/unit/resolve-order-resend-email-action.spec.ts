@@ -88,6 +88,36 @@ describe('resolveOrderResendEmailAction', () => {
 		).toBe(OrderResendEmailAction.SHIPPED);
 	});
 
+	it.each(['shipped', 'in_transit', 'delivered'] as const)(
+		'prefers shipped for a completed sale with a tracked %s fulfillment batch',
+		(shipment_status) => {
+			expect(
+				resolveOrderResendEmailAction({
+					status: OrderStatus.COMPLETED,
+					payment_status: PaymentStatus.PAID,
+					fulfillments: [{ shipment_status, tracking_no: 'TRACK-1' }],
+				}),
+			).toBe(OrderResendEmailAction.SHIPPED);
+		},
+	);
+
+	it('does not select shipped without both a tracking number and an advanced shipment status', () => {
+		expect(
+			resolveOrderResendEmailAction({
+				status: OrderStatus.COMPLETED,
+				payment_status: PaymentStatus.PAID,
+				fulfillments: [{ shipment_status: 'shipped', tracking_no: '   ' }],
+			}),
+		).toBe(OrderResendEmailAction.RECEIPT);
+		expect(
+			resolveOrderResendEmailAction({
+				status: OrderStatus.COMPLETED,
+				payment_status: PaymentStatus.PAID,
+				fulfillments: [{ shipment_status: 'pending', tracking_no: 'TRACK-1' }],
+			}),
+		).toBe(OrderResendEmailAction.RECEIPT);
+	});
+
 	it('returns undefined when no email matches', () => {
 		expect(
 			resolveOrderResendEmailAction({

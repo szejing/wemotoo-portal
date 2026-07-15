@@ -12,7 +12,6 @@ import AuthModule from './auth/auth';
 import CrmUserModule from './crm-user/crm-user';
 import DiscountModule from './discount/discount';
 import FulfillmentModule from './fulfillment/fulfillment';
-import ShipmentModule from './shipment/shipment';
 import CourierModule from './courier/courier';
 import ShippingMethodModule from './shipping-method/shipping-method';
 import ShippingZoneModule from './shipping-zone/shipping-zone';
@@ -109,96 +108,63 @@ describe('DiscountModule', () => {
 });
 
 describe('FulfillmentModule', () => {
-	it('calls fulfillment mark packed route', async () => {
+	it('keeps first-batch repair creation on the order number route', async () => {
 		setMockFetch(async () => ({
 			fulfillment: {
 				id: 'f1',
 				order_no: 'ORD-1',
 				inv_no: 'INV-1',
-				status: 'packed',
+				batch_no: 1,
+				status: 'pending',
+				shipment_status: 'pending',
 			},
 		}));
 
 		const mod = new FulfillmentModule();
 		const payload = { merchant_id: 'm1' };
-		await mod.markPacked('ORD-1', payload);
+		await mod.create('ORD-1', payload);
 
-		expect(lastFetch().url).toBe(MerchantRoutes.Fulfillment.MarkPacked('ORD-1'));
-		expect(lastFetch().opts.method).toBe('PATCH');
-		expect(lastFetch().opts.body).toEqual(payload);
-	});
-});
-
-describe('ShipmentModule', () => {
-	it('calls shipment many route', async () => {
-		setMockFetch(async () => ({ shipments: [] }));
-
-		const mod = new ShipmentModule();
-		await mod.getMany();
-
-		expect(lastFetch().url).toBe(MerchantRoutes.Shipment.Many());
-		expect(lastFetch().opts.method).toBe('GET');
-	});
-
-	it('calls shipment single route', async () => {
-		setMockFetch(async () => ({ shipment: {} }));
-
-		const mod = new ShipmentModule();
-		await mod.getSingle('s1');
-
-		expect(lastFetch().url).toBe(MerchantRoutes.Shipment.Single('s1'));
-		expect(lastFetch().opts.method).toBe('GET');
-	});
-
-	it('calls shipment create route', async () => {
-		setMockFetch(async () => ({
-			shipment: {
-				id: 's1',
-				order_no: 'ORD-1',
-				inv_no: 'INV-1',
-				courier_name: 'J&T',
-				tracking_no: 'TRK-1',
-				shipping_fee: 6,
-				status: 'shipped',
-			},
-		}));
-
-		const mod = new ShipmentModule();
-		const payload = {
-			merchant_id: 'm1',
-			order_no: 'ORD-1',
-			inv_no: 'INV-1',
-			courier_name: 'J&T',
-			tracking_no: 'TRK-1',
-			shipping_method_id: 1,
-		};
-		await mod.create(payload);
-
-		expect(lastFetch().url).toBe(MerchantRoutes.Shipment.Create());
+		expect(lastFetch().url).toBe(MerchantRoutes.Fulfillment.Create('ORD-1'));
 		expect(lastFetch().opts.method).toBe('POST');
 		expect(lastFetch().opts.body).toEqual(payload);
 	});
 
-	it('calls shipment update route', async () => {
-		setMockFetch(async () => ({ shipment: { id: 's1' } }));
+	it('updates a fulfillment arrangement by batch UUID with explicit clears', async () => {
+		setMockFetch(async () => ({ fulfillment: { id: 'batch-uuid' } }));
+		const mod = new FulfillmentModule();
+		const payload = {
+			merchant_id: 'm1',
+			shipping_method_id: 2,
+			shipping_fee: 12.5,
+			courier_id: null,
+			courier_name: null,
+			tracking_no: null,
+			reason: 'Customer requested express delivery',
+		};
 
-		const mod = new ShipmentModule();
-		const payload = { merchant_id: 'm1', courier_name: 'DHL' };
-		await mod.update('s1', payload);
+		await mod.update('batch-uuid', payload);
 
-		expect(lastFetch().url).toBe(MerchantRoutes.Shipment.Update('s1'));
+		expect(lastFetch().url).toBe(MerchantRoutes.Fulfillment.Update('batch-uuid'));
 		expect(lastFetch().opts.method).toBe('PATCH');
 		expect(lastFetch().opts.body).toEqual(payload);
 	});
 
-	it('calls shipment delete route', async () => {
-		setMockFetch(async () => ({ shipment: { id: 's1' } }));
+	it.each([
+		['processing', 'markProcessing', 'MarkProcessing'],
+		['packed', 'markPacked', 'MarkPacked'],
+		['fulfilled', 'markFulfilled', 'MarkFulfilled'],
+		['shipped', 'markShipped', 'MarkShipped'],
+		['delivered', 'markDelivered', 'MarkDelivered'],
+	] as const)('calls the %s action with the batch UUID', async (_label, methodName, routeName) => {
+		setMockFetch(async () => ({ fulfillment: { id: 'batch-uuid' } }));
+		const mod = new FulfillmentModule();
+		const payload = { merchant_id: 'm1' };
 
-		const mod = new ShipmentModule();
-		await mod.remove('s1');
+		await mod[methodName]('batch-uuid', payload);
 
-		expect(lastFetch().url).toBe(MerchantRoutes.Shipment.Delete('s1'));
-		expect(lastFetch().opts.method).toBe('DELETE');
+		expect(lastFetch().url).toBe(MerchantRoutes.Fulfillment[routeName]('batch-uuid'));
+		expect(lastFetch().opts.method).toBe('PATCH');
+		expect(lastFetch().opts.body).toEqual(payload);
 	});
 });
 
@@ -279,10 +245,10 @@ describe('ShippingMethodModule', () => {
 	});
 
 	it('calls shipping resolve route', async () => {
-		setMockFetch(async () => ({ resolved: [] }));
+		setMockFetch(async () => ({ shipping_methods: [] }));
 
 		const mod = new ShippingMethodModule();
-		// await mod.resolveMethods({ country_code: 'MY', postal_code: '47500' });
+		await mod.resolveMethods({ merchant_id: 'm1', country_code: 'MY', postal_code: '47500' });
 
 		expect(lastFetch().url).toBe(MerchantRoutes.ShippingMethods.Resolve());
 		expect(lastFetch().opts.method).toBe('GET');

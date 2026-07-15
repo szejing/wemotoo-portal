@@ -4,7 +4,7 @@ import MerchantRoutes from '../../routes.client';
 import type { GetSaleResp } from './models/response/get-sale.resp';
 import type { GetSalesResp } from './models/response/get-sales.resp';
 import type { UpdateSaleStatusResp } from './models/response/update-sale.resp';
-import type { OrderStatus } from 'yeppi-common';
+import type { OrderResendEmailAction, OrderStatus } from 'yeppi-common';
 
 class SaleModule extends HttpFactory {
 	private readonly RESOURCE = MerchantRoutes.Sales;
@@ -63,10 +63,11 @@ class SaleModule extends HttpFactory {
 	 * Resends the customer email matching the sale's current status.
 	 * @returns
 	 */
-	async resendCurrentStatusEmail(order_no: string): Promise<UpdateSaleStatusResp> {
+	async resendCurrentStatusEmail(order_no: string, action: OrderResendEmailAction): Promise<UpdateSaleStatusResp> {
 		return await this.call<UpdateSaleStatusResp>({
 			method: 'POST',
 			url: `${this.RESOURCE.ResendEmail(encodeURIComponent(order_no))}`,
+			body: { action },
 		});
 	}
 }

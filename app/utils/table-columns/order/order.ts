@@ -6,6 +6,7 @@ import type { OrderHistory } from '~/utils/types/order-history';
 import { headerCell, moneyCell, tableCellMeta } from '../styles';
 import { getOrderStatusOption } from '~/utils/options/order-status';
 import { formatCustomerNameEmail } from '~/utils/format-customer-name-email';
+import { getFulfillmentMethodDescriptions } from '~/utils/fulfillment';
 
 type TranslateFn = (key: string) => string;
 
@@ -63,8 +64,8 @@ export function getOrderColumns(t: TranslateFn): TableColumn<OrderHistory>[] {
 				const orderType = row.original.order_type ?? OrderType.PICKUP;
 				const isDelivery = orderType === OrderType.DELIVERY;
 				const orderTypeLabel = isDelivery ? t('components.orderDetail.orderTypeDelivery') : t('components.orderDetail.orderTypePickup');
-				const description = row.original.shipping_method?.description?.trim();
-				const tooltipText = description && description.length > 0 ? description : orderTypeLabel;
+				const descriptions = getFulfillmentMethodDescriptions(row.original.fulfillments ?? []);
+				const tooltipText = descriptions.length > 0 ? descriptions.join(', ') : orderTypeLabel;
 				const iconName = isDelivery ? 'i-heroicons-truck' : 'i-heroicons-building-storefront';
 
 				return h(UTooltip, { text: tooltipText, popper: { placement: 'top' } }, () =>

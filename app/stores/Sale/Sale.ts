@@ -1,7 +1,7 @@
 /* eslint-disable indent */
 /* eslint-disable @stylistic/indent */
 import { defineStore } from 'pinia';
-import type { OrderStatus } from 'yeppi-common';
+import type { OrderResendEmailAction, OrderStatus } from 'yeppi-common';
 import { getFormattedDate } from 'yeppi-common';
 import { options_page_size } from '~/utils/options';
 import { failedNotification, successNotification } from '../AppUi/AppUi';
@@ -185,13 +185,13 @@ export const useSaleStore = defineStore('saleStore', {
 			}
 		},
 
-		async resendCurrentStatusEmail(order_no: string): Promise<boolean> {
+		async resendCurrentStatusEmail(order_no: string, action: OrderResendEmailAction): Promise<boolean> {
 			this.resending_email = true;
 
 			const { $api } = useNuxtApp();
 
 			try {
-				const data = await $api.sale.resendCurrentStatusEmail(order_no);
+				const data = await $api.sale.resendCurrentStatusEmail(order_no, action);
 
 				if (data.status) {
 					successNotification('Email resent successfully');

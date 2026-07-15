@@ -112,6 +112,37 @@ export const useCourierStore = defineStore('courierStore', {
 			}
 		},
 
+		async fetchAllActiveCouriers(): Promise<Courier[]> {
+			const { $api } = useNuxtApp();
+			const pageSize = 100;
+			const couriers: Courier[] = [];
+			let skip = 0;
+
+			try {
+				while (true) {
+					const response = await $api.courier.getMany({
+						$top: pageSize,
+						$count: true,
+						$skip: skip,
+						$orderby: 'name asc',
+						$filter: 'is_active eq true',
+					});
+					const page = response.data ?? response.value ?? [];
+					couriers.push(...page.filter((courier) => courier.is_active));
+					skip += page.length;
+
+					const total = response['@odata.count'] ?? response.count;
+					if (page.length === 0 || (total != null ? skip >= total : page.length < pageSize)) break;
+				}
+
+				return [...new Map(couriers.map((courier) => [courier.id, courier])).values()];
+			} catch (err: unknown | ErrorResponse) {
+				const message = (err as ErrorResponse).message ?? 'Failed to load active couriers';
+				failedNotification(message);
+				throw err;
+			}
+		},
+
 		async getCourier(id: number | string): Promise<Courier | undefined> {
 			const { $api } = useNuxtApp();
 			this.loading = true;

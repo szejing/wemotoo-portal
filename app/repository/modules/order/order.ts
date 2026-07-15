@@ -7,7 +7,7 @@ import type { UpdateOrderStatusResp } from './models/response/update-order.resp'
 import type { BaseODataReq } from '~/repository/base/base.req';
 import type { BaseODataResp } from '~/repository/base/base.resp';
 import type { OrderHistory } from '~/utils/types/order-history';
-import type { OrderStatus, PaymentStatus } from 'yeppi-common';
+import type { OrderResendEmailAction, OrderStatus, PaymentStatus } from 'yeppi-common';
 
 class OrderModule extends HttpFactory {
 	private readonly RESOURCE = MerchantRoutes.Orders;
@@ -99,10 +99,11 @@ class OrderModule extends HttpFactory {
 	 * Resends the customer email matching the order's current status.
 	 * @returns
 	 */
-	async resendCurrentStatusEmail(order_no: string): Promise<UpdateOrderStatusResp> {
+	async resendCurrentStatusEmail(order_no: string, action: OrderResendEmailAction): Promise<UpdateOrderStatusResp> {
 		return await this.call<UpdateOrderStatusResp>({
 			method: 'POST',
 			url: `${this.RESOURCE.ResendEmail(encodeURIComponent(order_no))}`,
+			body: { action },
 		});
 	}
 

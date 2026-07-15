@@ -299,6 +299,10 @@
 			"descriptionRequired": "Description is required",
 			"priorityMin": "Priority must be zero or greater"
 		},
+		"fulfillment": {
+			"shippingFeeNonNegative": "Shipping fee must be zero or greater",
+			"reasonRequired": "Reason is required when the shipping method or fee changes"
+		},
 		"reason": {
 			"codeRequired": "Reason code is required",
 			"codeMax64": "Reason code must be at most 64 characters",
@@ -1197,12 +1201,38 @@
 		},
 		"fulfillment": {
 			"title": "Fulfillment",
-			"currentStatus": "Current status",
+			"batchesTitle": "Fulfillment batches",
+			"batchesDescription": "Manage the packing and delivery progress for each batch.",
+			"batchCount": "Batches: {count}",
+			"batchNumber": "Batch {number}",
+			"shippingMethod": "Shipping method",
+			"shippingFee": "Shipping fee",
+			"courier": "Courier",
+			"registeredCourier": "Registered courier",
+			"courierName": "Courier name",
+			"trackingNumber": "Tracking number",
+			"notYetProvided": "Not assigned yet",
+			"createdAt": "Created at",
 			"packedAt": "Packed at",
+			"shippedAt": "Shipped at",
+			"deliveredAt": "Delivered at",
+			"updatedAt": "Updated at",
 			"startProcessing": "Start Processing",
 			"markAsPacked": "Mark as Packed",
 			"markAsFulfilled": "Mark as Fulfilled",
-			"readOnlyHint": "Fulfillment actions are read-only for sales."
+			"markAsShipped": "Mark as Shipped",
+			"markAsDelivered": "Mark as Delivered",
+			"trackingRequiredForShipped": "Add a tracking number before marking this batch as shipped.",
+			"editArrangement": "Edit fulfillment arrangement",
+			"editArrangementDescription": "Update method, fee, courier, or tracking for batch {number}.",
+			"clearCourier": "Clear courier",
+			"reason": "Reason",
+			"reasonRequiredHint": "Required because the shipping method or fee changed.",
+			"reasonOptionalHint": "Optional when only courier or tracking details change.",
+			"noBatches": "No fulfillment batch found",
+			"noBatchesHint": "Create the first missing repair or pickup batch to continue fulfillment.",
+			"createMissingBatch": "Create missing batch",
+			"noSplitDeleteHint": "Batch deletion and splitting are not available yet. Completion validation is enforced by the backend."
 		},
 		"shipment": {
 			"title": "Shipment",

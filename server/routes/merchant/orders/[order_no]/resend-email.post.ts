@@ -1,5 +1,6 @@
 import { signedFetch } from '#root/server/base_api';
 import { Routes } from '#root/server/routes.server';
+import { OrderResendEmailAction } from 'yeppi-common';
 
 export default defineEventHandler(async (event) => {
 	try {
@@ -12,9 +13,17 @@ export default defineEventHandler(async (event) => {
 			});
 		}
 
+		const { action } = await readBody<{ action?: OrderResendEmailAction }>(event);
+		if (!Object.values(OrderResendEmailAction).includes(action as OrderResendEmailAction)) {
+			throw createError({
+				statusCode: 400,
+				statusMessage: 'Valid resend email action is required',
+			});
+		}
+
 		const result = await signedFetch(event, `${Routes.Orders.ResendEmail(order_no)}`, {
 			method: 'POST',
-			body: {},
+			body: { action },
 		});
 		return result;
 	} catch (err) {

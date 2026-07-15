@@ -1,7 +1,9 @@
 import HttpFactory from '~/repository/factory';
 import MerchantRoutes from '~/repository/routes.client';
 import type { CreateShippingMethodReq } from './models/request/create-shipping-method.req';
+import type { ResolveShippingMethodsReq } from './models/request/resolve-shipping-methods.req';
 import type { UpdateShippingMethodReq } from './models/request/update-shipping-method.req';
+import type { ResolveShippingMethodsResp } from './models/response/resolve-shipping-methods.resp';
 import type { ShippingMethodResp } from './models/response/shipping-method.resp';
 import type { BaseODataResp } from '~/repository/base/base.resp';
 import type { ShippingMethodOption } from '~/utils/types/order-fulfillment-shipping';
@@ -24,6 +26,14 @@ class ShippingMethodModule extends HttpFactory {
 		return await this.call<ShippingMethodResp>({
 			method: 'GET',
 			url: this.RESOURCE.Single(id),
+		});
+	}
+
+	async resolveMethods(query: ResolveShippingMethodsReq): Promise<ResolveShippingMethodsResp> {
+		return await this.call<ResolveShippingMethodsResp>({
+			method: 'GET',
+			url: this.RESOURCE.Resolve(),
+			query,
 		});
 	}
 

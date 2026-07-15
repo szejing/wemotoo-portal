@@ -153,7 +153,7 @@ Order items are editable only when the order is in an editable state, such as **
 2. Click **Update Order Status**.
 3. Confirm the action if the portal asks for confirmation.
 
-The portal blocks completing an order when payment information is still pending.
+Completion validation is owned by the backend and follows the merchant's order-completion setting. If an update is rejected, review the required payment and fulfillment batch states before retrying.
 
 ### Add or Update Payment Information
 
@@ -166,22 +166,21 @@ The portal blocks completing an order when payment information is still pending.
    - Currency
 3. Click **Update**.
 
-### Manage Shipment Information
+### Manage Fulfillment Batches
 
-Shipment actions are available for delivery orders.
+Order and sale details show one card for each fulfillment batch. Each card includes its fulfillment and shipment statuses, shipping method and fee, courier and tracking values, and relevant timestamps.
 
-1. In **Shipment**, click **Create Shipment** when no shipment exists, or **Edit** for an existing shipment.
-2. Enter or update:
-   - Courier
-   - Courier name
-   - Tracking number
-3. Save the shipment.
-4. Use **Mark as Delivered** when the shipment reaches the delivered state.
-5. Use delete only when the shipment record should be removed.
+1. In **Fulfillment batches**, choose the next available lifecycle action: **Start Processing**, **Mark as Packed**, or **Mark as Fulfilled**.
+2. Click **Edit** to update the batch's shipping method, explicit fee, courier, or tracking number.
+3. Enter a nonblank reason when changing the shipping method or fee. A reason is optional when only courier or tracking details change.
+4. Add a tracking number before using **Mark as Shipped**, then use **Mark as Delivered** when delivery is complete.
+5. Refresh the detail after an update if you need to confirm the latest aggregate order status.
+
+Fulfillment batches on completed sales remain editable. Batch deletion and splitting are not available yet; the portal only offers creation when the first repair or pickup batch is missing. Completion validation remains backend-owned.
 
 ## Tips
 
 - Use table filters before exporting data so the exported CSV matches the view you need.
-- Use the refresh button on order detail pages after payment or shipment changes.
+- Use the refresh button on order detail pages after payment or fulfillment batch changes.
 - Keep product codes short and stable, because they are used as identifiers in product detail pages.
 - For services, confirm the store operating hours before using **Follow operation hour**.

@@ -1,7 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { createPinia, setActivePinia } from 'pinia';
 import { useFulfillmentStore } from '../../app/stores/Fulfillment/Fulfillment';
-import { useShipmentStore } from '../../app/stores/Shipment/Shipment';
 import { useShippingMethodStore } from '../../app/stores/ShippingMethod/ShippingMethod';
 
 const { successNotification, failedNotification } = vi.hoisted(() => ({
@@ -14,25 +13,20 @@ vi.mock('../../app/stores/AppUi/AppUi', () => ({
 	failedNotification,
 }));
 
-describe('fulfillment/shipment/shipping stores', () => {
+describe('fulfillment/shipping stores', () => {
 	const apiMock = {
 		fulfillment: {
 			create: vi.fn(),
+			update: vi.fn(),
 			markProcessing: vi.fn(),
 			markPacked: vi.fn(),
 			markFulfilled: vi.fn(),
-		},
-		shipment: {
-			getMany: vi.fn(),
-			getSingle: vi.fn(),
-			create: vi.fn(),
-			update: vi.fn(),
-			remove: vi.fn(),
 			markShipped: vi.fn(),
 			markDelivered: vi.fn(),
 		},
 		shippingMethod: {
 			getMany: vi.fn(),
+			resolveMethods: vi.fn(),
 			getSingle: vi.fn(),
 			create: vi.fn(),
 			update: vi.fn(),
@@ -49,7 +43,7 @@ describe('fulfillment/shipment/shipping stores', () => {
 
 	it('creates fulfillment and stores the response', async () => {
 		apiMock.fulfillment.create.mockResolvedValue({
-			fulfillment: { id: 'f1', order_no: 'O1', inv_no: 'I1', status: 'pending' },
+			fulfillment: { id: 'f1', order_no: 'O1', inv_no: 'I1', batch_no: 1, status: 'pending', shipment_status: 'pending' },
 		});
 		const store = useFulfillmentStore();
 
@@ -57,103 +51,68 @@ describe('fulfillment/shipment/shipping stores', () => {
 
 		expect(result?.id).toBe('f1');
 		expect(store.creating).toBe(false);
+		expect(apiMock.fulfillment.create).toHaveBeenCalledWith('O1', { merchant_id: 'm1' });
 		expect(successNotification).toHaveBeenCalled();
 	});
 
-	it('marks shipment as shipped', async () => {
-		apiMock.shipment.markShipped.mockResolvedValue({
-			shipment: {
-				id: 's1',
+	it('updates a batch arrangement and preserves explicit nullable clears', async () => {
+		apiMock.fulfillment.update.mockResolvedValue({
+			fulfillment: {
+				id: 'batch-uuid',
 				order_no: 'O1',
 				inv_no: 'I1',
-				courier_name: 'J&T',
-				tracking_no: 'TRK-1',
-				shipping_fee: 6,
-				status: 'shipped',
+				batch_no: 1,
+				status: 'pending',
+				shipment_status: 'pending',
+				shipping_method: { id: 2, description: 'Express' },
+				shipping_fee: 12.5,
+				courier_id: null,
+				courier_name: null,
+				tracking_no: null,
 			},
 		});
-		const store = useShipmentStore();
+		const store = useFulfillmentStore();
+		const payload = {
+			shipping_method_id: 2,
+			shipping_fee: 12.5,
+			courier_id: null,
+			courier_name: null,
+			tracking_no: null,
+			reason: 'Method and fee changed',
+		};
 
-		const result = await store.markShipped('s1');
+		const result = await store.updateArrangement('batch-uuid', payload);
 
-		expect(result?.status).toBe('shipped');
+		expect(result?.shipping_fee).toBe(12.5);
 		expect(store.updating).toBe(false);
+		expect(apiMock.fulfillment.update).toHaveBeenCalledWith('batch-uuid', { merchant_id: 'm1', ...payload });
 		expect(successNotification).toHaveBeenCalled();
 	});
 
-	it('marks shipment as delivered', async () => {
-		apiMock.shipment.markDelivered.mockResolvedValue({
-			shipment: {
-				id: 's1',
+	it.each([
+		['processing', 'markProcessing'],
+		['packed', 'markPacked'],
+		['fulfilled', 'markFulfilled'],
+		['shipped', 'markShipped'],
+		['delivered', 'markDelivered'],
+	] as const)('runs the %s action against the batch UUID', async (action, methodName) => {
+		apiMock.fulfillment[methodName].mockResolvedValue({
+			fulfillment: {
+				id: 'batch-uuid',
 				order_no: 'O1',
 				inv_no: 'I1',
-				courier_name: 'J&T',
-				tracking_no: 'TRK-1',
-				shipping_fee: 6,
-				status: 'delivered',
+				batch_no: 1,
+				status: ['processing', 'packed', 'fulfilled'].includes(action) ? action : 'fulfilled',
+				shipment_status: ['shipped', 'delivered'].includes(action) ? action : 'pending',
 			},
 		});
-		const store = useShipmentStore();
+		const store = useFulfillmentStore();
 
-		const result = await store.markDelivered('s1');
+		const result = await store.runAction('batch-uuid', action);
 
-		expect(result?.status).toBe('delivered');
+		expect(result?.id).toBe('batch-uuid');
 		expect(store.updating).toBe(false);
-		expect(successNotification).toHaveBeenCalled();
-	});
-
-	it('updates a shipment', async () => {
-		apiMock.shipment.update.mockResolvedValue({
-			shipment: {
-				id: 's1',
-				order_no: 'O1',
-				inv_no: 'I1',
-				courier_name: 'DHL',
-				tracking_no: 'TRK-1',
-				shipping_fee: 6,
-				status: 'in_transit',
-			},
-		});
-		const store = useShipmentStore();
-
-		const result = await store.updateShipment('s1', {
-			courier_name: 'DHL',
-		});
-
-		expect(result?.courier_name).toBe('DHL');
-		expect(store.updating).toBe(false);
-		expect(successNotification).toHaveBeenCalled();
-	});
-
-	it('deletes a shipment', async () => {
-		apiMock.shipment.remove.mockResolvedValue({
-			shipment: {
-				id: 's1',
-				order_no: 'O1',
-				inv_no: 'I1',
-				courier_name: 'DHL',
-				tracking_no: 'TRK-1',
-				shipping_fee: 6,
-				status: 'failed',
-			},
-		});
-		const store = useShipmentStore();
-		store.shipments = [
-			{
-				id: 's1',
-				order_no: 'O1',
-				inv_no: 'I1',
-				courier_name: 'DHL',
-				tracking_no: 'TRK-1',
-				shipping_fee: 6,
-				status: 'failed',
-			},
-		];
-
-		await store.deleteShipment('s1');
-
-		expect(store.shipments).toHaveLength(0);
-		expect(store.removing).toBe(false);
+		expect(apiMock.fulfillment[methodName]).toHaveBeenCalledWith('batch-uuid', { merchant_id: 'm1' });
 		expect(successNotification).toHaveBeenCalled();
 	});
 
@@ -283,6 +242,32 @@ describe('fulfillment/shipment/shipping stores', () => {
 
 		expect(all).toHaveLength(2);
 		expect(store.methods).toHaveLength(1);
+	});
+
+	it('resolves active fulfillment methods for the address without reusing listing state', async () => {
+		apiMock.shippingMethod.resolveMethods.mockResolvedValue({
+			shipping_methods: [
+				{ shipping_method: { id: 2, description: 'Address valid', is_active: true }, effective_fee: 12 },
+				{ shipping_method: { id: 3, description: 'Inactive', is_active: false }, effective_fee: 15 },
+			],
+		});
+		const store = useShippingMethodStore();
+		store.methods = [{ id: 1, description: 'Stale listing row', is_active: true }];
+
+		const methods = await store.resolveFulfillmentMethods({
+			country_code: 'MY',
+			state: 'Selangor',
+			postal_code: '47500',
+		});
+
+		expect(methods.map((method) => method.id)).toEqual([2]);
+		expect(store.methods.map((method) => method.id)).toEqual([1]);
+		expect(apiMock.shippingMethod.resolveMethods).toHaveBeenCalledWith({
+			merchant_id: 'm1',
+			country_code: 'MY',
+			state: 'Selangor',
+			postal_code: '47500',
+		});
 	});
 
 	it('deletes a shipping method', async () => {

@@ -1,5 +1,5 @@
-import type { OrderFulfillment } from '~/utils/types/order-fulfillment-shipping';
+import type { FulfillmentBatch } from '~/utils/types/order-fulfillment-shipping';
 
 export type FulfillmentResp = {
-	fulfillment: OrderFulfillment;
+	fulfillment: FulfillmentBatch;
 };

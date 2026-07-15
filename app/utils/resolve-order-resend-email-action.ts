@@ -1,10 +1,20 @@
 import { OrderResendEmailAction, OrderStatus, PaymentStatus } from 'yeppi-common';
+import type { FulfillmentBatch } from './types/order-fulfillment-shipping';
 
 type ResolveOrderResendEmailActionInput = {
 	status: OrderStatus;
 	payment_status: PaymentStatus;
 	payment_method?: string | null;
+	fulfillments?: readonly Pick<FulfillmentBatch, 'shipment_status' | 'tracking_no'>[];
 };
+
+const trackedShipmentStatuses = new Set<FulfillmentBatch['shipment_status']>(['shipped', 'in_transit', 'delivered']);
+
+const hasTrackedFulfillment = (input: ResolveOrderResendEmailActionInput): boolean =>
+	(input.fulfillments ?? []).some(
+		(fulfillment) =>
+			trackedShipmentStatuses.has(fulfillment.shipment_status) && String(fulfillment.tracking_no ?? '').trim().length > 0,
+	);
 
 const isCashPendingOrder = (input: ResolveOrderResendEmailActionInput): boolean => {
 	const paymentMethod = String(input.payment_method ?? '')
@@ -20,6 +30,10 @@ const isCashPendingOrder = (input: ResolveOrderResendEmailActionInput): boolean 
 
 /** Maps order status/payment to the customer email an admin can resend. */
 export function resolveOrderResendEmailAction(input: ResolveOrderResendEmailActionInput): OrderResendEmailAction | undefined {
+	if (hasTrackedFulfillment(input)) {
+		return OrderResendEmailAction.SHIPPED;
+	}
+
 	if (isCashPendingOrder(input)) {
 		return OrderResendEmailAction.ORDER_CONFIRMATION;
 	}

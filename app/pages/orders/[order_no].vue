@@ -147,14 +147,14 @@
 							<div v-if="(record?.order_type ?? OrderType.PICKUP) === OrderType.DELIVERY" class="grid grid-cols-[2fr_1fr_1fr_1fr] items-center">
 								<div class="col-span-2" />
 								<div class="p-4 text-left text-muted italic font-normal">
-									{{ $t('components.shipment.shippingFee') }}
+									{{ $t('components.fulfillment.shippingFee') }}
 									<span v-if="shipping_fee_method_hint" class="text-xs font-normal not-italic text-muted leading-tight max-w-full">
 										{{ shipping_fee_method_hint }}
 									</span>
 								</div>
 								<div class="p-4 text-center font-bold text-lg italic">
 									<div class="flex flex-col items-center gap-0.5">
-										<span>{{ formatCurrency(record?.shipment?.shipping_fee ?? 0, currency_code) }}</span>
+										<span>{{ formatCurrency(shipping_fee_total, currency_code) }}</span>
 									</div>
 								</div>
 							</div>
@@ -170,6 +170,13 @@
 							</div>
 						</div>
 					</UCard>
+
+					<FulfillmentBatchList
+						v-if="orderForModal"
+						:order="orderForModal"
+						:owner-type="ownerType"
+						@refresh="getOrderDetails"
+					/>
 
 					<!-- Remarks Section -->
 					<UCard v-if="record?.remarks" class="remarks-card">
@@ -209,15 +216,11 @@
 
 						<ZSectionOrderDetailPayment :order="orderForModal" @refresh="refreshOrder" />
 
-						<!-- Shipment Information -->
-						<div v-if="(record?.order_type ?? OrderType.PICKUP) === OrderType.DELIVERY">
-							<ZSectionOrderDetailShipment :order="orderForModal" :is-read-only="isSaleReadOnly" @refresh="getOrderDetails" />
-						</div>
 					</div>
 				</div>
 			</div>
 
-			<!-- Mobile: sticky entry to order actions drawer (status, payment, shipment) -->
+			<!-- Mobile: sticky entry to order actions drawer (status and payment) -->
 			<div
 				v-if="record !== undefined && !isLgUp"
 				class="mobile-actions-bar fixed inset-x-0 bottom-0 z-40 border-t border-default bg-default/95 px-4 pt-3 backdrop-blur-md pb-[max(0.75rem,env(safe-area-inset-bottom,0px))]"
@@ -247,9 +250,6 @@
 
 							<ZSectionOrderDetailPayment :order="orderForModal" @refresh="refreshOrder" />
 
-							<div v-if="(record?.order_type ?? OrderType.PICKUP) === OrderType.DELIVERY">
-								<ZSectionOrderDetailShipment :order="orderForModal" :is-read-only="isSaleReadOnly" @refresh="getOrderDetails" />
-							</div>
 						</div>
 					</template>
 				</UDrawer>
@@ -269,13 +269,12 @@ import type { ItemModel } from '~/utils/models/item.model';
 import type { OrderHistory } from '~/utils/types/order-history';
 import { getOrderDetailItemColumns } from '~/utils/table-columns';
 import { resolveOrderResendEmailAction } from '~/utils/resolve-order-resend-email-action';
+import { getFulfillmentMethodDescriptions, sumFulfillmentShippingFees } from '~/utils/fulfillment';
 import Activities from '~/components/ActivityLog/Activities.vue';
-import { useFulfillmentStore } from '~/stores/Fulfillment/Fulfillment';
 import { useMediaQuery } from '@vueuse/core';
 
 const orderStore = useOrderStore();
 const saleStore = useSaleStore();
-const fulfillmentStore = useFulfillmentStore();
 const { updating, resending_email: order_resending_email } = storeToRefs(orderStore);
 const { resending_email: sale_resending_email } = storeToRefs(saleStore);
 
@@ -293,7 +292,7 @@ watch(isLgUp, (lg) => {
 });
 const order_no_param = computed(() => String(route.params.order_no ?? ''));
 const type = computed(() => String(route.query.type ?? ''));
-const isSaleReadOnly = computed(() => type.value === 'sale');
+const ownerType = computed<'order' | 'sale'>(() => type.value === 'sale' ? 'sale' : 'order');
 
 const order = ref<OrderHistory | undefined>();
 
@@ -309,23 +308,20 @@ const activityLogEntries = computed(() => {
 /** Shipping method name when present; otherwise delivery vs pickup label */
 const order_fulfillment_method_label = computed(() => {
 	const r = record.value;
-	const desc = r?.shipping_method?.description?.trim();
-	if (desc) {
-		return desc;
+	const descriptions = getFulfillmentMethodDescriptions(r?.fulfillments ?? []);
+	if (descriptions.length) {
+		return descriptions.join(', ');
 	}
 	const isDelivery = (r?.order_type ?? OrderType.PICKUP) === OrderType.DELIVERY;
 	return isDelivery ? t('components.orderDetail.orderTypeDelivery') : t('components.orderDetail.orderTypePickup');
 });
 
-/** Shipment snapshot first, then order-level method (for bill summary hint). */
+/** Distinct fulfillment method descriptions for the Shipping row. */
 const shipping_fee_method_hint = computed(() => {
-	const r = record.value;
-	const fromShipment = r?.shipment?.shipping_method?.description?.trim();
-	if (fromShipment) {
-		return fromShipment;
-	}
-	return r?.shipping_method?.description?.trim() ?? '';
+	return getFulfillmentMethodDescriptions(record.value?.fulfillments ?? []).join(', ');
 });
+
+const shipping_fee_total = computed(() => sumFulfillmentShippingFees(record.value?.fulfillments ?? []));
 
 const orderForModal = computed((): OrderHistory | undefined => {
 	return order.value;
@@ -355,6 +351,7 @@ const resend_email_action = computed<ResendEmailAction | undefined>(() => {
 		status: current.status,
 		payment_status: current.payment_status,
 		payment_method: current.metadata?.payment_method as string | undefined,
+		fulfillments: current.fulfillments,
 	});
 });
 
@@ -379,7 +376,7 @@ const resend_email_label = computed(() => {
 
 const can_resend_status_email = computed(() => !!record.value?.customer?.email_address && !!resend_email_action.value);
 
-const is_resending_email = computed(() => (type.value === 'order' ? order_resending_email.value : sale_resending_email.value));
+const is_resending_email = computed(() => (ownerType.value === 'order' ? order_resending_email.value : sale_resending_email.value));
 
 const resend_email_description = computed(() => {
 	if (!record.value?.customer?.email_address) {
@@ -494,7 +491,7 @@ onBeforeUnmount(() => {
 
 const getOrderDetails = async () => {
 	try {
-		if (type.value === 'order') {
+		if (ownerType.value === 'order') {
 			const data = await orderStore.getOrderByOrderNo(order_no_param.value);
 			order.value = data;
 		} else {
@@ -508,22 +505,6 @@ const getOrderDetails = async () => {
 
 const onItemsRefresh = () => {
 	return getOrderDetails();
-};
-
-const handleFulfillmentAction = async (action: 'processing' | 'packed' | 'fulfilled') => {
-	if (!record.value?.order_no || isSaleReadOnly.value) {
-		return;
-	}
-
-	if (action === 'processing') {
-		await fulfillmentStore.markProcessing(record.value.order_no);
-	} else if (action === 'packed') {
-		await fulfillmentStore.markPacked(record.value.order_no);
-	} else {
-		await fulfillmentStore.markFulfilled(record.value.order_no);
-	}
-
-	await getOrderDetails();
 };
 
 const refreshOrder = async () => {
@@ -600,15 +581,15 @@ const handleUpdateOrderStatus = async () => {
 };
 
 const handleResendCurrentStatusEmail = async () => {
-	if (!record.value?.order_no || !can_resend_status_email.value) {
+	if (!record.value?.order_no || !can_resend_status_email.value || !resend_email_action.value) {
 		return;
 	}
 
 	try {
-		if (type.value === 'order') {
-			await orderStore.resendCurrentStatusEmail(record.value.order_no);
+		if (ownerType.value === 'order') {
+			await orderStore.resendCurrentStatusEmail(record.value.order_no, resend_email_action.value);
 		} else {
-			await saleStore.resendCurrentStatusEmail(record.value.order_no);
+			await saleStore.resendCurrentStatusEmail(record.value.order_no, resend_email_action.value);
 		}
 	} catch {
 		// Store actions show the failure toast.
@@ -621,7 +602,7 @@ const executeOrderStatusUpdate = async (new_status: OrderStatus) => {
 	}
 
 	try {
-		const shouldStay = await orderStore.updateStatus(order.value.order_no, order.value.customer.customer_no, new_status, type.value);
+		const shouldStay = await orderStore.updateStatus(order.value.order_no, order.value.customer.customer_no, new_status, ownerType.value);
 		if (shouldStay) {
 			await getOrderDetails();
 			successNotification(t('components.orderDetail.statusUpdateSuccess'));

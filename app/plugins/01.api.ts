@@ -29,7 +29,6 @@ import {
 	DiscountModule,
 	VoucherModule,
 	FulfillmentModule,
-	ShipmentModule,
 	CourierModule,
 	ShippingMethodModule,
 	ShippingZoneModule,
@@ -70,7 +69,6 @@ interface IApiInstance {
 	discount: DiscountModule;
 	voucher: VoucherModule;
 	fulfillment: FulfillmentModule;
-	shipment: ShipmentModule;
 	courier: CourierModule;
 	shippingMethod: ShippingMethodModule;
 	shippingZone: ShippingZoneModule;
@@ -122,7 +120,6 @@ export default defineNuxtPlugin((_) => {
 	const discountModule = new DiscountModule();
 	const voucherModule = new VoucherModule();
 	const fulfillmentModule = new FulfillmentModule();
-	const shipmentModule = new ShipmentModule();
 	const courierModule = new CourierModule();
 	const shippingMethodModule = new ShippingMethodModule();
 	const shippingZoneModule = new ShippingZoneModule();
@@ -162,7 +159,6 @@ export default defineNuxtPlugin((_) => {
 		discount: discountModule,
 		voucher: voucherModule,
 		fulfillment: fulfillmentModule,
-		shipment: shipmentModule,
 		courier: courierModule,
 		shippingMethod: shippingMethodModule,
 		shippingZone: shippingZoneModule,

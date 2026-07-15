@@ -299,6 +299,10 @@
 			"descriptionRequired": "Keterangan wajib",
 			"priorityMin": "Keutamaan mestilah sifar atau lebih besar"
 		},
+		"fulfillment": {
+			"shippingFeeNonNegative": "Yuran penghantaran mestilah sifar atau lebih besar",
+			"reasonRequired": "Sebab wajib apabila kaedah atau yuran penghantaran berubah"
+		},
 		"reason": {
 			"codeRequired": "Kod sebab wajib",
 			"codeMax64": "Kod sebab mestilah tidak melebihi 64 aksara",
@@ -1196,12 +1200,38 @@
 		},
 		"fulfillment": {
 			"title": "Pemenuhan",
-			"currentStatus": "Status semasa",
+			"batchesTitle": "Kelompok pemenuhan",
+			"batchesDescription": "Urus kemajuan pembungkusan dan penghantaran bagi setiap kelompok.",
+			"batchCount": "Kelompok: {count}",
+			"batchNumber": "Kelompok {number}",
+			"shippingMethod": "Kaedah penghantaran",
+			"shippingFee": "Yuran penghantaran",
+			"courier": "Kurier",
+			"registeredCourier": "Kurier berdaftar",
+			"courierName": "Nama kurier",
+			"trackingNumber": "Nombor penjejakan",
+			"notYetProvided": "Belum ditetapkan",
+			"createdAt": "Dicipta pada",
 			"packedAt": "Masa dibungkus",
+			"shippedAt": "Dihantar pada",
+			"deliveredAt": "Diterima pada",
+			"updatedAt": "Dikemas kini pada",
 			"startProcessing": "Mula Proses",
 			"markAsPacked": "Tanda Sebagai Dibungkus",
 			"markAsFulfilled": "Tanda Sebagai Dipenuhi",
-			"readOnlyHint": "Tindakan pemenuhan adalah baca sahaja untuk jualan."
+			"markAsShipped": "Tanda Sebagai Dihantar",
+			"markAsDelivered": "Tanda Sebagai Diterima",
+			"trackingRequiredForShipped": "Tambah nombor penjejakan sebelum menandakan kelompok ini sebagai dihantar.",
+			"editArrangement": "Edit aturan pemenuhan",
+			"editArrangementDescription": "Kemas kini kaedah, yuran, kurier atau penjejakan bagi kelompok {number}.",
+			"clearCourier": "Kosongkan kurier",
+			"reason": "Sebab",
+			"reasonRequiredHint": "Wajib kerana kaedah atau yuran penghantaran berubah.",
+			"reasonOptionalHint": "Pilihan apabila hanya butiran kurier atau penjejakan berubah.",
+			"noBatches": "Tiada kelompok pemenuhan ditemui",
+			"noBatchesHint": "Cipta kelompok pembaikan atau ambil sendiri pertama yang tiada untuk meneruskan pemenuhan.",
+			"createMissingBatch": "Cipta kelompok yang tiada",
+			"noSplitDeleteHint": "Pemadaman dan pemisahan kelompok belum tersedia. Pengesahan pelengkapan dikuatkuasakan oleh bahagian backend."
 		},
 		"shipment": {
 			"title": "Penghantaran",

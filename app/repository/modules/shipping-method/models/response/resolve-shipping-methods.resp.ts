@@ -2,12 +2,13 @@ import type { ShippingMethodOption } from '~/utils/types/order-fulfillment-shipp
 
 export type ResolvedShippingMethodRow = {
 	matched_tier: string;
-	match_score: number;
 	effective_fee: number;
 	effective_estimated_days?: number;
+	shipping_id?: string;
+	shipping_zone_id?: string;
 	shipping_method: ShippingMethodOption;
 };
 
 export type ResolveShippingMethodsResp = {
-	resolved: ResolvedShippingMethodRow[];
+	shipping_methods: ResolvedShippingMethodRow[];
 };
