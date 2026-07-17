@@ -16,6 +16,7 @@
 						<span v-else-if="segment.type === 'identifier'" class="italic underline decoration-dotted underline-offset-4">
 							{{ segment.text }}
 						</span>
+						<span v-else-if="segment.type === 'bold'" class="font-bold">{{ segment.text }}</span>
 						<UBadge v-else :color="segment.color" variant="subtle" size="md" class="capitalize">
 							{{ segment.text }}
 						</UBadge>

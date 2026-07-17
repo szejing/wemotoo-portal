@@ -37,4 +37,21 @@ describe('activity log rich text', () => {
 	it('does not parse unsupported tags as HTML', () => {
 		expect(parseActivityLogRichText('Hello <script>alert(1)</script>')).toEqual([{ type: 'text', text: 'Hello <script>alert(1)</script>' }]);
 	});
+
+	it('parses bold markers for payment amounts', () => {
+		expect(
+			parseActivityLogRichText(
+				'Order <UI>#ORD1</UI> marked as paid with <UBadge>Cash</UBadge>, ref <UI>TXN-1</UI>, amount <B>RM 100.00</B>',
+			),
+		).toEqual([
+			{ type: 'text', text: 'Order ' },
+			{ type: 'identifier', text: '#ORD1' },
+			{ type: 'text', text: ' marked as paid with ' },
+			{ type: 'badge', text: 'Cash', color: 'neutral' },
+			{ type: 'text', text: ', ref ' },
+			{ type: 'identifier', text: 'TXN-1' },
+			{ type: 'text', text: ', amount ' },
+			{ type: 'bold', text: 'RM 100.00' },
+		]);
+	});
 });

@@ -15,9 +15,13 @@ export type ActivityLogRichTextSegment =
 			type: 'badge';
 			text: string;
 			color: ActivityLogBadgeColor;
+	  }
+	| {
+			type: 'bold';
+			text: string;
 	  };
 
-const MARKER_PATTERN = /<(UBadge|UI)>(.*?)<\/\1>/g;
+const MARKER_PATTERN = /<(UBadge|UI|B)>(.*?)<\/\1>/g;
 
 const activityLogStatusColorOverrides: Record<string, ActivityLogBadgeColor> = {
 	cancel: 'error',
@@ -64,6 +68,8 @@ export const parseActivityLogRichText = (value?: string): ActivityLogRichTextSeg
 		if (content) {
 			if (tagName === 'UBadge') {
 				segments.push({ type: 'badge', text: content, color: getActivityLogBadgeColor(content) });
+			} else if (tagName === 'B') {
+				segments.push({ type: 'bold', text: content });
 			} else {
 				segments.push({ type: 'identifier', text: content });
 			}
