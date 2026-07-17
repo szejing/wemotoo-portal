@@ -32,7 +32,8 @@
 import type { FormSubmitEvent } from '#ui/types';
 import type { z } from 'zod';
 import type { PaymentModel } from '~/utils/models/index';
-import type { Order } from '~/utils/types/order';
+import { getDefaultOrderPaymentAmt } from '~/utils/order-payment-amt';
+import type { OrderHistory } from '~/utils/types/order-history';
 import { UpdateOrderPaymentValidation } from '~/utils/schema';
 
 const { t } = useI18n();
@@ -45,7 +46,7 @@ const is_loading = ref(false);
 
 const props = defineProps({
 	order: {
-		type: Object as PropType<Order>,
+		type: Object as PropType<OrderHistory>,
 		required: true,
 	},
 	payment: {
@@ -61,7 +62,7 @@ const state = reactive({
 		payment_type_code: undefined,
 		ref_no1: undefined,
 		ref_no2: undefined,
-		payment_amt: props.order.net_total ?? props.order.net_amt,
+		payment_amt: getDefaultOrderPaymentAmt(props.order),
 		currency_code: props.order.currency?.code,
 		external_intg_type: undefined,
 		metadata: undefined,
