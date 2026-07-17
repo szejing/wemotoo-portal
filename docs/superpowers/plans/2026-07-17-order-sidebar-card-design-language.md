@@ -38,15 +38,15 @@
 - Consumes: existing `batch`, `currencyCode`, `showBatchMeta`, `loading` props; `edit` / `action` emits
 - Produces: Payment-style nested summary; badges always visible
 
-- [ ] **Step 1: Update failing expectations in the batch card test**
+- [x] **Step 1: Update failing expectations in the batch card test**
 
 Change the single-batch test to expect status badges always, and assert courier/tracking/fee hierarchy via existing testids (method/fee/courier/tracking still present; zone present only when set).
 
-- [ ] **Step 2: Implement compact BatchCard template + scoped styles matching Payment nested item**
+- [x] **Step 2: Implement compact BatchCard template + scoped styles matching Payment nested item**
 
 Header: truck + title + always-on status badges. Body: nested box with left courier/tracking/method(/zone) and right fee. Footer actions unchanged.
 
-- [ ] **Step 3: Run focused Nuxt test**
+- [x] **Step 3: Run focused Nuxt test**
 
 ```bash
 cd /Users/szejinggo/Documents/Projects/ecommerce/wemotoo-portal
@@ -55,7 +55,7 @@ bun run test:vitest:run -- test/nuxt/fulfillment-batch-card.nuxt.spec.ts
 
 Expected: PASS
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add app/components/Fulfillment/BatchCard.vue test/nuxt/fulfillment-batch-card.nuxt.spec.ts
@@ -71,13 +71,13 @@ git commit -m "feat: compact Payment-style shipping batch card"
 - Modify: `app/components/Z/Section/Order/Detail/CustomerEmail.vue`
 - Modify: `app/components/Z/Section/Order/Detail/Payment.vue`
 
-- [ ] **Step 1: OrderStatus — icon + current status badge via `getOrderStatusColor` / order-status option label**
+- [x] **Step 1: OrderStatus — icon + current status badge via `getOrderStatusColor` / order-status option label**
 
-- [ ] **Step 2: CustomerEmail — Payment-matching shadow + nested description box**
+- [x] **Step 2: CustomerEmail — Payment-matching shadow + nested description box**
 
-- [ ] **Step 3: Payment — banknotes icon in header title**
+- [x] **Step 3: Payment — banknotes icon in header title**
 
-- [ ] **Step 4: Smoke-check / lint touched files; commit**
+- [x] **Step 4: Smoke-check / lint touched files; commit**
 
 ```bash
 git add app/components/Z/Section/Order/Detail/OrderStatus.vue app/components/Z/Section/Order/Detail/CustomerEmail.vue app/components/Z/Section/Order/Detail/Payment.vue
@@ -88,5 +88,5 @@ git commit -m "feat: align order sidebar cards with section icons"
 
 ### Task 3: Verification
 
-- [ ] **Step 1: Re-run fulfillment batch card Nuxt tests**
-- [ ] **Step 2: Lint/typecheck if feasible on touched files**
+- [x] **Step 1: Re-run fulfillment batch card Nuxt tests**
+- [x] **Step 2: Lint/typecheck if feasible on touched files**
