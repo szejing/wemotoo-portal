@@ -35,6 +35,13 @@ const shipmentLabels: Record<ShipmentStatusValue, string> = {
 	failed: 'options.failed',
 };
 
+const { t } = useI18n();
+
+const courierLabel = computed(() => props.batch.courier_name?.trim() || t('components.fulfillment.notYetProvided'));
+const trackingLabel = computed(() => props.batch.tracking_no?.trim() || t('components.fulfillment.notYetProvided'));
+const methodLabel = computed(() => props.batch.shipping_method?.description || '');
+const zoneLabel = computed(() => props.batch.shipping_zone_id?.trim() || '');
+
 const nextActions = computed(() => {
 	const actions: { action: FulfillmentAction; label: string; color: 'primary' | 'success' }[] = [];
 	if (props.batch.status === 'pending') {
@@ -53,64 +60,55 @@ const nextActions = computed(() => {
 </script>
 
 <template>
-	<UCard data-testid="fulfillment-batch-card">
+	<UCard data-testid="fulfillment-batch-card" class="shipping-info-card">
 		<template #header>
-			<div class="flex items-center justify-between gap-3">
-				<div class="flex items-center gap-2">
-					<UIcon name="i-heroicons-truck" class="size-5 shrink-0 text-main" />
-					<h3 v-if="showBatchMeta" data-testid="fulfillment-batch-number" class="font-semibold text-default">
+			<div class="card-header-sidebar">
+				<div class="sidebar-title">
+					<UIcon name="i-heroicons-truck" class="w-5 h-5 shrink-0" />
+					<h3 v-if="showBatchMeta" data-testid="fulfillment-batch-number">
 						{{ $t('components.fulfillment.batchNumber', { number: batch.batch_no }) }}
 					</h3>
-					<h3 v-else class="font-semibold text-default">
+					<h3 v-else>
 						{{ $t('components.fulfillment.shippingTitle') }}
 					</h3>
 				</div>
-				<div v-if="showBatchMeta" data-testid="fulfillment-status-badges" class="flex flex-wrap gap-2">
-					<UBadge :color="getFulfillmentStatusColor(batch.status)" variant="subtle">
+				<div data-testid="fulfillment-status-badges" class="status-badges">
+					<UBadge :color="getFulfillmentStatusColor(batch.status)" variant="subtle" size="sm">
 						{{ $t(lifecycleLabels[batch.status]) }}
 					</UBadge>
-					<UBadge :color="getShipmentStatusColor(batch.shipment_status)" variant="subtle">
+					<UBadge :color="getShipmentStatusColor(batch.shipment_status)" variant="subtle" size="sm">
 						{{ $t(shipmentLabels[batch.shipment_status]) }}
 					</UBadge>
 				</div>
 			</div>
 		</template>
 
-		<div class="space-y-4">
-			<dl class="grid grid-cols-1 gap-3 text-sm">
-				<div>
-					<dt class="text-muted">{{ $t('components.fulfillment.shippingMethod') }}</dt>
-					<dd data-testid="fulfillment-method" class="mt-0.5 font-medium text-default">
-						{{ batch.shipping_method?.description || $t('components.fulfillment.notYetProvided') }}
-					</dd>
-				</div>
-				<div>
-					<dt class="text-muted">{{ $t('components.fulfillment.shippingFee') }}</dt>
-					<dd data-testid="fulfillment-fee" class="mt-0.5 font-medium text-default">
+		<div class="shipping-body">
+			<div class="shipping-item">
+				<div class="shipping-main">
+					<div class="shipping-left">
+						<span data-testid="fulfillment-courier" class="shipping-courier">{{ courierLabel }}</span>
+						<div data-testid="fulfillment-tracking" class="shipping-tracking">
+							<span class="shipping-tracking-label">{{ $t('components.fulfillment.trackingNumber') }}:</span>
+							<span class="shipping-tracking-value">{{ trackingLabel }}</span>
+						</div>
+						<div v-if="methodLabel" data-testid="fulfillment-method" class="shipping-meta">
+							{{ methodLabel }}
+						</div>
+						<div v-else data-testid="fulfillment-method" class="shipping-meta">
+							{{ $t('components.fulfillment.notYetProvided') }}
+						</div>
+						<div v-if="zoneLabel" data-testid="fulfillment-zone" class="shipping-meta">
+							{{ zoneLabel }}
+						</div>
+					</div>
+					<span data-testid="fulfillment-fee" class="shipping-fee">
 						{{ formatCurrency(batch.shipping_fee, currencyCode) }}
-					</dd>
+					</span>
 				</div>
-				<div>
-					<dt class="text-muted">{{ $t('components.fulfillment.shippingZone') }}</dt>
-					<dd data-testid="fulfillment-zone" class="mt-0.5 font-medium text-default">
-						{{ batch.shipping_zone_id || $t('components.fulfillment.notYetProvided') }}
-					</dd>
-				</div>
-				<div>
-					<dt class="text-muted">{{ $t('components.fulfillment.courierName') }}</dt>
-					<dd data-testid="fulfillment-courier" class="mt-0.5 break-words font-medium text-default">
-						{{ batch.courier_name?.trim() || $t('components.fulfillment.notYetProvided') }}
-					</dd>
-				</div>
-				<div>
-					<dt class="text-muted">{{ $t('components.fulfillment.trackingNumber') }}</dt>
-					<dd data-testid="fulfillment-tracking" class="mt-0.5 break-all font-medium text-default">
-						{{ batch.tracking_no?.trim() || $t('components.fulfillment.notYetProvided') }}
-					</dd>
-				</div>
-			</dl>
+			</div>
 
-			<div class="flex flex-wrap gap-2 border-t border-default pt-4">
+			<div class="shipping-actions">
 				<UButton
 					data-testid="fulfillment-edit"
 					size="sm"
@@ -158,3 +156,127 @@ const nextActions = computed(() => {
 		</div>
 	</UCard>
 </template>
+
+<style scoped>
+.shipping-info-card {
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.card-header-sidebar {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	gap: 0.75rem;
+	width: 100%;
+}
+
+.sidebar-title {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	font-size: 1rem;
+	font-weight: 600;
+	color: var(--color-gray-800);
+	min-width: 0;
+}
+
+.sidebar-title h3 {
+	margin: 0;
+	font-size: inherit;
+	font-weight: inherit;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.status-badges {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: flex-end;
+	gap: 0.375rem;
+	flex-shrink: 0;
+}
+
+.shipping-body {
+	display: flex;
+	flex-direction: column;
+	gap: 0.75rem;
+}
+
+.shipping-item {
+	padding: 1rem;
+	background: var(--color-gray-50);
+	border-radius: 0.5rem;
+	border: 1px solid var(--color-gray-200);
+}
+
+.shipping-main {
+	display: flex;
+	justify-content: space-between;
+	align-items: flex-start;
+	gap: 0.75rem;
+}
+
+.shipping-left {
+	display: flex;
+	flex-direction: column;
+	gap: 0.25rem;
+	min-width: 0;
+	flex: 1;
+}
+
+.shipping-courier {
+	font-size: 0.875rem;
+	font-weight: 600;
+	color: var(--color-gray-800);
+	word-break: break-word;
+}
+
+.shipping-tracking {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.35rem;
+	font-size: 0.75rem;
+}
+
+.shipping-tracking-label {
+	color: var(--color-gray-500);
+}
+
+.shipping-tracking-value {
+	color: var(--color-gray-700);
+	font-weight: 500;
+	word-break: break-all;
+}
+
+.shipping-meta {
+	font-size: 0.75rem;
+	color: var(--color-gray-500);
+	word-break: break-word;
+}
+
+.shipping-fee {
+	font-size: 1rem;
+	font-weight: 700;
+	color: var(--color-primary-600);
+	white-space: nowrap;
+	flex-shrink: 0;
+}
+
+.shipping-actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem;
+}
+
+@media (max-width: 380px) {
+	.shipping-main {
+		flex-direction: column;
+		align-items: stretch;
+	}
+
+	.shipping-fee {
+		align-self: flex-end;
+	}
+}
+</style>

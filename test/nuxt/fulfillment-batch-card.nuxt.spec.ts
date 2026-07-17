@@ -33,25 +33,42 @@ const nextActions = (wrapper: Awaited<ReturnType<typeof mountSuspended>>) => {
 };
 
 describe('FulfillmentBatchCard', () => {
-	it('shows a compact shipping summary without technical batch metadata for one batch', async () => {
+	it('shows a compact shipping summary with courier/tracking lead and always-visible status badges', async () => {
 		const wrapper = await mountSuspended(FulfillmentBatchCard, {
 			props: { batch: batch(), currencyCode: 'MYR' },
 		});
 
+		expect(wrapper.get('[data-testid="fulfillment-courier"]').text()).toBe('DHL');
+		expect(wrapper.get('[data-testid="fulfillment-tracking"]').text()).toContain('TRACK-1');
 		expect(wrapper.get('[data-testid="fulfillment-method"]').text()).toContain('Standard delivery');
 		expect(wrapper.get('[data-testid="fulfillment-fee"]').text()).toContain('8');
 		expect(wrapper.get('[data-testid="fulfillment-zone"]').text()).toBe('zone-1');
-		expect(wrapper.get('[data-testid="fulfillment-courier"]').text()).toBe('DHL');
-		expect(wrapper.get('[data-testid="fulfillment-tracking"]').text()).toBe('TRACK-1');
 		expect(wrapper.find('[data-testid="fulfillment-batch-number"]').exists()).toBe(false);
-		expect(wrapper.find('[data-testid="fulfillment-status-badges"]').exists()).toBe(false);
+		expect(wrapper.get('[data-testid="fulfillment-status-badges"]').findAllComponents({ name: 'UBadge' })).toHaveLength(2);
 		expect(wrapper.find('[data-testid^="fulfillment-action-"]').exists()).toBe(false);
 		expect(wrapper.find('[data-testid="fulfillment-created-at"]').exists()).toBe(false);
 		expect(wrapper.findComponent({ name: 'UPopover' }).exists()).toBe(true);
 		expect(wrapper.find('[data-testid="fulfillment-update-status"]').exists()).toBe(true);
 	});
 
-	it('shows the batch number and both statuses only when batch metadata is requested', async () => {
+	it('hides zone when empty and shows fallbacks for missing courier/tracking', async () => {
+		const wrapper = await mountSuspended(FulfillmentBatchCard, {
+			props: {
+				batch: batch({
+					courier_name: '',
+					tracking_no: '',
+					shipping_zone_id: '',
+					shipping_method: null,
+				}),
+			},
+		});
+
+		expect(wrapper.get('[data-testid="fulfillment-courier"]').text().length).toBeGreaterThan(0);
+		expect(wrapper.get('[data-testid="fulfillment-tracking"]').text().length).toBeGreaterThan(0);
+		expect(wrapper.find('[data-testid="fulfillment-zone"]').exists()).toBe(false);
+	});
+
+	it('shows the batch number when batch metadata is requested', async () => {
 		const wrapper = await mountSuspended(FulfillmentBatchCard, {
 			props: { batch: batch(), showBatchMeta: true },
 		});
