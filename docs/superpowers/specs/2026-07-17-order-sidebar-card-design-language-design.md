@@ -66,19 +66,19 @@ On narrow widths, stack left metadata above the fee so the fee does not squeeze 
 
 - Add header icon
 - Keep select + full-width Update Order Status button
-- Optionally show current order status as a small header badge (right side), similar to Payment’s Paid badge
+- Show current order status as a small header badge on the right (same role as Payment’s Paid badge)
 - No nested summary box (this card is an action form)
 
 ## Customer email
 
 - Keep envelope icon + title
 - Match Payment card shadow
-- Optionally wrap the ready-to-resend description in a light nested box for visual parity
+- Wrap the ready-to-resend description in a light nested box for visual parity with Payment/Shipping
 - Keep soft block Resend button and existing props/events
 
 ## Payment
 
-- Add banknotes (or currency) header icon beside the title
+- Add `i-heroicons-banknotes` header icon beside the title
 - Leave payment-item layout unchanged (it is the reference pattern)
 
 ## Out of scope
