@@ -2,7 +2,10 @@
 	<UCard class="payment-info-card">
 		<template #header>
 			<div class="card-header-sidebar">
-				<h3 class="sidebar-title">{{ $t('components.orderDetail.paymentInformation') }}</h3>
+				<h3 class="sidebar-title">
+					<UIcon name="i-heroicons-banknotes" class="w-5 h-5" />
+					{{ $t('components.orderDetail.paymentInformation') }}
+				</h3>
 				<UButton v-if="order?.payments?.length == 0" variant="ghost" size="xs" :icon="ICONS.ADD_OUTLINE" @click="addPaymentInfo" />
 				<div v-if="order?.payment_status === PaymentStatus.PAID" class="status-group">
 					<UBadge color="success" size="lg">

@@ -3,6 +3,7 @@ import { options_account_status, getAccountStatusOptions } from './account-statu
 import {
 	options_order_status,
 	getOrderStatusColor,
+	getOrderStatusOption,
 	getOrderStatusOptions,
 	ORDER_STATUS_FILTER_VALUES,
 	getDefaultOrderStatuses,
@@ -45,6 +46,7 @@ export {
 	getProductStatusOptions,
 	options_order_status,
 	getOrderStatusColor,
+	getOrderStatusOption,
 	getOrderStatusOptions,
 	ORDER_STATUS_FILTER_VALUES,
 	getDefaultOrderStatuses,

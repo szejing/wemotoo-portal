@@ -1,7 +1,15 @@
 <template>
 	<UCard class="status-management-card">
 		<template #header>
-			<h3 class="sidebar-title">{{ $t('components.orderDetail.orderStatus') }}</h3>
+			<div class="card-header-sidebar">
+				<h3 class="sidebar-title">
+					<UIcon name="i-heroicons-clipboard-document-check" class="w-5 h-5" />
+					{{ $t('components.orderDetail.orderStatus') }}
+				</h3>
+				<UBadge v-if="currentStatus" :color="statusBadgeColor" variant="subtle" size="sm" class="capitalize">
+					{{ statusBadgeLabel }}
+				</UBadge>
+			</div>
 		</template>
 
 		<div class="status-section">
@@ -15,9 +23,10 @@
 
 <script lang="ts" setup>
 import type { OrderStatus } from 'yeppi-common';
+import { getOrderStatusColor, getOrderStatusOption } from '~/utils/options';
 import { ICONS } from '~/utils/icons';
 
-defineProps<{
+const props = defineProps<{
 	currentStatus?: OrderStatus;
 	updating?: boolean;
 }>();
@@ -27,9 +36,24 @@ const emit = defineEmits<{
 }>();
 
 const status = defineModel<OrderStatus>('status', { required: true });
+const { t } = useI18n();
+
+const statusBadgeColor = computed(() => (props.currentStatus ? getOrderStatusColor(props.currentStatus) ?? 'neutral' : 'neutral'));
+const statusBadgeLabel = computed(() => {
+	if (!props.currentStatus) return '';
+	return getOrderStatusOption(t, props.currentStatus)?.label ?? props.currentStatus;
+});
 </script>
 
 <style scoped>
+.card-header-sidebar {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	gap: 0.75rem;
+	width: 100%;
+}
+
 .sidebar-title {
 	font-size: 1rem;
 	font-weight: 600;
@@ -37,6 +61,7 @@ const status = defineModel<OrderStatus>('status', { required: true });
 	display: flex;
 	align-items: center;
 	gap: 0.5rem;
+	min-width: 0;
 }
 
 .status-management-card {
