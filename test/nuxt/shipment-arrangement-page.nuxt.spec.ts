@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { mountSuspended } from '@nuxt/test-utils/runtime';
 import { flushPromises } from '@vue/test-utils';
-import ShipmentArrangementPage from '~/pages/operation/shipment-arrangement.vue';
+import ShipmentArrangementPage from '~/pages/orders/shipment-arrangement.vue';
 import { useShipmentArrangementStore } from '~/stores/ShipmentArrangement/ShipmentArrangement';
 import { useShippingMethodStore } from '~/stores/ShippingMethod/ShippingMethod';
 import { useAppUiStore } from '~/stores/AppUi/AppUi';

@@ -8,7 +8,7 @@
 - Browser-rendered mobile actions/table state: `/Users/szejinggo/Documents/Projects/ecommerce/wemotoo-portal/.superpowers/sdd/qa/shipment-arrangement-mobile-lower.png`
 - Full-view comparison: `/Users/szejinggo/Documents/Projects/ecommerce/wemotoo-portal/.superpowers/sdd/qa/shipment-arrangement-comparison.png`
 - Focused workflow/filter comparison: `/Users/szejinggo/Documents/Projects/ecommerce/wemotoo-portal/.superpowers/sdd/qa/shipment-arrangement-focus-workflow.png`
-- Route: `http://localhost:3000/operation/shipment-arrangement`
+- Canonical route: `http://localhost:3000/orders/shipment-arrangement` (the captured legacy route now redirects here).
 - Viewports: desktop 1440 x 1024; mobile 390 x 844.
 - State: authenticated-layout visual fixture with 24 pending batches and three representative rows. The fixture was used only for browser evidence and removed before completion; it is not part of the product code.
 

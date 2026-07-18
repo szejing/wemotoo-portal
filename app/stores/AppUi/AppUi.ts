@@ -34,11 +34,11 @@ const default_navigations = [
 				icon: ICONS.ORDER,
 				to: '/orders',
 				value: 'orders',
-				// children: [
-				// 	{ label: 'nav.orders', to: '/orders' },
-				// 	// Coming soon: { label: 'nav.payments', to: '/sales/payments' },
-				// 	// Coming soon: { label: 'nav.refunds', to: '/sales/refunds' },
-				// ],
+				children: [
+					{ label: 'nav.shipmentArrangement', icon: 'i-lucide-package-search', to: '/orders/shipment-arrangement' },
+					// Coming soon: { label: 'nav.payments', to: '/sales/payments' },
+					// Coming soon: { label: 'nav.refunds', to: '/sales/refunds' },
+				],
 			},
 			// {
 			// 	label: 'nav.notifications',
@@ -86,7 +86,6 @@ const default_navigations = [
 				to: '/operation',
 				value: 'operation',
 				children: [
-					{ label: 'nav.shipmentArrangement', icon: 'i-lucide-package-search', to: '/operation/shipment-arrangement' },
 					{ label: 'nav.staffs', to: '/operation/staff' },
 					{ label: 'nav.staffDepartments', to: '/operation/staff-departments' },
 					{ label: 'nav.outlets', to: '/operation/outlets' },
