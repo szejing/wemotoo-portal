@@ -29,8 +29,8 @@ export const useShipmentArrangementStore = defineStore('shipment-arrangement', (
 		...(paginate ? { $top: pageSize.value, $skip: (page.value - 1) * pageSize.value } : {}),
 		...(filters.search.trim() ? { $search: filters.search.trim() } : {}),
 		...(filters.shippingMethodId ? { shipping_method_id: filters.shippingMethodId } : {}),
-		...(filters.dateRange.start ? { start_date: filters.dateRange.start.toISOString().slice(0, 10) } : {}),
-		...(filters.dateRange.end ? { end_date: filters.dateRange.end.toISOString().slice(0, 10) } : {}),
+		...(filters.dateRange.start ? { start_date: `${filters.dateRange.start.getFullYear()}-${String(filters.dateRange.start.getMonth() + 1).padStart(2, '0')}-${String(filters.dateRange.start.getDate()).padStart(2, '0')}` } : {}),
+		...(filters.dateRange.end ? { end_date: `${filters.dateRange.end.getFullYear()}-${String(filters.dateRange.end.getMonth() + 1).padStart(2, '0')}-${String(filters.dateRange.end.getDate()).padStart(2, '0')}` } : {}),
 	});
 
 	const toApplyRow = (row: ShipmentArrangementPreviewRow): ShipmentArrangementApplyRow => ({

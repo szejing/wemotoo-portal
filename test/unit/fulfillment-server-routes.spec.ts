@@ -52,6 +52,17 @@ describe('Fulfillment server proxy routes', () => {
 		expect(previewSource).toContain('headers: generateImageHeaders(event, route)');
 	});
 
+	it('translates portal $search to the backend search query in arrangement list and export proxies', async () => {
+		for (const routeFile of ['index.get.ts', 'export.get.ts']) {
+			const file = Bun.file(new URL(`../../server/routes/merchant/fulfillment/arrangement/${routeFile}`, import.meta.url));
+			const source = await file.text();
+
+			expect(source, routeFile).toContain('const { $search, ...query } = getQuery(event);');
+			expect(source, routeFile).toContain('...($search ? { search: $search } : {})');
+			expect(source, routeFile).not.toContain('query: getQuery(event)');
+		}
+	});
+
 	it('does not expose a shipment route namespace or Nitro resource', async () => {
 		expect('Shipment' in Routes).toBe(false);
 		const legacyRoute = Bun.file(new URL('../../server/routes/merchant/shipment/index.get.ts', import.meta.url));

@@ -149,6 +149,7 @@ describe('FulfillmentModule', () => {
 		expect(uploadedFile).toBeInstanceOf(File);
 		expect((uploadedFile as File).name).toBe('shipments.xlsx');
 		expect(await (uploadedFile as File).text()).toBe('xlsx');
+		expect(lastFetch().opts.headers).toEqual({});
 	});
 
 	it('posts eligible shipment arrangement rows for apply', async () => {

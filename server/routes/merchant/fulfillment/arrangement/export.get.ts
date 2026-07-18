@@ -2,9 +2,10 @@ import { signedFetch } from '#root/server/base_api';
 import { Routes } from '#root/server/routes.server';
 
 export default defineEventHandler(async (event) => {
+	const { $search, ...query } = getQuery(event);
 	const result = await signedFetch(event, Routes.Fulfillment.Arrangement.Export(), {
 		method: 'GET',
-		query: getQuery(event),
+		query: { ...query, ...($search ? { search: $search } : {}) },
 		responseType: 'blob',
 	});
 	setHeader(event, 'Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');

@@ -172,6 +172,33 @@ describe('useShipmentArrangementStore', () => {
 		expect(store.loading).toBe(false);
 	});
 
+	it('formats local-midnight dates as their local calendar day', async () => {
+		const previousTimeZone = process.env.TZ;
+		process.env.TZ = 'Asia/Kuala_Lumpur';
+		try {
+			const store = useShipmentArrangementStore();
+			store.filters.dateRange = {
+				start: new Date(2026, 6, 18, 0, 0, 0),
+				end: new Date(2026, 6, 18, 0, 0, 0),
+			};
+
+			await store.fetchPending();
+
+			expect(getShipmentArrangement).toHaveBeenCalledWith({
+				$top: 15,
+				$skip: 0,
+				start_date: '2026-07-18',
+				end_date: '2026-07-18',
+			});
+		} finally {
+			if (previousTimeZone === undefined) {
+				delete process.env.TZ;
+			} else {
+				process.env.TZ = previousTimeZone;
+			}
+		}
+	});
+
 	it('resets preview and apply result together', async () => {
 		previewShipmentArrangement.mockResolvedValue(previewResponse);
 		const store = useShipmentArrangementStore();

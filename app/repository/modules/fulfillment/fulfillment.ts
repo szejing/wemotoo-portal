@@ -38,6 +38,7 @@ class FulfillmentModule extends HttpFactory {
 			method: 'POST',
 			url: this.RESOURCE.Arrangement.Preview(),
 			body,
+			headers: {},
 		});
 	}
 
