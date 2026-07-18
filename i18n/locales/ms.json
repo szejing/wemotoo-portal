@@ -78,7 +78,8 @@
 		"confirm": "Konfirmasi",
 		"select": "Pilih",
 		"apply": "Guna",
-		"phoneNo": "No. telefon"
+		"phoneNo": "No. telefon",
+		"close": "Tutup"
 	},
 	"form": {
 		"code": "Kod",
@@ -117,6 +118,7 @@
 		"productVouchers": "Baucar produk",
 		"automations": "Automasi",
 		"operation": "Operasi",
+		"shipmentArrangement": "Pengurusan Penghantaran",
 		"staffs": "Kakitangan",
 		"staffDepartments": "Jabatan Kakitangan",
 		"affiliates": "Ahli Gabungan",
@@ -144,6 +146,78 @@
 		"light": "Terang",
 		"dark": "Gelap",
 		"logOut": "Log keluar"
+	},
+	"shipmentArrangement": {
+		"title": "Pengurusan Penghantaran",
+		"subtitle": "Eksport kelompok belum dihantar, isi kurier dan nombor penjejakan, kemudian semak sebelum mengemas kini.",
+		"filters": {
+			"title": "Penapis penghantaran",
+			"searchLabel": "Carian",
+			"search": "Cari pesanan, kelompok atau penerima",
+			"shippingMethodLabel": "Kaedah penghantaran",
+			"shippingMethod": "Semua kaedah penghantaran",
+			"orderDate": "Tarikh pesanan"
+		},
+		"actions": {
+			"export": "Eksport belum selesai",
+			"import": "Import buku kerja"
+		},
+		"table": {
+			"title": "Kelompok penghantaran belum selesai",
+			"pendingTitle": "Kelompok belum selesai",
+			"pendingCount": "{count} kelompok menunggu butiran penghantaran",
+			"showing": "Menunjukkan {from} hingga {to} daripada {total} entri",
+			"row": "Baris",
+			"order": "Pesanan",
+			"batch": "Kelompok",
+			"ordered": "Tarikh pesanan",
+			"recipient": "Penerima",
+			"destination": "Destinasi",
+			"shippingMethod": "Kaedah penghantaran",
+			"courier": "Kurier",
+			"tracking": "No. penjejakan",
+			"result": "Keputusan"
+		},
+		"workflow": {
+			"title": "Aliran pengurusan penghantaran",
+			"exportTitle": "Eksport belum selesai",
+			"exportBody": "Muat turun {count} kelompok belum dihantar",
+			"downloadCount": "Muat turun {count} kelompok belum dihantar",
+			"fillTitle": "Isi kurier & nombor penjejakan",
+			"fillBody": "Kekalkan lajur buku kerja dan tambah butiran penghantaran.",
+			"importTitle": "Import & semak",
+			"importBody": "Pratonton ralat sebelum mengemas kini.",
+			"upload": "Muat naik fail lengkap",
+			"consequence": "Import yang sah menandakan kelompok sepadan sebagai Dihantar dan mungkin menghantar e-mel kepada pelanggan."
+		},
+		"preview": {
+			"title": "Semak kemas kini penghantaran",
+			"ready": "Sedia",
+			"warnings": "Amaran",
+			"errors": "Ralat",
+			"applyWarning": "Kemas kini akan menandakan kelompok yang layak sebagai Dihantar dan mungkin menghantar e-mel kepada pelanggan.",
+			"applyCount": "Kemas kini {count} penghantaran",
+			"failedTitle": "Kemas kini penghantaran tidak dapat digunakan",
+			"applyResultTitle": "Keputusan kemas kini penghantaran",
+			"applyResult": "{updated} penghantaran dikemas kini · {failed} gagal",
+			"rowStatus": {
+				"valid": "Sedia",
+				"warning": "Amaran",
+				"error": "Ralat"
+			}
+		},
+		"states": {
+			"loadErrorTitle": "Kelompok belum selesai tidak dapat dimuatkan",
+			"uploadErrorTitle": "Pratonton buku kerja gagal",
+			"invalidFile": "Pilih buku kerja XLSX untuk meneruskan.",
+			"emptyTitle": "Tiada kelompok belum selesai",
+			"emptyDescription": "Tiada kelompok penghantaran yang menunggu butiran kurier dan penjejakan."
+		},
+		"notifications": {
+			"exported": "Kelompok penghantaran belum selesai dieksport",
+			"applied": "{count} penghantaran dikemas kini",
+			"partial": "{updated} penghantaran dikemas kini; {failed} gagal"
+		}
 	},
 	"affiliate": {
 		"addAffiliate": "Tambah Ahli Gabungan",

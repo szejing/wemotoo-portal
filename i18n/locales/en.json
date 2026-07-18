@@ -78,7 +78,8 @@
 		"confirm": "Confirm",
 		"select": "Select",
 		"apply": "Apply",
-		"phoneNo": "Phone No"
+		"phoneNo": "Phone No",
+		"close": "Close"
 	},
 	"form": {
 		"code": "Code",
@@ -117,6 +118,7 @@
 		"productVouchers": "Product vouchers",
 		"automations": "Automations",
 		"operation": "Operation",
+		"shipmentArrangement": "Shipment Arrangement",
 		"staffs": "Staff",
 		"staffDepartments": "Staff Departments",
 		"affiliates": "Affiliates",
@@ -144,6 +146,78 @@
 		"light": "Light",
 		"dark": "Dark",
 		"logOut": "Log out"
+	},
+	"shipmentArrangement": {
+		"title": "Shipment Arrangement",
+		"subtitle": "Export pending batches, add courier details and tracking numbers, then review before updating.",
+		"filters": {
+			"title": "Shipment filters",
+			"searchLabel": "Search",
+			"search": "Search order, batch or recipient",
+			"shippingMethodLabel": "Delivery method",
+			"shippingMethod": "All shipping methods",
+			"orderDate": "Order date"
+		},
+		"actions": {
+			"export": "Export pending",
+			"import": "Import workbook"
+		},
+		"table": {
+			"title": "Pending shipment batches",
+			"pendingTitle": "Pending batches",
+			"pendingCount": "{count} batches waiting for shipment details",
+			"showing": "Showing {from} to {to} of {total} entries",
+			"row": "Row",
+			"order": "Order",
+			"batch": "Batch",
+			"ordered": "Ordered",
+			"recipient": "Recipient",
+			"destination": "Destination",
+			"shippingMethod": "Shipping method",
+			"courier": "Courier",
+			"tracking": "Tracking no.",
+			"result": "Result"
+		},
+		"workflow": {
+			"title": "Shipment arrangement workflow",
+			"exportTitle": "Export pending",
+			"exportBody": "Download {count} pending batches",
+			"downloadCount": "Download {count} pending batches",
+			"fillTitle": "Fill courier & tracking",
+			"fillBody": "Keep the workbook columns and add shipment details.",
+			"importTitle": "Import & review",
+			"importBody": "Preview errors before updating.",
+			"upload": "Upload completed file",
+			"consequence": "A valid import marks matching batches as Shipped and may send customer emails."
+		},
+		"preview": {
+			"title": "Review shipment updates",
+			"ready": "Ready",
+			"warnings": "Warnings",
+			"errors": "Errors",
+			"applyWarning": "Applying updates marks eligible batches as Shipped and may email customers.",
+			"applyCount": "Update {count} shipments",
+			"failedTitle": "Shipment updates could not be applied",
+			"applyResultTitle": "Shipment update result",
+			"applyResult": "{updated} shipment updated · {failed} failed",
+			"rowStatus": {
+				"valid": "Ready",
+				"warning": "Warning",
+				"error": "Error"
+			}
+		},
+		"states": {
+			"loadErrorTitle": "Pending batches could not be loaded",
+			"uploadErrorTitle": "Workbook could not be previewed",
+			"invalidFile": "Select an XLSX workbook to continue.",
+			"emptyTitle": "No pending batches",
+			"emptyDescription": "There are no shipment batches waiting for courier and tracking details."
+		},
+		"notifications": {
+			"exported": "Pending shipment batches exported",
+			"applied": "{count} shipments updated",
+			"partial": "{updated} shipments updated; {failed} failed"
+		}
 	},
 	"affiliate": {
 		"addAffiliate": "Add Affiliate",

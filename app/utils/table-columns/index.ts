@@ -34,6 +34,7 @@ import { getCourierColumns } from './courier';
 import { getStaffDepartmentColumns } from './staff-department';
 import { getNotificationColumns } from './notification';
 import { ACTIVITY_LOG_COLUMN_LABELS, getActivityLogColumns } from './activity-log';
+import { getShipmentArrangementColumns, getShipmentArrangementPreviewColumns } from './shipment-arrangement';
 import type { SummBillTableRow, SummCountKey, SummCustomerVariant, SummItemRow } from './analytics/types';
 
 export {
@@ -78,6 +79,8 @@ export {
 	getNotificationColumns,
 	ACTIVITY_LOG_COLUMN_LABELS,
 	getActivityLogColumns,
+	getShipmentArrangementColumns,
+	getShipmentArrangementPreviewColumns,
 	SUMM_PAYMENT_COLUMN_LABELS,
 };
 

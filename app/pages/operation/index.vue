@@ -34,6 +34,7 @@ const operationGroups = computed(() => [
 		icon: ICONS.USER_GROUP_ROUNDED,
 		color: 'blue' as const,
 		items: [
+			{ label: t('nav.shipmentArrangement'), to: '/operation/shipment-arrangement' },
 			{ label: t('nav.staffs'), to: '/operation/staff' },
 			// { label: t('nav.staffDepartments'), to: '/operation/staff-departments' },
 			{ label: t('nav.outlets'), to: '/operation/outlets' },
