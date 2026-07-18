@@ -29,4 +29,20 @@ describe('buildOrderStatusODataFilter', () => {
 			}),
 		).toBe(`status eq '${OrderStatus.PENDING_PAYMENT}' and payment_status eq '${PaymentStatus.PENDING}'`);
 	});
+
+	it('excludes completed when excludeCompleted is true', () => {
+		expect(buildOrderStatusODataFilter(getDefaultOrderStatuses(), { excludeCompleted: true })).toBe(
+			`status ne '${OrderStatus.COMPLETED}'`,
+		);
+	});
+
+	it('appends excludeCompleted to a status in filter', () => {
+		expect(
+			buildOrderStatusODataFilter([OrderStatus.PENDING_PAYMENT, OrderStatus.PROCESSING], {
+				excludeCompleted: true,
+			}),
+		).toBe(
+			`status in ('${OrderStatus.PENDING_PAYMENT}', '${OrderStatus.PROCESSING}') and status ne '${OrderStatus.COMPLETED}'`,
+		);
+	});
 });

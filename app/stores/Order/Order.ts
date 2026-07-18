@@ -78,12 +78,13 @@ export const useOrderStore = defineStore('orderStore', {
 			this.getOrders();
 		},
 
-		async getOrders(range?: Range) {
+		async getOrders(range?: Range, options?: { excludeCompleted?: boolean }) {
 			this.loading = true;
 			const { $api } = useNuxtApp();
 			try {
 				let filter = buildOrderStatusODataFilter(this.filter.statuses, {
 					payment_method: this.filter.payment_method,
+					excludeCompleted: options?.excludeCompleted,
 				});
 
 				if (this.filter.payment_status) {
