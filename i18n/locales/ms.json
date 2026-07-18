@@ -992,7 +992,8 @@
 			"profile_updated": "Profil dikemas kini",
 			"login": "Log masuk",
 			"logout": "Log keluar",
-			"relogin": "Log masuk semula"
+			"relogin": "Log masuk semula",
+			"email_sent": "E-mel dihantar"
 		},
 		"activityLogActorType": {
 			"admin": "Admin",

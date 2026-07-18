@@ -111,8 +111,10 @@ export const useActivityLogStore = defineStore('activityLogStore', {
 					queryParams.$filter = filter;
 				}
 
-				if (this.filter.query) {
-					queryParams.$search = this.filter.query;
+				const search = this.filter.query.trim();
+				if (search) {
+					// Strip optional leading # so copied order refs like #1707… match ref_no/entity_id too.
+					queryParams.$search = search.replace(/^#+/, '');
 				}
 
 				const { data, '@odata.count': total } = await $api.activityLog.getMany(queryParams);

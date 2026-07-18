@@ -14,7 +14,8 @@ export type ActivityLogAction =
 	| 'profile_updated'
 	| 'login'
 	| 'logout'
-	| 'relogin';
+	| 'relogin'
+	| 'email_sent';
 
 export type ActivityLogActorType = 'admin' | 'customer' | 'system' | 'webhook';
 

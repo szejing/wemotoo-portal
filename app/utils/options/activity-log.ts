@@ -21,6 +21,7 @@ export const activityLogActions: ActivityLogAction[] = [
 	'login',
 	'logout',
 	'relogin',
+	'email_sent',
 ];
 
 export const activityLogActorTypes: ActivityLogActorType[] = ['admin', 'customer', 'system', 'webhook'];

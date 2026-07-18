@@ -993,7 +993,8 @@
 			"profile_updated": "Profile updated",
 			"login": "Login",
 			"logout": "Logout",
-			"relogin": "Relogin"
+			"relogin": "Relogin",
+			"email_sent": "Email sent"
 		},
 		"activityLogActorType": {
 			"admin": "Admin",
