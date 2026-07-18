@@ -257,7 +257,7 @@ const updatePageSize = async (size: number): Promise<void> => {
 watch(
 	() => store.page,
 	() => {
-		if (!resettingFilters.value) void refreshPending();
+		if (!resettingFilters.value && !applying.value) void refreshPending();
 	},
 );
 

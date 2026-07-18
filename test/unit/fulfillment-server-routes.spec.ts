@@ -1,7 +1,43 @@
 import { describe, expect, it } from 'bun:test';
 import { Routes } from '../../server/routes.server';
+import {
+	MAX_SHIPMENT_WORKBOOK_REQUEST_SIZE,
+	validateShipmentWorkbookRequestLength,
+} from '../../server/utils/shipment-arrangement-upload';
 
 describe('Fulfillment server proxy routes', () => {
+	it('requires a bounded, valid Content-Length before parsing shipment workbooks', () => {
+		for (const [contentLength, transferEncoding] of [
+			[undefined, undefined],
+			[undefined, 'chunked'],
+			['1024', 'gzip, chunked'],
+		] as const) {
+			expect(validateShipmentWorkbookRequestLength(contentLength, transferEncoding)).toEqual({
+				ok: false,
+				statusCode: 411,
+				statusMessage: 'Content-Length is required',
+			});
+		}
+
+		for (const contentLength of ['', 'abc', '1024, 1024', '0', '-1', '1.5', String(Number.MAX_SAFE_INTEGER + 1)]) {
+			expect(validateShipmentWorkbookRequestLength(contentLength)).toEqual({
+				ok: false,
+				statusCode: 400,
+				statusMessage: 'Content-Length must be a positive safe integer',
+			});
+		}
+
+		expect(validateShipmentWorkbookRequestLength(String(MAX_SHIPMENT_WORKBOOK_REQUEST_SIZE))).toEqual({
+			ok: true,
+			contentLength: MAX_SHIPMENT_WORKBOOK_REQUEST_SIZE,
+		});
+		expect(validateShipmentWorkbookRequestLength(String(MAX_SHIPMENT_WORKBOOK_REQUEST_SIZE + 1))).toEqual({
+			ok: false,
+			statusCode: 413,
+			statusMessage: 'Shipment workbook must not exceed 5 MB',
+		});
+	});
+
 	it('maps arrangement and lifecycle operations to the fulfillment UUID', () => {
 		expect(Routes.Fulfillment.Update('batch-uuid')).toBe('fulfillment/batch-uuid');
 		expect(Routes.Fulfillment.MarkProcessing('batch-uuid')).toBe('fulfillment/batch-uuid/processing');
@@ -57,8 +93,7 @@ describe('Fulfillment server proxy routes', () => {
 		const previewSource = await previewFile.text();
 
 		expect(previewSource).toContain("getRequestHeader(event, 'content-length')");
-		expect(previewSource).toContain('const MAX_SHIPMENT_WORKBOOK_REQUEST_SIZE = MAX_SHIPMENT_WORKBOOK_SIZE + 64 * 1024;');
-		expect(previewSource).toContain('contentLength > MAX_SHIPMENT_WORKBOOK_REQUEST_SIZE');
+		expect(previewSource).toContain('validateShipmentWorkbookRequestLength(');
 		expect(previewSource).toContain('file.size > MAX_SHIPMENT_WORKBOOK_SIZE');
 		expect(previewSource).toContain('statusCode: 413');
 		expect(previewSource).toContain('Shipment workbook must not exceed 5 MB');

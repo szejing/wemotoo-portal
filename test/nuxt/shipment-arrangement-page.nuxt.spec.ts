@@ -212,4 +212,25 @@ describe('ShipmentArrangementPage', () => {
 		expect(useAppUiStore().toastNotification).toMatchObject({ color: 'error', description: '1 shipments updated; 1 failed' });
 		wrapper.unmount();
 	});
+
+	it('does not refetch from the page watcher when apply owns a clamped-page refresh', async () => {
+		const store = useShipmentArrangementStore();
+		const fetchPending = vi.spyOn(store, 'fetchPending').mockResolvedValue();
+		store.preview = { total: 1, valid: 1, warnings: 0, errors: 0, rows: [] };
+		store.page = 3;
+		vi.spyOn(store, 'applyPreview').mockImplementation(async () => {
+			store.page = 2;
+			await nextTick();
+			store.applyResult = { total: 1, updated: 1, failed: 0, errors: [] };
+		});
+		mockShippingOptions();
+		const wrapper = await mountPage();
+		fetchPending.mockClear();
+
+		wrapper.findComponent({ name: 'ShipmentArrangementImportPreviewModal' }).vm.$emit('apply');
+		await flushPromises();
+
+		expect(fetchPending).not.toHaveBeenCalled();
+		wrapper.unmount();
+	});
 });

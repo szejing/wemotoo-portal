@@ -1,10 +1,11 @@
 import { generateImageHeaders } from '#root/server/base_api';
 import { Routes } from '#root/server/routes.server';
+import {
+	MAX_SHIPMENT_WORKBOOK_SIZE,
+	validateShipmentWorkbookRequestLength,
+} from '#root/server/utils/shipment-arrangement-upload';
 import { KEY } from 'yeppi-common';
 
-const MAX_SHIPMENT_WORKBOOK_SIZE = 5 * 1024 * 1024;
-// Allow bounded multipart boundary/header overhead while enforcing the exact file limit below.
-const MAX_SHIPMENT_WORKBOOK_REQUEST_SIZE = MAX_SHIPMENT_WORKBOOK_SIZE + 64 * 1024;
 const INVALID_WORKBOOK_MESSAGE = 'An XLSX shipment workbook is required';
 const WORKBOOK_TOO_LARGE_MESSAGE = 'Shipment workbook must not exceed 5 MB';
 
@@ -14,9 +15,12 @@ export default defineEventHandler(async (event) => {
 	if (!contentType?.toLowerCase().startsWith('multipart/form-data')) {
 		throw createError({ statusCode: 400, statusMessage: INVALID_WORKBOOK_MESSAGE });
 	}
-	const contentLength = Number(getRequestHeader(event, 'content-length') ?? 0);
-	if (Number.isFinite(contentLength) && contentLength > MAX_SHIPMENT_WORKBOOK_REQUEST_SIZE) {
-		throw createError({ statusCode: 413, statusMessage: WORKBOOK_TOO_LARGE_MESSAGE });
+	const requestLength = validateShipmentWorkbookRequestLength(
+		getRequestHeader(event, 'content-length'),
+		getRequestHeader(event, 'transfer-encoding'),
+	);
+	if (!requestLength.ok) {
+		throw createError({ statusCode: requestLength.statusCode, statusMessage: requestLength.statusMessage });
 	}
 	let incoming: FormData;
 	try {
