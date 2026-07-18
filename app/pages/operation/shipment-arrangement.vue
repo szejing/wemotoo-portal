@@ -28,6 +28,7 @@
 						<span>{{ $t('shipmentArrangement.filters.shippingMethodLabel') }}</span>
 						<USelectMenu
 							v-model="store.filters.shippingMethodId"
+							data-testid="shipping-method-filter"
 							class="w-full"
 							:items="shippingMethodOptions"
 							value-key="value"
@@ -39,6 +40,16 @@
 						<ZDateRange v-model="store.filters.dateRange" hide-presets />
 					</div>
 					<div class="flex flex-col gap-2 sm:flex-row xl:justify-end">
+						<UButton
+							data-testid="clear-filters"
+							class="min-h-11 justify-center"
+							color="neutral"
+							variant="ghost"
+							icon="i-lucide-eraser"
+							:label="$t('shipmentArrangement.actions.clearFilters')"
+							:aria-label="$t('shipmentArrangement.actions.clearFilters')"
+							@click="clearFilters"
+						/>
 						<UButton
 							data-testid="export-pending"
 							class="min-h-11 justify-center"
@@ -114,6 +125,7 @@ import { options_page_size } from '~/utils/options';
 import { getShipmentArrangementColumns } from '~/utils/table-columns';
 import { columnOptionsFromLabelMap } from '~/utils/table-columns/visibility';
 import { failedNotification, successNotification } from '~/stores/AppUi/AppUi';
+import type { ShippingMethodOption } from '~/utils/types/order-fulfillment-shipping';
 
 const SHIPMENT_ARRANGEMENT_COLUMN_LABELS = {
 	order_no: 'shipmentArrangement.table.order',
@@ -135,13 +147,16 @@ const applying = ref(false);
 const pageError = ref<string>();
 const uploadError = ref<string>();
 const applyError = ref<string>();
+const activeShippingMethods = ref<ShippingMethodOption[]>([]);
+const resettingFilters = ref(false);
 
 const columns = computed(() => getShipmentArrangementColumns(t));
 const columnOptions = computed(() => columnOptionsFromLabelMap(t, SHIPMENT_ARRANGEMENT_COLUMN_LABELS));
 const { selectedColumnKeys, visibleColumns } = useTableColumnVisibility(columns, columnOptions);
-const shippingMethodOptions = computed(() =>
-	shippingStore.methods.filter((method) => method.is_active).map((method) => ({ label: method.description, value: method.id })),
-);
+const shippingMethodOptions = computed(() => [
+	{ label: t('shipmentArrangement.filters.shippingMethod'), value: undefined },
+	...activeShippingMethods.value.map((method) => ({ label: method.description, value: method.id })),
+]);
 const firstVisibleRow = computed(() => (store.total === 0 ? 0 : (store.page - 1) * store.pageSize + 1));
 const lastVisibleRow = computed(() => Math.min(store.page * store.pageSize, store.total));
 
@@ -154,6 +169,17 @@ const refreshPending = async (): Promise<void> => {
 	} catch (error) {
 		pageError.value = error instanceof Error ? error.message : String(error);
 	}
+};
+
+const clearFilters = async (): Promise<void> => {
+	resettingFilters.value = true;
+	store.filters.search = '';
+	store.filters.shippingMethodId = undefined;
+	store.filters.dateRange = { start: undefined, end: undefined };
+	store.page = 1;
+	await nextTick();
+	resettingFilters.value = false;
+	await refreshPending();
 };
 
 const exportPending = async (): Promise<void> => {
@@ -228,21 +254,32 @@ const updatePageSize = async (size: number): Promise<void> => {
 
 watch(
 	() => store.page,
-	() => refreshPending(),
+	() => {
+		if (!resettingFilters.value) void refreshPending();
+	},
 );
+
+const refreshForFilterChange = useDebounceFn(() => {
+	if (store.page !== 1) {
+		store.page = 1;
+		return;
+	}
+	void refreshPending();
+}, 300);
 
 watch(
 	() => [store.filters.search, store.filters.shippingMethodId, store.filters.dateRange.start, store.filters.dateRange.end],
-	useDebounceFn(() => {
-		if (store.page !== 1) {
-			store.page = 1;
-			return;
-		}
-		void refreshPending();
-	}, 300),
+	() => {
+		if (!resettingFilters.value) void refreshForFilterChange();
+	},
 );
 
 onMounted(async () => {
-	await Promise.all([refreshPending(), shippingStore.getShippingMethods()]);
+	await Promise.all([
+		refreshPending(),
+		shippingStore.fetchActiveShippingMethodOptions().then((methods) => {
+			activeShippingMethods.value = methods;
+		}),
+	]);
 });
 </script>

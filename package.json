@@ -78,7 +78,8 @@
 		"eslint": "^10.4.1",
 		"happy-dom": "^20.10.2",
 		"tailwindcss": "4.3.0",
-		"vitest": "^4.1.8"
+		"vitest": "^4.1.8",
+		"vue-tsc": "^3.3.7"
 	},
 	"module": "index.ts",
 	"peerDependencies": {

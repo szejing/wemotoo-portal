@@ -49,7 +49,7 @@
 
 		<template #footer>
 			<div class="flex w-full flex-col-reverse gap-2 sm:flex-row sm:justify-end">
-				<UButton class="min-h-11 justify-center" color="neutral" variant="ghost" :label="applyResult ? $t('common.close') : $t('common.cancel')" @click="open = false" />
+				<UButton class="min-h-11 justify-center" color="neutral" variant="ghost" :label="applyResult ? $t('common.close') : $t('common.cancel')" @click="() => { open = false; }" />
 				<UButton
 					v-if="!applyResult"
 					data-testid="apply-shipments"

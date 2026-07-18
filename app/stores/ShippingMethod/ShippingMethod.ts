@@ -105,6 +105,24 @@ export const useShippingMethodStore = defineStore('shippingMethodStore', {
 			}
 		},
 
+		async fetchActiveShippingMethodOptions(): Promise<ShippingMethodOption[]> {
+			const { $api } = useNuxtApp();
+
+			try {
+				const resp = await $api.shippingMethod.getMany({
+					$top: 100,
+					$count: true,
+					$filter: 'is_active eq true',
+					$orderby: 'priority desc,description asc',
+				});
+				return (resp.data ?? resp.value ?? []).filter((method) => method.is_active);
+			} catch (err: unknown | ErrorResponse) {
+				const message = (err as ErrorResponse).message ?? 'Failed to load shipping methods';
+				failedNotification(message);
+				throw err;
+			}
+		},
+
 		async loadMoreShippingMethods() {
 			if (this.loading || this.methods.length >= this.total_shipping_methods) return;
 

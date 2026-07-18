@@ -159,6 +159,7 @@
 			"orderDate": "Order date"
 		},
 		"actions": {
+			"clearFilters": "Clear filters",
 			"export": "Export pending",
 			"import": "Import workbook"
 		},

@@ -159,6 +159,7 @@
 			"orderDate": "Tarikh pesanan"
 		},
 		"actions": {
+			"clearFilters": "Kosongkan penapis",
 			"export": "Eksport belum selesai",
 			"import": "Import buku kerja"
 		},

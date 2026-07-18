@@ -221,27 +221,29 @@ describe('fulfillment/shipping stores', () => {
 		expect(successNotification).toHaveBeenCalled();
 	});
 
-	it('fetches all shipping methods without replacing paginated listing', async () => {
-		apiMock.shippingMethod.getMany
-			.mockResolvedValueOnce({
-				data: [{ id: 1, description: 'Standard', priority: 1, is_active: true }],
-				count: 1,
-			})
-			.mockResolvedValueOnce({
-				data: [
-					{ id: 1, description: 'Standard', priority: 1, is_active: true },
-					{ id: 2, description: 'Express', priority: 2, is_active: true },
-				],
-				count: 2,
-			});
+	it('fetches active picker options without replacing or reusing paginated listing state', async () => {
+		apiMock.shippingMethod.getMany.mockResolvedValue({
+			data: [
+				{ id: 2, description: 'Express', priority: 2, is_active: true },
+				{ id: 1, description: 'Standard', priority: 1, is_active: true },
+			],
+			count: 2,
+		});
 		const store = useShippingMethodStore();
-		await store.getShippingMethods();
-		expect(store.methods).toHaveLength(1);
+		store.methods = [{ id: 9, description: 'Stale inactive listing row', priority: 9, is_active: false }];
+		store.filter = { query: 'stale search', status: 'inactive', current_page: 4, page_size: 15 };
 
-		const all = await store.fetchAllShippingMethods();
+		const options = await store.fetchActiveShippingMethodOptions();
 
-		expect(all).toHaveLength(2);
-		expect(store.methods).toHaveLength(1);
+		expect(options.map((method) => method.id)).toEqual([2, 1]);
+		expect(apiMock.shippingMethod.getMany).toHaveBeenCalledWith({
+			$top: 100,
+			$count: true,
+			$filter: 'is_active eq true',
+			$orderby: 'priority desc,description asc',
+		});
+		expect(store.methods.map((method) => method.id)).toEqual([9]);
+		expect(store.filter).toEqual({ query: 'stale search', status: 'inactive', current_page: 4, page_size: 15 });
 	});
 
 	it('resolves active fulfillment methods for the address without reusing listing state', async () => {
