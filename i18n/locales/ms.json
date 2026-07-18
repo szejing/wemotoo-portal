@@ -210,7 +210,7 @@
 		"states": {
 			"loadErrorTitle": "Kelompok belum selesai tidak dapat dimuatkan",
 			"uploadErrorTitle": "Pratonton buku kerja gagal",
-			"invalidFile": "Pilih buku kerja XLSX untuk meneruskan.",
+			"invalidFile": "Pilih buku kerja XLSX atau Numbers untuk meneruskan.",
 			"emptyTitle": "Tiada kelompok belum selesai",
 			"emptyDescription": "Tiada kelompok penghantaran yang menunggu butiran kurier dan penjejakan."
 		},

@@ -32,6 +32,7 @@
 					<UInput v-model="state.password" :type="state.show ? 'text' : 'password'">
 						<template v-if="state.password?.length" #trailing>
 							<UButton
+								type="button"
 								color="neutral"
 								variant="link"
 								size="sm"
@@ -39,7 +40,7 @@
 								:aria-label="state.show ? $t('common.hidePassword') : $t('common.showPassword')"
 								:aria-pressed="state.show"
 								aria-controls="password"
-								@click="state.show = !state.show"
+								@click="togglePasswordVisibility"
 							/>
 						</template>
 					</UInput>
@@ -95,9 +96,26 @@ const loadStoredMerchantId = () => {
 const authStore = useAuthStore();
 const { loading, serverReachabilityError } = storeToRefs(authStore);
 
+const HEARTBEAT_INTERVAL_MS = 5_000;
+let heartbeatTimer: ReturnType<typeof setInterval> | null = null;
+
+const togglePasswordVisibility = () => {
+	state.show = !state.show;
+};
+
 onMounted(() => {
 	loadStoredMerchantId();
 	void authStore.checkHeartbeat();
+	heartbeatTimer = setInterval(() => {
+		void authStore.checkHeartbeat();
+	}, HEARTBEAT_INTERVAL_MS);
+});
+
+onUnmounted(() => {
+	if (heartbeatTimer) {
+		clearInterval(heartbeatTimer);
+		heartbeatTimer = null;
+	}
 });
 
 const setMerchantId = (value: string | undefined) => {

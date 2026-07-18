@@ -6,7 +6,7 @@ import {
 } from '#root/server/utils/shipment-arrangement-upload';
 import { KEY } from 'yeppi-common';
 
-const INVALID_WORKBOOK_MESSAGE = 'An XLSX shipment workbook is required';
+const INVALID_WORKBOOK_MESSAGE = 'An XLSX or Numbers shipment workbook is required';
 const WORKBOOK_TOO_LARGE_MESSAGE = 'Shipment workbook must not exceed 5 MB';
 
 export default defineEventHandler(async (event) => {
@@ -29,7 +29,8 @@ export default defineEventHandler(async (event) => {
 		throw createError({ statusCode: 400, statusMessage: INVALID_WORKBOOK_MESSAGE });
 	}
 	const file = incoming.get('file');
-	if (!(file instanceof File) || !file.name.toLowerCase().endsWith('.xlsx')) {
+	const lowerName = file instanceof File ? file.name.toLowerCase() : '';
+	if (!(file instanceof File) || (!lowerName.endsWith('.xlsx') && !lowerName.endsWith('.numbers'))) {
 		throw createError({ statusCode: 400, statusMessage: INVALID_WORKBOOK_MESSAGE });
 	}
 	if (file.size > MAX_SHIPMENT_WORKBOOK_SIZE) {

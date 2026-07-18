@@ -20,6 +20,12 @@ export default defineConfig({
 	test: {
 		projects: [
 			{
+				resolve: {
+					alias: {
+						'~': fileURLToPath(new URL('./app', import.meta.url)),
+						'@': fileURLToPath(new URL('./app', import.meta.url)),
+					},
+				},
 				test: {
 					name: 'unit',
 					include: ['test/unit/**/*.{test,spec}.ts'],

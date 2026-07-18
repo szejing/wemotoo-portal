@@ -97,7 +97,8 @@ describe('Fulfillment server proxy routes', () => {
 		expect(previewSource).toContain('file.size > MAX_SHIPMENT_WORKBOOK_SIZE');
 		expect(previewSource).toContain('statusCode: 413');
 		expect(previewSource).toContain('Shipment workbook must not exceed 5 MB');
-		expect(previewSource).toContain('An XLSX shipment workbook is required');
+		expect(previewSource).toContain('An XLSX or Numbers shipment workbook is required');
+		expect(previewSource).toContain(".endsWith('.numbers')");
 	});
 
 	it('translates portal $search to the backend search query in arrangement list and export proxies', async () => {

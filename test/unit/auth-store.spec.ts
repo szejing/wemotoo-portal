@@ -38,6 +38,18 @@ vi.mock('~/stores/AppUi/AppUi', () => ({
 	}),
 }));
 
+vi.mock('../../app/utils/auth/merchant-id', () => ({
+	ensureMerchantIdCookie: vi.fn(),
+	resolveSessionMerchantId: vi.fn((value: string | null | undefined) => value?.trim() ?? ''),
+	writeWmidToStorage: vi.fn(),
+}));
+
+vi.mock('~/utils/auth/merchant-id', () => ({
+	ensureMerchantIdCookie: vi.fn(),
+	resolveSessionMerchantId: vi.fn((value: string | null | undefined) => value?.trim() ?? ''),
+	writeWmidToStorage: vi.fn(),
+}));
+
 describe('useAuthStore', () => {
 	let useAuthStore: typeof import('../../app/stores/Auth/Auth').useAuthStore;
 
@@ -96,5 +108,29 @@ describe('useAuthStore', () => {
 				description: 'Please check your connection or try again later.',
 			}),
 		);
+	});
+
+	it('toasts only once while heartbeat keeps failing', async () => {
+		apiMock.auth.heartbeat.mockRejectedValue(new Error('fetch failed'));
+
+		const store = useAuthStore();
+		await store.checkHeartbeat();
+		await store.checkHeartbeat();
+		await store.checkHeartbeat();
+
+		expect(store.serverReachabilityError).toBe(true);
+		expect(showToast).toHaveBeenCalledTimes(1);
+	});
+
+	it('clears server reachability error after a successful heartbeat', async () => {
+		apiMock.auth.heartbeat.mockRejectedValueOnce(new Error('fetch failed')).mockResolvedValueOnce({ status: 'ok' });
+
+		const store = useAuthStore();
+		await store.checkHeartbeat();
+		expect(store.serverReachabilityError).toBe(true);
+
+		const success = await store.checkHeartbeat();
+		expect(success).toBe(true);
+		expect(store.serverReachabilityError).toBe(false);
 	});
 });

@@ -50,8 +50,26 @@ describe('ShipmentArrangementPage', () => {
 
 		expect(fetchPending).toHaveBeenCalledTimes(1);
 		expect(store.filters.dateRange).toEqual({ start: undefined, end: undefined });
+		expect(wrapper.get('input[type="file"]').attributes('accept')).toBe('.xlsx,.numbers');
 
 		const file = new File(['xlsx'], 'shipments.xlsx', { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+		const input = wrapper.get('input[type="file"]');
+		Object.defineProperty(input.element, 'files', { value: [file], configurable: true });
+		await input.trigger('change');
+
+		expect(previewFile).toHaveBeenCalledWith(file);
+		expect(wrapper.findComponent({ name: 'ShipmentArrangementImportPreviewModal' }).props('modelValue')).toBe(true);
+		wrapper.unmount();
+	});
+
+	it('previews a selected Numbers workbook', async () => {
+		const store = useShipmentArrangementStore();
+		vi.spyOn(store, 'fetchPending').mockResolvedValue();
+		const previewFile = vi.spyOn(store, 'previewFile').mockResolvedValue();
+		mockShippingOptions();
+
+		const wrapper = await mountPage();
+		const file = new File(['numbers'], 'shipments.numbers', { type: 'application/vnd.apple.numbers' });
 		const input = wrapper.get('input[type="file"]');
 		Object.defineProperty(input.element, 'files', { value: [file], configurable: true });
 		await input.trigger('change');

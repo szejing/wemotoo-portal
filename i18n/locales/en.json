@@ -210,7 +210,7 @@
 		"states": {
 			"loadErrorTitle": "Pending batches could not be loaded",
 			"uploadErrorTitle": "Workbook could not be previewed",
-			"invalidFile": "Select an XLSX workbook to continue.",
+			"invalidFile": "Select an XLSX or Numbers workbook to continue.",
 			"emptyTitle": "No pending batches",
 			"emptyDescription": "There are no shipment batches waiting for courier and tracking details."
 		},

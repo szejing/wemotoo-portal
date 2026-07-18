@@ -1,6 +1,5 @@
 import { defineStore } from 'pinia';
 import { KEY } from 'yeppi-common';
-import { useMerchantInfoStore } from '~/stores/MerchantInfo/MerchantInfo';
 import { useAppStore } from '~/stores/App';
 import { useAppUiStore } from '~/stores/AppUi/AppUi';
 import { ensureMerchantIdCookie, resolveSessionMerchantId, writeWmidToStorage } from '~/utils/auth/merchant-id';
@@ -25,13 +24,17 @@ export const useAuthStore = defineStore('authStore', {
 				this.serverReachabilityError = false;
 				return true;
 			} catch {
+				const alreadyUnreachable = this.serverReachabilityError;
 				this.serverReachabilityError = true;
-				appUiStore.showToast({
-					color: 'error',
-					icon: ICONS.ERROR_OUTLINE,
-					title: 'Unable to reach server',
-					description: 'Please check your connection or try again later.',
-				});
+				// Avoid toast spam when login page polls every 5s
+				if (!alreadyUnreachable) {
+					appUiStore.showToast({
+						color: 'error',
+						icon: ICONS.ERROR_OUTLINE,
+						title: 'Unable to reach server',
+						description: 'Please check your connection or try again later.',
+					});
+				}
 				return false;
 			}
 		},
