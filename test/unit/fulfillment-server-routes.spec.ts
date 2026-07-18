@@ -57,6 +57,8 @@ describe('Fulfillment server proxy routes', () => {
 		const previewSource = await previewFile.text();
 
 		expect(previewSource).toContain("getRequestHeader(event, 'content-length')");
+		expect(previewSource).toContain('const MAX_SHIPMENT_WORKBOOK_REQUEST_SIZE = MAX_SHIPMENT_WORKBOOK_SIZE + 64 * 1024;');
+		expect(previewSource).toContain('contentLength > MAX_SHIPMENT_WORKBOOK_REQUEST_SIZE');
 		expect(previewSource).toContain('file.size > MAX_SHIPMENT_WORKBOOK_SIZE');
 		expect(previewSource).toContain('statusCode: 413');
 		expect(previewSource).toContain('Shipment workbook must not exceed 5 MB');
