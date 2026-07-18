@@ -23,6 +23,7 @@ import { useTaxGroupStore } from './TaxGroup/TaxGroup';
 import { useTaxRuleStore } from './TaxRule/TaxRule';
 import { useVoucherStore } from './voucher/voucher';
 import { useFulfillmentStore } from './Fulfillment/Fulfillment';
+import { useShipmentArrangementStore } from './ShipmentArrangement/ShipmentArrangement';
 import { useCourierStore } from './Courier/Courier';
 import { useShippingMethodStore } from './ShippingMethod/ShippingMethod';
 import { useShippingZoneStore } from './ShippingZone/ShippingZone';
@@ -56,6 +57,7 @@ export {
 	useDiscountStore,
 	useVoucherStore,
 	useFulfillmentStore,
+	useShipmentArrangementStore,
 	useCourierStore,
 	useShippingMethodStore,
 	useShippingZoneStore,

@@ -108,6 +108,71 @@ describe('DiscountModule', () => {
 });
 
 describe('FulfillmentModule', () => {
+	it('lists pending shipment arrangements with current filters', async () => {
+		setMockFetch(async () => ({ data: [], total: 0 }));
+		const mod = new FulfillmentModule();
+		const query = { $top: 15, $skip: 30, $search: 'WM-100' };
+
+		await mod.getShipmentArrangement(query);
+
+		expect(lastFetch().url).toBe(MerchantRoutes.Fulfillment.Arrangement.List());
+		expect(lastFetch().opts.method).toBe('GET');
+		expect(lastFetch().opts.query).toEqual(query);
+	});
+
+	it('downloads shipment arrangements as a blob without changing filters', async () => {
+		const blob = new Blob(['xlsx']);
+		setMockFetch(async () => blob);
+		const mod = new FulfillmentModule();
+		const query = { shipping_method_id: 2 };
+
+		const result = await mod.downloadShipmentArrangement(query);
+
+		expect(result).toBe(blob);
+		expect(lastFetch().url).toBe(MerchantRoutes.Fulfillment.Arrangement.Export());
+		expect(lastFetch().opts.method).toBe('GET');
+		expect(lastFetch().opts.query).toEqual(query);
+		expect(lastFetch().opts.responseType).toBe('blob');
+	});
+
+	it('posts the selected workbook as multipart preview data', async () => {
+		setMockFetch(async () => ({ total: 0, valid: 0, warnings: 0, errors: 0, rows: [] }));
+		const mod = new FulfillmentModule();
+		const file = new File(['xlsx'], 'shipments.xlsx');
+
+		await mod.previewShipmentArrangement(file);
+
+		expect(lastFetch().url).toBe(MerchantRoutes.Fulfillment.Arrangement.Preview());
+		expect(lastFetch().opts.method).toBe('POST');
+		expect(lastFetch().opts.body).toBeInstanceOf(FormData);
+		const uploadedFile = (lastFetch().opts.body as FormData).get('file');
+		expect(uploadedFile).toBeInstanceOf(File);
+		expect((uploadedFile as File).name).toBe('shipments.xlsx');
+		expect(await (uploadedFile as File).text()).toBe('xlsx');
+	});
+
+	it('posts eligible shipment arrangement rows for apply', async () => {
+		setMockFetch(async () => ({ total: 1, updated: 1, failed: 0, errors: [] }));
+		const mod = new FulfillmentModule();
+		const body = {
+			merchant_id: 'merchant-1',
+			rows: [{
+				fulfillment_id: '11111111-1111-4111-8111-111111111111',
+				source_updated_at: '2026-07-18T01:00:00.000Z',
+				order_no: 'WM-100',
+				batch_no: 1,
+				courier: 'Pos Laju',
+				tracking_no: 'PL-100',
+			}],
+		};
+
+		await mod.applyShipmentArrangement(body);
+
+		expect(lastFetch().url).toBe(MerchantRoutes.Fulfillment.Arrangement.Apply());
+		expect(lastFetch().opts.method).toBe('POST');
+		expect(lastFetch().opts.body).toEqual(body);
+	});
+
 	it('keeps first-batch repair creation on the order number route', async () => {
 		setMockFetch(async () => ({
 			fulfillment: {

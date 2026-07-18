@@ -30,6 +30,28 @@ describe('Fulfillment server proxy routes', () => {
 		}
 	});
 
+	it('maps shipment arrangement list, export, preview, and apply routes', () => {
+		expect(Routes.Fulfillment.Arrangement.List()).toBe('fulfillment/arrangement');
+		expect(Routes.Fulfillment.Arrangement.Export()).toBe('fulfillment/arrangement/export');
+		expect(Routes.Fulfillment.Arrangement.Preview()).toBe('fulfillment/arrangement/preview');
+		expect(Routes.Fulfillment.Arrangement.Apply()).toBe('fulfillment/arrangement/apply');
+	});
+
+	it('provides every shipment arrangement Nitro handler with multipart preview signing', async () => {
+		const routeFiles = ['index.get.ts', 'export.get.ts', 'preview.post.ts', 'apply.post.ts'];
+
+		for (const routeFile of routeFiles) {
+			const file = Bun.file(new URL(`../../server/routes/merchant/fulfillment/arrangement/${routeFile}`, import.meta.url));
+			expect(await file.exists(), routeFile).toBe(true);
+		}
+
+		const previewFile = Bun.file(new URL('../../server/routes/merchant/fulfillment/arrangement/preview.post.ts', import.meta.url));
+		const previewSource = await previewFile.text();
+		expect(previewSource).toContain("body.append('merchant_id', merchantId)");
+		expect(previewSource).toContain("body.append('file'");
+		expect(previewSource).toContain('headers: generateImageHeaders(event, route)');
+	});
+
 	it('does not expose a shipment route namespace or Nitro resource', async () => {
 		expect('Shipment' in Routes).toBe(false);
 		const legacyRoute = Bun.file(new URL('../../server/routes/merchant/shipment/index.get.ts', import.meta.url));

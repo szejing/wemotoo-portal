@@ -241,6 +241,12 @@ export const Routes = {
 		MarkFulfilled: (id: string) => `fulfillment/${id}/fulfilled`,
 		MarkShipped: (id: string) => `fulfillment/${id}/shipped`,
 		MarkDelivered: (id: string) => `fulfillment/${id}/delivered`,
+		Arrangement: {
+			List: () => 'fulfillment/arrangement',
+			Export: () => 'fulfillment/arrangement/export',
+			Preview: () => 'fulfillment/arrangement/preview',
+			Apply: () => 'fulfillment/arrangement/apply',
+		},
 	},
 	Couriers: {
 		Many: () => `${API_PATH.COURIERS}/`,
