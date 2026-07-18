@@ -198,6 +198,7 @@
 						/>
 
 						<ZSectionOrderDetailCustomerEmail
+							v-if="resend_email_action"
 							:description="resend_email_description"
 							:resend-email-label="can_resend_status_email ? resend_email_label : undefined"
 							:customer-email-address="resend_email_customer_address"
@@ -239,6 +240,7 @@
 							/>
 
 							<ZSectionOrderDetailCustomerEmail
+								v-if="resend_email_action"
 								:description="resend_email_description"
 								:resend-email-label="can_resend_status_email ? resend_email_label : undefined"
 								:customer-email-address="resend_email_customer_address"

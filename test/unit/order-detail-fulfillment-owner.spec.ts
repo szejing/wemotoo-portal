@@ -19,6 +19,16 @@ describe('order detail fulfillment owner', () => {
 		expect(source.match(/resendCurrentStatusEmail\(record\.value\.order_no, resend_email_action\.value\)/g) ?? []).toHaveLength(2);
 	});
 
+	it('shows the customer email section only when the current status has a resend action', () => {
+		const source = readFileSync(resolve(process.cwd(), 'app/pages/orders/[order_no].vue'), 'utf8');
+		const customerEmailBlocks = source.match(/<ZSectionOrderDetailCustomerEmail[\s\S]*?\/>/g) ?? [];
+
+		expect(customerEmailBlocks).toHaveLength(2);
+		for (const block of customerEmailBlocks) {
+			expect(block).toContain('v-if="resend_email_action"');
+		}
+	});
+
 	it('places delivery fulfillment controls in the desktop sidebar and mobile actions drawer', () => {
 		const source = readFileSync(resolve(process.cwd(), 'app/pages/orders/[order_no].vue'), 'utf8');
 		const occurrences = source.match(/<FulfillmentBatchList/g) ?? [];

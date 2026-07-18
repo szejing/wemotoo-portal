@@ -33,7 +33,7 @@ const nextActions = (wrapper: Awaited<ReturnType<typeof mountSuspended>>) => {
 };
 
 describe('FulfillmentBatchCard', () => {
-	it('shows a compact shipping summary with courier/tracking lead and always-visible status badges', async () => {
+	it('shows a compact shipping summary with shipment status only', async () => {
 		const wrapper = await mountSuspended(FulfillmentBatchCard, {
 			props: { batch: batch(), currencyCode: 'MYR' },
 		});
@@ -44,11 +44,11 @@ describe('FulfillmentBatchCard', () => {
 		expect(wrapper.get('[data-testid="fulfillment-fee"]').text()).toContain('8');
 		expect(wrapper.get('[data-testid="fulfillment-zone"]').text()).toBe('zone-1');
 		expect(wrapper.find('[data-testid="fulfillment-batch-number"]').exists()).toBe(false);
-		expect(wrapper.get('[data-testid="fulfillment-status-badges"]').findAllComponents({ name: 'UBadge' })).toHaveLength(2);
+		expect(wrapper.get('[data-testid="fulfillment-status-badges"]').findAllComponents({ name: 'UBadge' })).toHaveLength(1);
 		expect(wrapper.find('[data-testid^="fulfillment-action-"]').exists()).toBe(false);
 		expect(wrapper.find('[data-testid="fulfillment-created-at"]').exists()).toBe(false);
-		expect(wrapper.findComponent({ name: 'UPopover' }).exists()).toBe(true);
-		expect(wrapper.find('[data-testid="fulfillment-update-status"]').exists()).toBe(true);
+		expect(wrapper.findComponent({ name: 'UPopover' }).exists()).toBe(false);
+		expect(wrapper.find('[data-testid="fulfillment-update-status"]').exists()).toBe(false);
 	});
 
 	it('hides zone when empty and shows fallbacks for missing courier/tracking', async () => {
@@ -74,20 +74,20 @@ describe('FulfillmentBatchCard', () => {
 		});
 
 		expect(wrapper.get('[data-testid="fulfillment-batch-number"]').text()).toContain('1');
-		expect(wrapper.get('[data-testid="fulfillment-status-badges"]').findAllComponents({ name: 'UBadge' })).toHaveLength(2);
+		expect(wrapper.get('[data-testid="fulfillment-status-badges"]').findAllComponents({ name: 'UBadge' })).toHaveLength(1);
 	});
 
-	it('offers the next lifecycle status but never a manual shipped action', async () => {
+	it('does not expose packing lifecycle actions on the shipping card', async () => {
 		const pendingWrapper = await mountSuspended(FulfillmentBatchCard, {
-			props: { batch: batch({ status: 'pending' }) },
+			props: { batch: batch({ status: 'pending', shipment_status: 'pending' }) },
 		});
 		const processingWrapper = await mountSuspended(FulfillmentBatchCard, {
-			props: { batch: batch({ status: 'processing' }) },
+			props: { batch: batch({ status: 'processing', shipment_status: 'pending' }) },
 		});
 
-		expect(nextActions(pendingWrapper).map(({ action }) => action)).toEqual(['processing']);
-		expect(nextActions(processingWrapper).map(({ action }) => action)).toEqual(['packed']);
-		expect(nextActions(processingWrapper).map(({ action }) => action)).not.toContain('shipped');
+		expect(nextActions(pendingWrapper)).toEqual([]);
+		expect(nextActions(processingWrapper)).toEqual([]);
+		expect(pendingWrapper.find('[data-testid="fulfillment-update-status"]').exists()).toBe(false);
 	});
 
 	it('offers delivered only after a shipped or in-transit batch', async () => {

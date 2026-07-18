@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { formatCurrency } from 'yeppi-common';
-import { getFulfillmentStatusColor, getShipmentStatusColor } from '~/utils/options';
+import { getShipmentStatusColor } from '~/utils/options';
 import type { FulfillmentAction } from '~/stores/Fulfillment/Fulfillment';
-import type { FulfillmentBatch, FulfillmentLifecycleStatusValue, ShipmentStatusValue } from '~/utils/types/order-fulfillment-shipping';
+import type { FulfillmentBatch, ShipmentStatusValue } from '~/utils/types/order-fulfillment-shipping';
 
 const props = withDefaults(defineProps<{
 	batch: FulfillmentBatch;
@@ -20,13 +20,6 @@ const emit = defineEmits<{
 	action: [action: FulfillmentAction, batch: FulfillmentBatch];
 }>();
 
-const lifecycleLabels: Record<FulfillmentLifecycleStatusValue, string> = {
-	pending: 'options.pending',
-	processing: 'options.processing',
-	packed: 'options.packed',
-	fulfilled: 'options.fulfilled',
-};
-
 const shipmentLabels: Record<ShipmentStatusValue, string> = {
 	pending: 'options.pending',
 	shipped: 'options.shipped',
@@ -42,16 +35,9 @@ const trackingLabel = computed(() => props.batch.tracking_no?.trim() || t('compo
 const methodLabel = computed(() => props.batch.shipping_method?.description || '');
 const zoneLabel = computed(() => props.batch.shipping_zone_id?.trim() || '');
 
+/** Shipping card only exposes shipment transitions; packing auto-fulfills on ship. */
 const nextActions = computed(() => {
 	const actions: { action: FulfillmentAction; label: string; color: 'primary' | 'success' }[] = [];
-	if (props.batch.status === 'pending') {
-		actions.push({ action: 'processing', label: 'components.fulfillment.startProcessing', color: 'primary' });
-	} else if (props.batch.status === 'processing') {
-		actions.push({ action: 'packed', label: 'components.fulfillment.markAsPacked', color: 'primary' });
-	} else if (props.batch.status === 'packed') {
-		actions.push({ action: 'fulfilled', label: 'components.fulfillment.markAsFulfilled', color: 'primary' });
-	}
-
 	if (['shipped', 'in_transit'].includes(props.batch.shipment_status)) {
 		actions.push({ action: 'delivered', label: 'components.fulfillment.markAsDelivered', color: 'success' });
 	}
@@ -73,9 +59,6 @@ const nextActions = computed(() => {
 					</h3>
 				</div>
 				<div data-testid="fulfillment-status-badges" class="status-badges">
-					<UBadge :color="getFulfillmentStatusColor(batch.status)" variant="subtle" size="sm">
-						{{ $t(lifecycleLabels[batch.status]) }}
-					</UBadge>
 					<UBadge :color="getShipmentStatusColor(batch.shipment_status)" variant="subtle" size="sm">
 						{{ $t(shipmentLabels[batch.shipment_status]) }}
 					</UBadge>
