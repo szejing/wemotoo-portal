@@ -77,6 +77,11 @@ export const useShipmentArrangementStore = defineStore('shipment-arrangement', (
 			rows: eligible,
 		});
 		await fetchPending();
+		const lastPage = Math.max(1, Math.ceil(total.value / pageSize.value));
+		if (page.value > lastPage) {
+			page.value = lastPage;
+			await fetchPending();
+		}
 	}
 
 	function resetPreview(): void {

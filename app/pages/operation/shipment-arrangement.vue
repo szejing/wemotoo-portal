@@ -149,6 +149,7 @@ const uploadError = ref<string>();
 const applyError = ref<string>();
 const activeShippingMethods = ref<ShippingMethodOption[]>([]);
 const resettingFilters = ref(false);
+let filterRefreshGeneration = 0;
 
 const columns = computed(() => getShipmentArrangementColumns(t));
 const columnOptions = computed(() => columnOptionsFromLabelMap(t, SHIPMENT_ARRANGEMENT_COLUMN_LABELS));
@@ -172,6 +173,7 @@ const refreshPending = async (): Promise<void> => {
 };
 
 const clearFilters = async (): Promise<void> => {
+	filterRefreshGeneration += 1;
 	resettingFilters.value = true;
 	store.filters.search = '';
 	store.filters.shippingMethodId = undefined;
@@ -259,7 +261,8 @@ watch(
 	},
 );
 
-const refreshForFilterChange = useDebounceFn(() => {
+const refreshForFilterChange = useDebounceFn((generation: number) => {
+	if (generation !== filterRefreshGeneration) return;
 	if (store.page !== 1) {
 		store.page = 1;
 		return;
@@ -270,7 +273,7 @@ const refreshForFilterChange = useDebounceFn(() => {
 watch(
 	() => [store.filters.search, store.filters.shippingMethodId, store.filters.dateRange.start, store.filters.dateRange.end],
 	() => {
-		if (!resettingFilters.value) void refreshForFilterChange();
+		if (!resettingFilters.value) void refreshForFilterChange(filterRefreshGeneration);
 	},
 );
 

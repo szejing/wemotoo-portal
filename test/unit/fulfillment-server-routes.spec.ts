@@ -52,6 +52,17 @@ describe('Fulfillment server proxy routes', () => {
 		expect(previewSource).toContain('headers: generateImageHeaders(event, route)');
 	});
 
+	it('rejects missing, malformed, and over-5MB preview uploads before forwarding', async () => {
+		const previewFile = Bun.file(new URL('../../server/routes/merchant/fulfillment/arrangement/preview.post.ts', import.meta.url));
+		const previewSource = await previewFile.text();
+
+		expect(previewSource).toContain("getRequestHeader(event, 'content-length')");
+		expect(previewSource).toContain('file.size > MAX_SHIPMENT_WORKBOOK_SIZE');
+		expect(previewSource).toContain('statusCode: 413');
+		expect(previewSource).toContain('Shipment workbook must not exceed 5 MB');
+		expect(previewSource).toContain('An XLSX shipment workbook is required');
+	});
+
 	it('translates portal $search to the backend search query in arrangement list and export proxies', async () => {
 		for (const routeFile of ['index.get.ts', 'export.get.ts']) {
 			const file = Bun.file(new URL(`../../server/routes/merchant/fulfillment/arrangement/${routeFile}`, import.meta.url));

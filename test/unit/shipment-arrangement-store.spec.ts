@@ -132,6 +132,33 @@ describe('useShipmentArrangementStore', () => {
 		expect(getShipmentArrangement).toHaveBeenCalledWith({ $top: 15, $skip: 0 });
 	});
 
+	it('clamps and refetches when applying the only row on the final page', async () => {
+		previewShipmentArrangement.mockResolvedValue({
+			...previewResponse,
+			total: 1,
+			valid: 1,
+			warnings: 0,
+			errors: 0,
+			rows: [previewResponse.rows[0]!],
+		});
+		applyShipmentArrangement.mockResolvedValue({ total: 1, updated: 1, failed: 0, errors: [] });
+		getShipmentArrangement
+			.mockResolvedValueOnce({ data: [], total: 4 })
+			.mockResolvedValueOnce({ data: previewResponse.rows.slice(0, 2), total: 4 });
+		const store = useShipmentArrangementStore();
+		store.page = 3;
+		store.pageSize = 2;
+		await store.previewFile(new File(['xlsx'], 'shipments.xlsx'));
+
+		await store.applyPreview();
+
+		expect(store.page).toBe(2);
+		expect(getShipmentArrangement).toHaveBeenNthCalledWith(1, { $top: 2, $skip: 4 });
+		expect(getShipmentArrangement).toHaveBeenNthCalledWith(2, { $top: 2, $skip: 2 });
+		expect(store.rows).toHaveLength(2);
+		expect(store.total).toBe(4);
+	});
+
 	it('keeps date filters empty by default and exports current filters without paging', async () => {
 		const blob = new Blob(['xlsx']);
 		downloadShipmentArrangement.mockResolvedValue(blob);

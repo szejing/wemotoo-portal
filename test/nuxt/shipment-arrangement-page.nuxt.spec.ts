@@ -127,6 +127,28 @@ describe('ShipmentArrangementPage', () => {
 		wrapper.unmount();
 	});
 
+	it('cancels a pending filter debounce when filters are cleared', async () => {
+		const store = useShipmentArrangementStore();
+		const fetchPending = vi.spyOn(store, 'fetchPending').mockResolvedValue();
+		mockShippingOptions();
+		const wrapper = await mountPage();
+		fetchPending.mockClear();
+		vi.useFakeTimers();
+
+		try {
+			store.filters.search = 'WM-100';
+			await wrapper.vm.$nextTick();
+			await wrapper.get('[data-testid="clear-filters"]').trigger('click');
+			await flushPromises();
+			await vi.advanceTimersByTimeAsync(350);
+
+			expect(fetchPending).toHaveBeenCalledTimes(1);
+		} finally {
+			vi.useRealTimers();
+			wrapper.unmount();
+		}
+	});
+
 	it('loads active shipping method options independently from stale settings listing filters', async () => {
 		const store = useShipmentArrangementStore();
 		vi.spyOn(store, 'fetchPending').mockResolvedValue();
