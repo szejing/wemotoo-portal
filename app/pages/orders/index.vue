@@ -122,6 +122,10 @@ const orderStore = useOrderStore();
 const { orders, filter, loading, exporting } = storeToRefs(orderStore);
 const current_page = computed(() => filter.value.current_page);
 
+watch(orders, () => {
+	sorting.value = [];
+});
+
 const statusItems = computed(() => getOrderStatusOptions(t).filter((option) => option.value !== 'All'));
 
 const selectedStatuses = computed({
@@ -198,7 +202,6 @@ onMounted(async () => {
 });
 
 const onStatusesChange = async () => {
-	sorting.value = [];
 	filter.value.current_page = 1;
 	filter.value.payment_status = undefined;
 	filter.value.payment_method = undefined;
@@ -206,14 +209,12 @@ const onStatusesChange = async () => {
 };
 
 const updatePageSize = async (size: number) => {
-	sorting.value = [];
 	filter.value.page_size = size;
 	filter.value.current_page = 1;
 	await orderStore.getOrders();
 };
 
 const updatePage = async (page: number) => {
-	sorting.value = [];
 	filter.value.current_page = page;
 	await orderStore.getOrders();
 };
