@@ -10,6 +10,7 @@
 				<ZSectionFilterStatuses
 					v-model="selectedStatuses"
 					:items="statusItems"
+					:get-color="getOrderStatusColor"
 					:placeholder="$t('components.selectMenu.selectOrderStatus')"
 					class="w-full sm:w-72"
 					@update:model-value="onStatusesChange"
@@ -84,7 +85,7 @@
 
 <script lang="ts" setup>
 import { OrderStatus, PaymentStatus } from 'yeppi-common';
-import { getDefaultOrderStatuses, getOrderStatusOptions, options_page_size } from '~/utils/options';
+import { getDefaultOrderStatuses, getOrderStatusColor, getOrderStatusOptions, options_page_size } from '~/utils/options';
 import { getOrderColumns } from '~/utils/table-columns';
 import { columnOptionsFromLabelMap } from '~/utils/table-columns/visibility';
 import type { TableRow } from '@nuxt/ui';
