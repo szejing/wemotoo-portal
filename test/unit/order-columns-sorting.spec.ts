@@ -22,7 +22,17 @@ describe('getOrderColumns sorting', () => {
 	});
 
 	it('enables sorting on data columns', () => {
-		for (const id of ['order_no', 'order_type', 'customer', 'status', 'gross_amt', 'tax_amt_exc', 'net_amt']) {
+		for (const id of [
+			'order_no',
+			'order_type',
+			'customer',
+			'status',
+			'gross_amt',
+			'tax_amt_exc',
+			'net_amt',
+			'shipping_fee',
+			'payable_total',
+		]) {
 			expect(columnById(id).enableSorting).not.toBe(false);
 		}
 	});

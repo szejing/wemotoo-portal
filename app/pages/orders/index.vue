@@ -110,6 +110,8 @@ const ORDER_COLUMN_LABELS = {
 	gross_amt: 'table.grossAmt',
 	tax_amt_exc: 'table.taxAmtExc',
 	net_amt: 'table.netAmt',
+	shipping_fee: 'components.fulfillment.shippingFee',
+	payable_total: 'table.totalAmt',
 } as const;
 
 const { t } = useI18n();

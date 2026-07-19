@@ -119,5 +119,17 @@ export function getOrderColumns(t: TranslateFn): TableColumn<OrderHistory>[] {
 			cell: ({ row }) => moneyCell(row.original.net_amt ?? 0, row.original.currency.code),
 			...tableCellMeta.rightNumeric,
 		},
+		{
+			accessorKey: 'shipping_fee',
+			header: ({ column }) => getSortableHeader(column, t('components.fulfillment.shippingFee'), 'right'),
+			cell: ({ row }) => moneyCell(row.original.shipping_fee ?? 0, row.original.currency.code),
+			...tableCellMeta.rightNumeric,
+		},
+		{
+			accessorKey: 'payable_total',
+			header: ({ column }) => getSortableHeader(column, t('table.totalAmt'), 'right'),
+			cell: ({ row }) => moneyCell(row.original.payable_total ?? 0, row.original.currency.code),
+			...tableCellMeta.rightNumeric,
+		},
 	];
 }
