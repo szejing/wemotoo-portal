@@ -1,6 +1,6 @@
 import type { Column } from '@tanstack/vue-table';
 import { h, resolveComponent } from 'vue';
-import { TABLE_ALIGN_RIGHT, type TableCellAlign } from './styles';
+import { TABLE_ALIGN_CENTER, TABLE_ALIGN_RIGHT, type TableCellAlign } from './styles';
 
 export function getSortableHeader<TData>(column: Column<TData, unknown>, label: string, align: TableCellAlign = 'left') {
 	const isSorted = column.getIsSorted();
@@ -12,7 +12,11 @@ export function getSortableHeader<TData>(column: Column<TData, unknown>, label: 
 			type: 'button',
 			class: [
 				'inline-flex items-center gap-1 p-0 font-inherit text-default hover:text-highlighted',
-				align === 'right' ? `${TABLE_ALIGN_RIGHT} w-full justify-end` : 'w-full justify-start text-left',
+				align === 'right'
+					? `${TABLE_ALIGN_RIGHT} w-full justify-end`
+					: align === 'center'
+						? `${TABLE_ALIGN_CENTER} w-full justify-center`
+						: 'w-full justify-start text-left',
 			],
 			onClick: () => column.toggleSorting(column.getIsSorted() === 'asc'),
 		},

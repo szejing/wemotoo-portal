@@ -36,6 +36,21 @@ describe('ZSectionFilterStatuses', () => {
 
 		const badges = wrapper.findAllComponents({ name: 'UBadge' });
 		expect(badges.length).toBeGreaterThanOrEqual(2);
+		expect(wrapper.text()).toContain('Pending Payment');
+		expect(wrapper.text()).toContain('Processing');
+	});
+
+	it('renders plain labels without badges when getColor is omitted', async () => {
+		const wrapper = await mountSuspended(ZSectionFilterStatuses, {
+			props: {
+				modelValue: [OrderStatus.PENDING_PAYMENT, OrderStatus.PROCESSING],
+				items,
+			},
+		});
+
+		expect(wrapper.findAllComponents({ name: 'UBadge' })).toHaveLength(0);
+		expect(wrapper.text()).toContain('Pending Payment');
+		expect(wrapper.text()).toContain('Processing');
 	});
 
 	it('emits update:modelValue when selection changes', async () => {

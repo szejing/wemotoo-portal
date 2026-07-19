@@ -1,7 +1,5 @@
 import { h } from 'vue';
-import type { Column } from '@tanstack/vue-table';
 import { formatCurrency } from 'yeppi-common';
-import { UButton } from '#components';
 
 export const TABLE_ALIGN_RIGHT = 'text-right tabular-nums';
 export const TABLE_ALIGN_CENTER = 'text-center';
@@ -11,24 +9,6 @@ export type TableCellAlign = 'left' | 'right' | 'center';
 export function headerCell(label: string, align: TableCellAlign = 'left') {
 	const alignClass = align === 'right' ? TABLE_ALIGN_RIGHT : align === 'center' ? TABLE_ALIGN_CENTER : 'text-left';
 	return h('div', { class: alignClass }, label);
-}
-
-export function sortableHeaderCell(column: Column<any, unknown>, label: string, align: TableCellAlign = 'left') {
-	const isSorted = column.getIsSorted();
-	const alignClass = align === 'right' ? TABLE_ALIGN_RIGHT : align === 'center' ? TABLE_ALIGN_CENTER : 'text-left';
-
-	return h(
-		'div',
-		{ class: alignClass },
-		h(UButton, {
-			color: 'neutral',
-			variant: 'ghost',
-			label,
-			icon: isSorted ? (isSorted === 'asc' ? 'i-lucide-arrow-up-narrow-wide' : 'i-lucide-arrow-down-wide-narrow') : 'i-lucide-arrow-up-down',
-			class: '-mx-2.5',
-			onClick: () => column.toggleSorting(column.getIsSorted() === 'asc'),
-		}),
-	);
 }
 
 export function numberCell(value: number, align: TableCellAlign = 'right') {
