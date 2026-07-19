@@ -2,8 +2,7 @@ import { UBadge, USwitch } from '#components';
 import type { TableColumn } from '@nuxt/ui';
 import type { Voucher } from '~/utils/types/voucher';
 import { useVoucherStore } from '~/stores/voucher/voucher';
-import { getSortableHeader } from '../sortable';
-import { headerCell, mutedCell, TABLE_ALIGN_RIGHT, tableCellMeta } from '../styles';
+import { getSortableHeader, headerCell, mutedCell, TABLE_ALIGN_RIGHT, tableCellMeta } from '../styles';
 
 type TranslateFn = (key: string) => string;
 

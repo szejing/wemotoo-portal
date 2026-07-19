@@ -1,6 +1,5 @@
 import type { TableColumn } from '@nuxt/ui';
-import { getSortableHeader } from '../sortable';
-import { headerCell, numberCell } from '../styles';
+import { getSortableHeader, headerCell, numberCell } from '../styles';
 
 type TranslateFn = (key: string) => string;
 

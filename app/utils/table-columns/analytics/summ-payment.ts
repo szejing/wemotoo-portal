@@ -3,8 +3,7 @@ import { UBadge } from '#components';
 import type { TableColumn, TableRow } from '@nuxt/ui';
 import { getOrderStatusColor, OrderStatus } from 'yeppi-common';
 import type { SummSalePayment } from '~/utils/types/summ-sales';
-import { getSortableHeader } from '../sortable';
-import { moneyCell, numberCell, primaryCell, tableCellMeta } from '../styles';
+import { getSortableHeader, moneyCell, numberCell, primaryCell, tableCellMeta } from '../styles';
 import type { TranslateFn } from './types';
 import { getOrderStatusOption } from '~/utils/options/order-status';
 

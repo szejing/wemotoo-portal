@@ -3,8 +3,7 @@ import { h } from 'vue';
 import type { TableColumn } from '@nuxt/ui';
 import { UBadge } from '#components';
 import type { Bill } from '~/utils/types/bill';
-import { getSortableHeader } from '../sortable';
-import { numberCell, primaryCell, tableCellMeta } from '../styles';
+import { getSortableHeader, numberCell, primaryCell, tableCellMeta } from '../styles';
 
 type TranslateFn = (key: string) => string;
 

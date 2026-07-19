@@ -1,8 +1,7 @@
 import { UCheckbox, UIcon } from '#components';
 import type { TableColumn } from '@nuxt/ui';
 import type { ProductVariation } from '~/utils/types/product-variation';
-import { getSortableHeader } from './sortable';
-import { headerCell } from './styles';
+import { getSortableHeader, headerCell } from './styles';
 
 type TranslateFn = (key: string) => string;
 

@@ -1,7 +1,6 @@
 import type { ColumnDef } from '@tanstack/vue-table';
 import type { Customer } from '~/utils/types/customer';
-import { getSortableHeader } from './sortable';
-import { headerCell, numberCell, primaryCell, tableCellMeta } from './styles';
+import { getSortableHeader, headerCell, numberCell, primaryCell, tableCellMeta } from './styles';
 
 type TranslateFn = (key: string) => string;
 
@@ -9,7 +8,7 @@ export function getCustomerColumns(t: TranslateFn): ColumnDef<Customer>[] {
 	return [
 		{
 			accessorKey: 'row_index',
-			header: () => headerCell(t('table.noLabel'), 'center'),
+			header: () => headerCell('', 'center'),
 			cell: ({ row }) => numberCell(row.index + 1, 'center'),
 			...tableCellMeta.center,
 		},

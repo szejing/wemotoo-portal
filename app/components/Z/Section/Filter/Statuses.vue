@@ -8,6 +8,7 @@
 			multiple
 			:items="items"
 			value-key="value"
+			selected-icon="i-lucide-check"
 			:placeholder="placeholder || $t('components.selectMenu.selectStatus')"
 			:disabled="disabled"
 			color="neutral"
@@ -20,32 +21,30 @@
 			:ui="{ trailingIcon: 'group-data-[state=open]:rotate-180 transition-transform' }"
 		>
 			<template #default>
-				<div v-if="selectedLabels.length > 0" class="flex flex-wrap gap-1.5 min-w-0">
-					<template v-if="getColor">
-						<UBadge
-							v-for="entry in selectedLabels"
-							:key="entry.value"
-							:color="getColor(entry.value) ?? 'neutral'"
-							variant="subtle"
-							class="truncate"
-						>
-							{{ entry.label }}
-						</UBadge>
-					</template>
-					<template v-else>
-						<span
-							v-for="entry in selectedLabels"
-							:key="entry.value"
-							class="text-sm text-default truncate"
-						>
-							{{ entry.label }}
-						</span>
-					</template>
-				</div>
-				<span v-else class="text-neutral-400">{{ placeholder || $t('components.selectMenu.selectStatus') }}</span>
+				<span v-if="selectedLabels.length === 0" class="text-neutral-400">
+					{{ placeholder || $t('components.selectMenu.selectStatus') }}
+				</span>
+				<UBadge v-else-if="isAllSelected" color="neutral" variant="subtle" class="truncate">
+					{{ $t('options.all') }}
+				</UBadge>
+				<template v-else-if="selectedLabels.length === 1">
+					<UBadge
+						v-if="getColor"
+						:color="getColor(selectedLabels[0]!.value) ?? 'neutral'"
+						variant="subtle"
+						class="truncate"
+					>
+						{{ selectedLabels[0]!.label }}
+					</UBadge>
+					<span v-else class="text-sm text-default truncate">{{ selectedLabels[0]!.label }}</span>
+				</template>
+				<span v-else class="text-sm text-default truncate">
+					{{ $t('components.discountForm.filterValuePickerSelected', { count: selectedLabels.length }) }}
+				</span>
 			</template>
 
-			<template #item="{ item }">
+			<!-- Use item-label (not item) so the selected tick remains -->
+			<template #item-label="{ item }">
 				<UBadge
 					v-if="getColor"
 					:color="getColor(item.value) ?? 'neutral'"
@@ -109,6 +108,11 @@ const selectedLabels = computed(() => {
 		const match = props.items.find((item) => item.value === value);
 		return { value, label: match?.label ?? value };
 	});
+});
+
+const isAllSelected = computed(() => {
+	const values = selected.value;
+	return props.items.length > 0 && values.length === props.items.length;
 });
 </script>
 

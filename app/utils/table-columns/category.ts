@@ -1,8 +1,7 @@
 import type { TableColumn } from '@nuxt/ui';
 import { UBadge, UButton } from '#components';
 import type { Category } from '~/utils/types/category';
-import { getSortableHeader } from './sortable';
-import { headerCell, numberCell, tableCellMeta } from './styles';
+import { getSortableHeader, headerCell, numberCell, tableCellMeta } from './styles';
 
 type TranslateFn = (key: string) => string;
 

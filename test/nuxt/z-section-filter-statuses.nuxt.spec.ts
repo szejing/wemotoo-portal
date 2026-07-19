@@ -23,9 +23,38 @@ describe('ZSectionFilterStatuses', () => {
 		expect(select.props('multiple')).toBe(true);
 		expect(select.props('items')).toEqual(items);
 		expect(select.props('modelValue')).toEqual([OrderStatus.PENDING_PAYMENT]);
+		expect(select.props('selectedIcon')).toBe('i-lucide-check');
 	});
 
-	it('renders status badges in the trigger when getColor is provided', async () => {
+	it('renders a single status badge in the trigger when getColor is provided', async () => {
+		const wrapper = await mountSuspended(ZSectionFilterStatuses, {
+			props: {
+				modelValue: [OrderStatus.PENDING_PAYMENT],
+				items,
+				getColor: () => 'warning',
+			},
+		});
+
+		const badges = wrapper.findAllComponents({ name: 'UBadge' });
+		expect(badges.length).toBeGreaterThanOrEqual(1);
+		expect(wrapper.text()).toContain('Pending Payment');
+		expect(wrapper.text()).not.toContain('Processing');
+	});
+
+	it('renders All in the trigger when every status is selected', async () => {
+		const wrapper = await mountSuspended(ZSectionFilterStatuses, {
+			props: {
+				modelValue: items.map((item) => item.value),
+				items,
+				getColor: () => 'warning',
+			},
+		});
+
+		expect(wrapper.text()).toMatch(/All|Semua/);
+		expect(wrapper.text()).not.toContain('Pending Payment');
+	});
+
+	it('renders a compact selected count for partial multi-select', async () => {
 		const wrapper = await mountSuspended(ZSectionFilterStatuses, {
 			props: {
 				modelValue: [OrderStatus.PENDING_PAYMENT, OrderStatus.PROCESSING],
@@ -34,23 +63,20 @@ describe('ZSectionFilterStatuses', () => {
 			},
 		});
 
-		const badges = wrapper.findAllComponents({ name: 'UBadge' });
-		expect(badges.length).toBeGreaterThanOrEqual(2);
-		expect(wrapper.text()).toContain('Pending Payment');
-		expect(wrapper.text()).toContain('Processing');
+		expect(wrapper.text()).toMatch(/2 selected|2 dipilih/);
+		expect(wrapper.text()).not.toContain('Pending Payment');
 	});
 
-	it('renders plain labels without badges when getColor is omitted', async () => {
+	it('renders a plain label without badges when getColor is omitted for a single selection', async () => {
 		const wrapper = await mountSuspended(ZSectionFilterStatuses, {
 			props: {
-				modelValue: [OrderStatus.PENDING_PAYMENT, OrderStatus.PROCESSING],
+				modelValue: [OrderStatus.PENDING_PAYMENT],
 				items,
 			},
 		});
 
 		expect(wrapper.findAllComponents({ name: 'UBadge' })).toHaveLength(0);
 		expect(wrapper.text()).toContain('Pending Payment');
-		expect(wrapper.text()).toContain('Processing');
 	});
 
 	it('emits update:modelValue when selection changes', async () => {

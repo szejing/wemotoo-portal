@@ -1,7 +1,6 @@
 import type { ColumnDef } from '@tanstack/vue-table';
 import type { Affiliate } from '~/utils/types/affiliate';
-import { getSortableHeader } from './sortable';
-import { headerCell, mutedCell, numberCell, primaryCell, tableCellMeta } from './styles';
+import { getSortableHeader, headerCell, mutedCell, numberCell, primaryCell, tableCellMeta } from './styles';
 
 type TranslateFn = (key: string) => string;
 
@@ -9,7 +8,7 @@ export function getAffiliateColumns(t: TranslateFn): ColumnDef<Affiliate>[] {
 	return [
 		{
 			accessorKey: 'row_index',
-			header: () => headerCell(t('table.noLabel')),
+			header: () => headerCell('', 'center'),
 			cell: ({ row }) => numberCell(row.index + 1),
 		},
 		{

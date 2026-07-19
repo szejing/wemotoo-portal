@@ -4,8 +4,7 @@ import { formatCrmUserPhone } from '../utils';
 import { USwitch } from '#components';
 import { useCRMUserStore } from '~/stores/CRMUser/CRMUser';
 import { roleLabel } from '../options/user-roles';
-import { getSortableHeader } from './sortable';
-import { headerCell, mutedCell, numberCell, primaryCell, tableCellMeta } from './styles';
+import { getSortableHeader, headerCell, mutedCell, numberCell, primaryCell, tableCellMeta } from './styles';
 
 type TranslateFn = (key: string) => string;
 
@@ -17,7 +16,7 @@ export function getCrmUserColumns(t: TranslateFn, options?: CrmUserColumnOptions
 	const columns: ColumnDef<CRMUser>[] = [
 		{
 			accessorKey: 'row_index',
-			header: () => headerCell(t('table.noLabel'), 'center'),
+			header: () => headerCell('', 'center'),
 			cell: ({ row }) => numberCell(row.index + 1, 'center'),
 			...tableCellMeta.center,
 		},
@@ -46,7 +45,8 @@ export function getCrmUserColumns(t: TranslateFn, options?: CrmUserColumnOptions
 				return h(
 					'span',
 					{
-						class: 'inline-flex items-center rounded-md px-2 py-1 text-xs font-medium bg-primary-100 text-primary-800 dark:bg-primary-900/30 dark:text-primary-200',
+						class:
+							'inline-flex items-center rounded-md px-2 py-1 text-xs font-medium bg-primary-100 text-primary-800 dark:bg-primary-900/30 dark:text-primary-200',
 					},
 					label,
 				);

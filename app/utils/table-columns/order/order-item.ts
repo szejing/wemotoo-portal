@@ -1,7 +1,6 @@
 import type { ColumnDef } from '@tanstack/vue-table';
 import { formatCurrency } from 'yeppi-common';
-import { getSortableHeader } from '../sortable';
-import { moneyCell, numberCell, primaryCell, tableCellMeta } from '../styles';
+import { getSortableHeader, moneyCell, numberCell, primaryCell, tableCellMeta } from '../styles';
 
 type TranslateFn = (key: string) => string;
 

@@ -1,8 +1,7 @@
 import { UBadge, USwitch } from '#components';
 import type { TableColumn } from '@nuxt/ui';
 import type { Tax } from '~/utils/types/tax';
-import { getSortableHeader } from '../sortable';
-import { headerCell } from '../styles';
+import { getSortableHeader, headerCell } from '../styles';
 
 type TranslateFn = (key: string) => string;
 

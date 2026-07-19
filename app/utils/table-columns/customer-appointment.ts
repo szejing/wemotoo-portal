@@ -4,8 +4,7 @@ import { getFormattedDate, isSameDate } from 'yeppi-common';
 import { UBadge } from '#components';
 import { getAppointmentStatusColor } from '~/utils/options';
 import type { Appointment } from '~/utils/types/appointment';
-import { getSortableHeader } from './sortable';
-import { headerCell, mutedCell } from './styles';
+import { getSortableHeader, headerCell, mutedCell } from './styles';
 
 type TranslateFn = (key: string, params?: Record<string, number | string>) => string;
 

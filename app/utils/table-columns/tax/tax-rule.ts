@@ -3,8 +3,7 @@ import { UBadge } from '#components';
 import type { TableColumn } from '@nuxt/ui';
 import type { TaxRule } from '~/utils/types/tax-rule';
 import type { TaxRuleDetail } from '~/utils/types/tax-rule-detail';
-import { getSortableHeader } from '../sortable';
-import { headerCell } from '../styles';
+import { getSortableHeader, headerCell } from '../styles';
 
 type TranslateFn = (key: string) => string;
 

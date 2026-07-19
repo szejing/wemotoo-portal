@@ -3,8 +3,7 @@ import { DiscountType } from 'yeppi-common';
 import { formatDiscountDiscValue } from '~/utils/discount-rule-display';
 import type { TableColumn } from '@nuxt/ui';
 import type { Discount } from '~/utils/types/discount';
-import { getSortableHeader } from '../sortable';
-import { headerCell, tableCellMeta } from '../styles';
+import { getSortableHeader, headerCell, tableCellMeta } from '../styles';
 import { useDiscountStore } from '~/stores/discount/discount';
 
 type TranslateFn = (key: string) => string;

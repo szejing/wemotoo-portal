@@ -1,8 +1,7 @@
 import type { TableColumn } from '@nuxt/ui';
 import type { ProductVariation } from '~/utils/types/product-variation';
 import { UBadge } from '#components';
-import { getSortableHeader } from './sortable';
-import { headerCell, mutedCell } from './styles';
+import { getSortableHeader, headerCell, mutedCell } from './styles';
 
 type TranslateFn = (key: string) => string;
 

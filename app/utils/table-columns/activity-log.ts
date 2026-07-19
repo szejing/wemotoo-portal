@@ -5,8 +5,7 @@ import { h, type VNode } from 'vue';
 import { parseActivityLogRichText, type ActivityLogRichTextSegment } from '~/utils/activity-log-rich-text';
 import { getActivityLogActionLabel, getActivityLogActorTypeLabel, getActivityLogSourceLabel } from '~/utils/options';
 import type { ActivityLog } from '~/utils/types/activity-log';
-import { getSortableHeader } from './sortable';
-import { headerCell } from './styles';
+import { getSortableHeader, headerCell } from './styles';
 
 type TranslateFn = (key: string) => string;
 

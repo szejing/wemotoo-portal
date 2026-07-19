@@ -4,8 +4,7 @@ import { formatCurrency, OrderStatus } from 'yeppi-common';
 import { UBadge, UIcon } from '#components';
 import type { OrderHistory } from '~/utils/types/order-history';
 import type { ItemModel } from '~/utils/models';
-import { getSortableHeader } from './sortable';
-import { headerCell, moneyCell, mutedCell, tableCellMeta } from './styles';
+import { getSortableHeader, headerCell, moneyCell, mutedCell, tableCellMeta } from './styles';
 import { getOrderStatusColor } from '../options';
 import { getOrderStatusOption } from '../options/order-status';
 

@@ -4,8 +4,7 @@ import type { Product } from '~/utils/types/product';
 import type { PriceInput } from '../types/price';
 import { UBadge, USwitch } from '#components';
 import { formatCurrency, getFormattedDate, ProductType } from 'yeppi-common';
-import { getSortableHeader } from './sortable';
-import { mutedCell, tableCellMeta } from './styles';
+import { getSortableHeader, mutedCell, tableCellMeta } from './styles';
 
 type TranslateFn = (key: string) => string;
 

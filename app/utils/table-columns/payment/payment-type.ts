@@ -1,7 +1,6 @@
 import type { TableColumn } from '@nuxt/ui';
 import type { PaymentType } from '~/utils/types/payment-type';
-import { getSortableHeader } from '../sortable';
-import { mutedCell, primaryCell } from '../styles';
+import { getSortableHeader, mutedCell, primaryCell } from '../styles';
 
 type TranslateFn = (key: string) => string;
 

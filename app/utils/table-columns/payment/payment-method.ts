@@ -1,8 +1,7 @@
 import { USwitch } from '#components';
 import type { TableColumn } from '@nuxt/ui';
 import type { PaymentMethod } from '~/utils/types/payment-method';
-import { getSortableHeader } from '../sortable';
-import { headerCell } from '../styles';
+import { getSortableHeader, headerCell } from '../styles';
 
 type TranslateFn = (key: string) => string;
 

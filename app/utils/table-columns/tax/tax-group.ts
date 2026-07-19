@@ -1,7 +1,6 @@
 import type { TableColumn } from '@nuxt/ui';
 import type { TaxGroup } from '~/utils/types/tax-group';
-import { getSortableHeader } from '../sortable';
-import { headerCell, primaryCell } from '../styles';
+import { getSortableHeader, headerCell, primaryCell } from '../styles';
 
 type TranslateFn = (key: string) => string;
 

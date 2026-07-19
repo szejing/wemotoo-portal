@@ -3,8 +3,7 @@ import type { TableColumn } from '@nuxt/ui';
 import { getOrderStatusColor, OrderType, type UiBadgeColor } from 'yeppi-common';
 import { UBadge, UIcon, UTooltip } from '#components';
 import type { OrderHistory } from '~/utils/types/order-history';
-import { getSortableHeader } from '../sortable';
-import { headerCell, moneyCell, tableCellMeta } from '../styles';
+import { getSortableHeader, headerCell, moneyCell, tableCellMeta } from '../styles';
 import { getOrderStatusOption } from '~/utils/options/order-status';
 import { formatCustomerNameEmail } from '~/utils/format-customer-name-email';
 import { getFulfillmentMethodDescriptions } from '~/utils/fulfillment';
@@ -28,7 +27,7 @@ export function getOrderColumns(t: TranslateFn): TableColumn<OrderHistory>[] {
 			id: 'index',
 			accessorFn: (_row, index) => index,
 			enableSorting: false,
-			header: () => headerCell(t('table.no'), 'center'),
+			header: () => headerCell('', 'center'),
 			cell: ({ row }) => {
 				const color = getOrderStatusColor(row.original.status) ?? 'neutral';
 				const stripClass = statusStripClassMap[color] ?? statusStripClassMap.neutral;
@@ -61,7 +60,7 @@ export function getOrderColumns(t: TranslateFn): TableColumn<OrderHistory>[] {
 		{
 			id: 'order_type',
 			accessorFn: (row) => ((row.order_type ?? OrderType.PICKUP) === OrderType.DELIVERY ? 1 : 0),
-			header: ({ column }) => getSortableHeader(column, t('table.orderType'), 'center'),
+			header: ({ column }) => getSortableHeader(column, t('table.type'), 'center'),
 			cell: ({ row }) => {
 				const orderType = row.original.order_type ?? OrderType.PICKUP;
 				const isDelivery = orderType === OrderType.DELIVERY;

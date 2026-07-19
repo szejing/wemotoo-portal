@@ -90,8 +90,13 @@
 </template>
 
 <script lang="ts" setup>
+import { useStorage } from '@vueuse/core';
 import { OrderStatus, PaymentStatus } from 'yeppi-common';
-import { getDefaultOrderStatuses, getOrderStatusColor, getOrderStatusOptions, options_page_size } from '~/utils/options';
+import { getOrderStatusColor, getOrderStatusOptions, options_page_size } from '~/utils/options';
+import {
+	ORDERS_SELECTED_STATUSES_STORAGE_KEY,
+	resolveOrderStatusesFromStorage,
+} from '~/utils/orders-selected-statuses-storage';
 import { getOrderColumns } from '~/utils/table-columns';
 import { columnOptionsFromLabelMap } from '~/utils/table-columns/visibility';
 import type { TableRow } from '@nuxt/ui';
@@ -104,7 +109,7 @@ const route = useRoute();
 const ORDER_COLUMN_LABELS = {
 	index: 'table.no',
 	order_no: 'table.orderNo',
-	order_type: 'table.orderType',
+	order_type: 'table.type',
 	customer: 'table.customer',
 	status: 'table.status',
 	gross_amt: 'table.grossAmt',
@@ -123,10 +128,19 @@ useHead({ title: () => t('pages.ordersTitle') });
 const orderStore = useOrderStore();
 const { orders, filter, loading, exporting } = storeToRefs(orderStore);
 const current_page = computed(() => filter.value.current_page);
+const storedStatuses = useStorage<OrderStatus[] | null>(ORDERS_SELECTED_STATUSES_STORAGE_KEY, null);
 
 watch(orders, () => {
 	sorting.value = [];
 });
+
+watch(
+	() => filter.value.statuses,
+	(statuses) => {
+		storedStatuses.value = statuses;
+	},
+	{ deep: true },
+);
 
 const statusItems = computed(() => getOrderStatusOptions(t).filter((option) => option.value !== 'All'));
 
@@ -158,7 +172,7 @@ const applyQueryToFilter = () => {
 
 	filter.value.payment_status = undefined;
 	filter.value.payment_method = undefined;
-	filter.value.statuses = getDefaultOrderStatuses();
+	filter.value.statuses = resolveOrderStatusesFromStorage(storedStatuses.value);
 
 	if (typeof start === 'string' && start) {
 		const d = new Date(start);
