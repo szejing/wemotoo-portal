@@ -3,7 +3,7 @@ import type { TableColumn } from '@nuxt/ui';
 import { getOrderStatusColor, OrderType, type UiBadgeColor } from 'yeppi-common';
 import { UBadge, UIcon, UTooltip } from '#components';
 import type { OrderHistory } from '~/utils/types/order-history';
-import { headerCell, moneyCell, tableCellMeta } from '../styles';
+import { headerCell, moneyCell, sortableHeaderCell, tableCellMeta } from '../styles';
 import { getOrderStatusOption } from '~/utils/options/order-status';
 import { formatCustomerNameEmail } from '~/utils/format-customer-name-email';
 import { getFulfillmentMethodDescriptions } from '~/utils/fulfillment';
@@ -26,6 +26,7 @@ export function getOrderColumns(t: TranslateFn): TableColumn<OrderHistory>[] {
 		{
 			id: 'index',
 			accessorFn: (_row, index) => index,
+			enableSorting: false,
 			header: () => headerCell(t('table.no'), 'center'),
 			cell: ({ row }) => {
 				const color = getOrderStatusColor(row.original.status) ?? 'neutral';
@@ -48,7 +49,7 @@ export function getOrderColumns(t: TranslateFn): TableColumn<OrderHistory>[] {
 		{
 			id: 'order_no',
 			accessorFn: (row) => (row.order_date_time ? new Date(row.order_date_time).getTime() : 0),
-			header: () => headerCell(t('table.orderNo')),
+			header: ({ column }) => sortableHeaderCell(column, t('table.orderNo')),
 			cell: ({ row }) => {
 				return h('div', { class: 'flex flex-col gap-1' }, [
 					h('p', { class: 'font-medium text-default' }, row.original.order_no),
@@ -59,7 +60,7 @@ export function getOrderColumns(t: TranslateFn): TableColumn<OrderHistory>[] {
 		{
 			id: 'order_type',
 			accessorFn: (row) => ((row.order_type ?? OrderType.PICKUP) === OrderType.DELIVERY ? 1 : 0),
-			header: () => headerCell(t('table.orderType'), 'center'),
+			header: ({ column }) => sortableHeaderCell(column, t('table.orderType'), 'center'),
 			cell: ({ row }) => {
 				const orderType = row.original.order_type ?? OrderType.PICKUP;
 				const isDelivery = orderType === OrderType.DELIVERY;
@@ -80,7 +81,7 @@ export function getOrderColumns(t: TranslateFn): TableColumn<OrderHistory>[] {
 		{
 			id: 'customer',
 			accessorFn: (row) => row.customer?.name ?? '',
-			header: () => headerCell(t('table.customer')),
+			header: ({ column }) => sortableHeaderCell(column, t('table.customer')),
 			cell: ({ row }) => {
 				return h('div', { class: 'flex flex-col gap-1' }, [
 					h('p', { class: 'font-semibold text-highlighted' }, row.original.customer?.customer_no),
@@ -90,7 +91,7 @@ export function getOrderColumns(t: TranslateFn): TableColumn<OrderHistory>[] {
 		},
 		{
 			accessorKey: 'status',
-			header: () => headerCell(t('table.status'), 'center'),
+			header: ({ column }) => sortableHeaderCell(column, t('table.status'), 'center'),
 			cell: ({ row }) => {
 				const color = getOrderStatusColor(row.original.status) ?? 'neutral';
 				const value = getOrderStatusOption(t, row.original.status)?.label;
@@ -101,19 +102,19 @@ export function getOrderColumns(t: TranslateFn): TableColumn<OrderHistory>[] {
 		},
 		{
 			accessorKey: 'gross_amt',
-			header: () => headerCell(t('table.grossAmt'), 'right'),
+			header: ({ column }) => sortableHeaderCell(column, t('table.grossAmt'), 'right'),
 			cell: ({ row }) => moneyCell(row.original.gross_amt ?? 0, row.original.currency.code),
 			...tableCellMeta.rightNumeric,
 		},
 		{
 			accessorKey: 'tax_amt_exc',
-			header: () => headerCell(t('table.taxAmtExc'), 'right'),
+			header: ({ column }) => sortableHeaderCell(column, t('table.taxAmtExc'), 'right'),
 			cell: ({ row }) => moneyCell(row.original.tax_amt_exc ?? 0, row.original.currency.code),
 			...tableCellMeta.rightNumeric,
 		},
 		{
 			accessorKey: 'net_amt',
-			header: () => headerCell(t('table.netAmt'), 'right'),
+			header: ({ column }) => sortableHeaderCell(column, t('table.netAmt'), 'right'),
 			cell: ({ row }) => moneyCell(row.original.net_amt ?? 0, row.original.currency.code),
 			...tableCellMeta.rightNumeric,
 		},
