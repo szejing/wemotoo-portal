@@ -42,7 +42,13 @@
 
 			<!-- Orders Table -->
 			<UCard :ui="{ body: 'p-0 sm:p-0' }">
-				<UTable v-if="!initialize && !loading" :data="orders" :columns="visibleColumns" @select="selectOrder">
+				<UTable
+					v-if="!initialize && !loading"
+					v-model:sorting="sorting"
+					:data="orders"
+					:columns="visibleColumns"
+					@select="selectOrder"
+				>
 					<template #empty>
 						<div class="flex flex-col items-center justify-center py-12 gap-3">
 							<UIcon name="i-heroicons-shopping-cart" class="w-12 h-12 text-gray-400" />
@@ -89,7 +95,10 @@ import { getDefaultOrderStatuses, getOrderStatusColor, getOrderStatusOptions, op
 import { getOrderColumns } from '~/utils/table-columns';
 import { columnOptionsFromLabelMap } from '~/utils/table-columns/visibility';
 import type { TableRow } from '@nuxt/ui';
+import type { SortingState } from '@tanstack/vue-table';
 import type { OrderHistory } from '~/utils/types/order-history';
+
+const sorting = ref<SortingState>([]);
 
 const route = useRoute();
 const ORDER_COLUMN_LABELS = {
