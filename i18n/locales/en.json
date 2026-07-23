@@ -1227,6 +1227,19 @@
 			"possible": "possible",
 			"selectedOptionsWillBeUsed": "Selected options will be used to generate product variants in the next step"
 		},
+		"orderExport": {
+			"title": "Export Orders",
+			"dateRange": "Business date range",
+			"statuses": "Order status",
+			"sortBy": "Sort by",
+			"sortBizDateDesc": "Business date (newest first)",
+			"sortBizDateAsc": "Business date (oldest first)",
+			"sortCreatedAtDesc": "Created date (newest first)",
+			"sortOrderNoAsc": "Order number (A–Z)",
+			"includeItemDetails": "Include item details",
+			"includeItemDetailsHint": "Export each order with item lines, taxes, shipping, and payment summary.",
+			"export": "Export CSV"
+		},
 		"orderDetail": {
 			"item": "Item",
 			"unitSellPrice": "Unit Sell Price",

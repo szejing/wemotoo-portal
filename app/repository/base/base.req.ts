@@ -7,4 +7,5 @@ export type BaseODataReq = {
 	$expand?: string;
 	$search?: string;
 	$filter?: string;
+	include_item_details?: boolean;
 };

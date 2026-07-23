@@ -101,7 +101,10 @@ import { getOrderColumns } from '~/utils/table-columns';
 import { columnOptionsFromLabelMap } from '~/utils/table-columns/visibility';
 import type { TableRow } from '@nuxt/ui';
 import type { SortingState } from '@tanstack/vue-table';
+import type { OrderExportOptions } from '~/utils/order-export';
 import type { OrderHistory } from '~/utils/types/order-history';
+import { ZModalLoading } from '#components';
+import ZModalOrderExport from '~/components/Z/Modal/Order/Export.vue';
 
 const sorting = ref<SortingState>([]);
 
@@ -127,6 +130,19 @@ useHead({ title: () => t('pages.ordersTitle') });
 
 const orderStore = useOrderStore();
 const { orders, filter, loading, exporting } = storeToRefs(orderStore);
+const overlay = useOverlay();
+const loadingModal = overlay.create(ZModalLoading, {
+	props: { key: 'orders-export-loading' },
+});
+
+watch(exporting, (value) => {
+	if (value) {
+		loadingModal.open();
+	} else {
+		loadingModal.close();
+	}
+});
+
 const current_page = computed(() => filter.value.current_page);
 const storedStatuses = useStorage<OrderStatus[] | null>(ORDERS_SELECTED_STATUSES_STORAGE_KEY, null);
 
@@ -235,8 +251,20 @@ const updatePage = async (page: number) => {
 	await orderStore.getOrders();
 };
 
-const exportOrders = async () => {
-	await orderStore.exportOrders();
+const exportOrders = () => {
+	const exportModal = overlay.create(ZModalOrderExport, {
+		props: {
+			onConfirm: async (options: OrderExportOptions) => {
+				exportModal.close();
+				await orderStore.exportOrders(options);
+			},
+			onCancel: () => {
+				exportModal.close();
+			},
+		},
+	});
+
+	exportModal.open();
 };
 
 const selectOrder = async (e: Event, row: TableRow<OrderHistory>) => {

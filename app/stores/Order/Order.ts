@@ -4,6 +4,7 @@ import { defineStore } from 'pinia';
 import { defaultOrderRelations, getFormattedDate, removeDuplicateExpands, OrderStatus, PaymentStatus, type OrderResendEmailAction } from 'yeppi-common';
 import { getDefaultOrderStatuses, options_page_size } from '~/utils/options';
 import { buildOrderStatusODataFilter } from '~/utils/order-status-filter';
+import { buildOrderExportQueryParams, type OrderExportOptions } from '~/utils/order-export';
 import { failedNotification, successNotification } from '../AppUi/AppUi';
 import type { ErrorResponse } from '~/repository/base/error';
 import type { CustomerModel } from '~/utils/models/customer.model';
@@ -304,40 +305,11 @@ export const useOrderStore = defineStore('orderStore', {
 			}
 		},
 
-		async exportOrders() {
+		async exportOrders(options: OrderExportOptions) {
 			this.exporting = true;
 			const { $api } = useNuxtApp();
 			try {
-				let filter = buildOrderStatusODataFilter(this.filter.statuses, {
-					payment_method: this.filter.payment_method,
-				});
-
-				let { start, end } = this.filter.date_range;
-
-				start = start ?? new Date();
-				end = end ?? new Date();
-
-				// Add date filter
-				const dateFilter = end
-					? `(biz_date between '${getFormattedDate(start, 'yyyy-MM-dd')}' and '${getFormattedDate(end, 'yyyy-MM-dd')}')`
-					: `biz_date le '${getFormattedDate(start, 'yyyy-MM-dd')}'`;
-
-				filter = filter ? `${filter} and ${dateFilter}` : dateFilter;
-
-				const queryParams = {
-					$top: this.filter.page_size,
-					$skip: (this.filter.current_page - 1) * this.filter.page_size,
-					$count: true,
-					$filter: filter,
-					$expand: removeDuplicateExpands(defaultOrderRelations).join(','),
-					$orderby: 'biz_date desc, created_at desc',
-				} as const;
-
-				// Use backend $search support for text search
-				if (this.filter.query) {
-					(queryParams as any).$search = this.filter.query;
-				}
-
+				const queryParams = buildOrderExportQueryParams(options);
 				const blob = await $api.order.exportOrders(queryParams);
 
 				if (blob) {
@@ -345,7 +317,8 @@ export const useOrderStore = defineStore('orderStore', {
 					const url = window.URL.createObjectURL(blob);
 					const link = document.createElement('a');
 					link.href = url;
-					link.download = `orders_${getFormattedDate(new Date(), 'yyyyMMdd_HHmmss')}.csv`;
+					const suffix = options.include_item_details ? '_detail' : '';
+					link.download = `orders${suffix}_${getFormattedDate(new Date(), 'yyyyMMdd_HHmmss')}.csv`;
 					document.body.appendChild(link);
 					link.click();
 

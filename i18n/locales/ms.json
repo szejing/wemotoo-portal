@@ -1226,6 +1226,19 @@
 			"possible": "mungkin",
 			"selectedOptionsWillBeUsed": "Pilihan yang dipilih akan digunakan untuk menjana varian produk dalam langkah seterusnya"
 		},
+		"orderExport": {
+			"title": "Eksport Pesanan",
+			"dateRange": "Julat tarikh perniagaan",
+			"statuses": "Status pesanan",
+			"sortBy": "Susun mengikut",
+			"sortBizDateDesc": "Tarikh perniagaan (terbaharu dahulu)",
+			"sortBizDateAsc": "Tarikh perniagaan (terlama dahulu)",
+			"sortCreatedAtDesc": "Tarikh dicipta (terbaharu dahulu)",
+			"sortOrderNoAsc": "No. pesanan (A–Z)",
+			"includeItemDetails": "Sertakan butiran item",
+			"includeItemDetailsHint": "Eksport setiap pesanan dengan baris item, cukai, penghantaran, dan ringkasan pembayaran.",
+			"export": "Eksport CSV"
+		},
 		"orderDetail": {
 			"item": "Item",
 			"unitSellPrice": "Harga Jual Unit",
